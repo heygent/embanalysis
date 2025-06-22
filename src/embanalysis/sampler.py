@@ -22,7 +22,10 @@ type EmbeddingsSampleMeta = IntegerSampleMeta | RandomSampleMeta
 
 
 def make_embeddings_df(
-    token_ids: np.ndarray, tokens: Iterable[str], embeddings: np.ndarray, model_id: str
+    token_ids: np.ndarray,
+    tokens: Iterable[int | str],
+    embeddings: np.ndarray,
+    model_id: str,
 ) -> pd.DataFrame:
     return pd.DataFrame(
         {
@@ -78,12 +81,14 @@ class HFEmbeddingsSampler:
         rng = np.random.default_rng(seed)
         return rng.integers(low=0, high=self.tokenizer.vocab_size, size=sample_size)
 
-    def random(self, sample_size=1000, seed=1234) -> tuple[pd.DataFrame, RandomSampleMeta]:
+    def random(
+        self, sample_size=1000, seed=1234
+    ) -> tuple[pd.DataFrame, RandomSampleMeta]:
         token_ids = self._random_token_ids(seed, sample_size)
         tokens = self.tokenizer.token_ids_to_tokens(token_ids)
         embeddings = self.extractor.extract(token_ids)
 
         df = make_embeddings_df(token_ids, tokens, embeddings, self.model_id)
-        meta = { "tag": "random", "sample_size": sample_size, "seed": seed }
+        meta = {"tag": "random", "sample_size": sample_size, "seed": seed}
 
         return df, meta

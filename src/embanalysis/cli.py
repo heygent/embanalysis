@@ -12,7 +12,9 @@ app = typer.Typer(no_args_is_help=True)
 @app.command()
 def load(
     model_id: str,
-    db_path: Annotated[Path, typer.Option("--db-path", "-d", help="Path to the DuckDB database file")] = DB_PATH
+    db_path: Annotated[
+        Path, typer.Option("--db-path", "-d", help="Path to the DuckDB database file")
+    ] = DB_PATH,
 ):
     """Load embeddings from a Hugging Face model into a DuckDB database."""
 
@@ -24,7 +26,7 @@ def load(
 
     for sample, meta in (sampler.single_token_integers(), sampler.random()):
         loader.store_sample(sample, meta)
-    
+
 
 def main():
     app()

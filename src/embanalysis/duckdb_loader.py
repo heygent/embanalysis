@@ -13,11 +13,11 @@ class DuckDBLoader:
     def __init__(self, db_path: str | Path = DB_PATH):
         self.db_path = Path(db_path)
         self._init_db()
-    
+
     @cached_property
     def conn(self):
         return duckdb.connect(self.db_path)
-    
+
     def _init_db(self):
         self.conn.query("""
             CREATE OR REPLACE TABLE embeddings (
@@ -43,29 +43,37 @@ class DuckDBLoader:
                 PRIMARY KEY (model_id, token_id, sample_id),
             );
         """)
-        
-    def store_sample(self, sample: pd.DataFrame, meta: EmbeddingsSampleMeta) -> pd.DataFrame:
-        model_id = sample['model_id'].iloc[0]
 
-        sample_id = self.conn.execute("""
+    def store_sample(
+        self, sample: pd.DataFrame, meta: EmbeddingsSampleMeta
+    ) -> pd.DataFrame:
+        model_id = sample["model_id"].iloc[0]
+
+        sample_id = self.conn.execute(
+            """
             INSERT INTO samples (model_id, meta)
             VALUES (?, ?)
             RETURNING sample_id;
-        """, (model_id, meta)).fetchone()[0]
+        """,
+            (model_id, meta),
+        ).fetchone()[0]
 
         self.conn.execute("""
             INSERT INTO embeddings (model_id, token_id, token, embeddings)
             SELECT * FROM sample
         """)
 
-        sample['sample_id'] = sample_id
+        sample["sample_id"] = sample_id
 
-        self.conn.execute("""
+        self.conn.execute(
+            """
             INSERT INTO embedding_to_sample (model_id, token_id, sample_id)
             SELECT model_id, token_id, sample_id
             FROM (VALUES (?, ?, ?)) AS v(model_id, token_id, sample_id);
-        """, sample[['model_id', 'token_id', 'sample_id']].values.tolist())
-    
+        """,
+            sample[["model_id", "token_id", "sample_id"]].values.tolist(),
+        )
+
     def list_available_embeddings(self) -> pd.DataFrame:
         """List all available embeddings in the database."""
         query = """
@@ -75,20 +83,19 @@ class DuckDBLoader:
             GROUP BY model_id, embedding_type, metadata
             ORDER BY model_id, embedding_type
         """
-        
+
         result = self.conn.execute(query).fetchdf()
         return result
-    
-    
+
     def close(self):
         """Close the database connection."""
         if self.conn:
             self.conn.close()
             self.conn = None
-    
+
     def __enter__(self):
         return self
-    
+
     def __exit__(self, *_):
         self.close()
 
@@ -101,10 +108,7 @@ def main():
             model_id = sys.argv[1]
         else:
             exit("Usage: python duckdb_loader.py [model_id]")
-        
-
 
 
 if __name__ == "__main__":
-    
     loader = DuckDBLoader("embeddings.duckdb")

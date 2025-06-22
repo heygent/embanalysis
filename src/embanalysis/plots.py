@@ -16,6 +16,7 @@ def alt_title(data, **kwargs) -> str:
         **kwargs,
     )
 
+
 def plot(
     data, x_component: int = 0, y_component: int = 1, colorscheme: str = "viridis"
 ) -> alt.Chart:
@@ -50,6 +51,7 @@ def plot(
         .interactive()
     )
 
+
 def plot_digit_overview(data, x_component=0, y_component=1) -> alt.Chart:
     """Create a 2x2 grid of scatter plots for each digit position and digit length."""
     return alt.vconcat(
@@ -63,6 +65,7 @@ def plot_digit_overview(data, x_component=0, y_component=1) -> alt.Chart:
         ).resolve_scale(color="independent"),
     ).properties(title=data.alt_title())
 
+
 def plot_by_digit(
     data: EmbeddingsData,
     digit_position: int,
@@ -70,7 +73,7 @@ def plot_by_digit(
     y_component: int = 1,
 ) -> alt.Chart:
     """Create a scatter plot colored by digit position (0=ones, 1=tens, 2=hundreds)."""
-    
+
     match digit_position:
         case 0:
             position_label = "Ones"
@@ -79,7 +82,9 @@ def plot_by_digit(
         case 2:
             position_label = "Hundreds"
         case _:
-            raise ValueError("digit_position must be 0 (ones), 1 (tens), or 2 (hundreds)")
+            raise ValueError(
+                "digit_position must be 0 (ones), 1 (tens), or 2 (hundreds)"
+            )
 
     return (
         alt.Chart(data.data.embeddings_df)
@@ -93,9 +98,7 @@ def plot_by_digit(
                 f"Component{y_component + 1}:Q",
                 title=f"Component {y_component + 1}",
             ),
-            color=alt.Color(
-                "Digit:N", title=f"{position_label} Digit"
-            ),
+            color=alt.Color("Digit:N", title=f"{position_label} Digit"),
             tooltip=[
                 "Number",
                 "Digit:N",
@@ -113,9 +116,8 @@ def plot_by_digit(
         .interactive()
     )
 
-def plot_by_digit_length(
-    data, x_component: int = 0, y_component: int = 1
-) -> alt.Chart:
+
+def plot_by_digit_length(data, x_component: int = 0, y_component: int = 1) -> alt.Chart:
     """Create a scatter plot comparing single, double, and triple digit numbers."""
     return (
         alt.Chart(data.embeddings_df)
@@ -138,6 +140,7 @@ def plot_by_digit_length(
         )
         .interactive()
     )
+
 
 def plot_consecutive_distances(self) -> alt.Chart:
     """Create a chart showing distances between consecutive number embeddings."""
@@ -165,6 +168,7 @@ def plot_consecutive_distances(self) -> alt.Chart:
         )
         .interactive()
     )
+
 
 def plot_component_patterns(
     data, n_components: int = 5, n_values: int = 100, facet: bool = True
@@ -206,6 +210,7 @@ def plot_component_patterns(
         else base_chart.encode(y=alt.Y("Value:Q", title="Value"))
     )
 
+
 def plot_top_correlated_components(data, n_vectors: int = 10) -> alt.Chart:
     """
     Plot the plot_by_digit_length chart for the top correlated component pairs.
@@ -231,6 +236,7 @@ def plot_top_correlated_components(data, n_vectors: int = 10) -> alt.Chart:
     return alt.vconcat(*rows).properties(
         title=data.alt_title(),
     )
+
 
 def plot_correlation_heatmap(data, n_vectors: int = 20) -> alt.Chart:
     """Create a heatmap showing correlations between the top components, with value labels."""
@@ -277,14 +283,12 @@ def plot_correlation_heatmap(data, n_vectors: int = 20) -> alt.Chart:
         )
     )
 
-    return (
-        (heatmap + text)
-        .properties(
-            title=data.alt_title(),
-            width=600,
-            height=600,
-        )
+    return (heatmap + text).properties(
+        title=data.alt_title(),
+        width=600,
+        height=600,
     )
+
 
 def plot_explained_variance(data) -> alt.Chart:
     """Create a chart showing the explained variance per component."""
@@ -303,6 +307,7 @@ def plot_explained_variance(data) -> alt.Chart:
         .interactive()
     )
 
+
 def plot_cumulative_variance(data) -> alt.Chart:
     """Create a chart showing the cumulative explained variance."""
     chart = (
@@ -317,7 +322,9 @@ def plot_cumulative_variance(data) -> alt.Chart:
             y=alt.Y(
                 "CumulativeVariance:Q",
                 title="Cumulative Explained Variance",
-            ).scale(domain=[0, 1]).axis(format=".0%"),
+            )
+            .scale(domain=[0, 1])
+            .axis(format=".0%"),
             tooltip=["Components:Q", "CumulativeVariance:Q"],
         )
         .properties(
@@ -328,15 +335,13 @@ def plot_cumulative_variance(data) -> alt.Chart:
     )
 
     threshold_rule = (
-        alt.Chart()
-        .mark_rule(color="red", strokeDash=[4, 4])
-        .encode(y=alt.Y(datum=0.9))
+        alt.Chart().mark_rule(color="red", strokeDash=[4, 4]).encode(y=alt.Y(datum=0.9))
     )
 
     return chart + threshold_rule
+
 
 def plot_variance_overview(data) -> alt.Chart:
     return alt.hconcat(
         data.plot_explained_variance(), data.plot_cumulative_variance()
     ).properties(title=data.alt_title())
-
