@@ -2,6 +2,7 @@ import warnings
 import numpy as np
 import pandas as pd
 
+from embanalysis.constants import DEFAULT_SEED
 from embanalysis.extractor import HFEmbeddingsExtractor
 from embanalysis.tokenizer import HFTokenizerWrapper
 
@@ -32,7 +33,7 @@ def make_embeddings_df(
             "model_id": model_id,
             "token_id": token_ids,
             "token": tokens,
-            "embeddings": np.split(embeddings, embeddings.shape[0], 0),
+            "embeddings": [embeddings[i] for i in range(embeddings.shape[0])],
         }
     )
 
@@ -79,16 +80,16 @@ class HFEmbeddingsSampler:
 
     def _random_token_ids(self, sample_size, seed):
         rng = np.random.default_rng(seed)
-        return rng.integers(low=0, high=self.tokenizer.vocab_size, size=sample_size)
+        return rng.choice(self.tokenizer.vocab_size, size=sample_size, replace=False)
 
     def random(
-        self, sample_size=1000, seed=1234
+        self, sample_size=1000, seed=DEFAULT_SEED
     ) -> tuple[pd.DataFrame, RandomSampleMeta]:
-        token_ids = self._random_token_ids(seed, sample_size)
+        token_ids = self._random_token_ids(sample_size, seed)
         tokens = self.tokenizer.token_ids_to_tokens(token_ids)
         embeddings = self.extractor.extract(token_ids)
 
         df = make_embeddings_df(token_ids, tokens, embeddings, self.model_id)
-        meta = {"tag": "random", "sample_size": sample_size, "seed": seed}
+        meta = {"tag": "random", "seed": seed}
 
         return df, meta
