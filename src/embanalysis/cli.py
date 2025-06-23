@@ -24,7 +24,15 @@ def df_to_table(df, title=None) -> rich.table.Table:
 
 app = typer.Typer(no_args_is_help=True)
 
-ModelIDArg = Annotated[str, typer.Argument(help="Hugging Face model ID or alias")]
+
+def alias_to_model_id(model_id: str) -> str:
+    return HF_MODEL_ALIASES.get(model_id, model_id)
+
+
+ModelIDArg = Annotated[
+    str,
+    typer.Argument(help="Hugging Face model ID or alias", callback=alias_to_model_id),
+]
 DBPathOption = Annotated[
     Path, typer.Option("--db-path", "-d", help="Path to the DuckDB database file")
 ]
@@ -36,23 +44,20 @@ SeedOption = Annotated[
 
 @app.command()
 def load(
-    model_id: str,
+    model_id: ModelIDArg,
     db_path: DBPathOption = DB_PATH,
     seed: SeedOption = DEFAULT_SEED,
 ):
     """Load embeddings from a Hugging Face model into the DuckDB database."""
 
-    if model_id in HF_MODEL_ALIASES:
-        model_id = HF_MODEL_ALIASES[model_id]
-
     sampler = HFEmbeddingsSampler.from_model(model_id)
 
     with DuckDBLoader(db_path) as loader:
-        for sample, meta in (
+        for df, meta in (
             sampler.single_token_integers(),
             sampler.random(seed=seed),
         ):
-            loader.store_sample(sample, meta)
+            loader.store_sample(model_id, df, meta)
 
 
 @app.command()

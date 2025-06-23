@@ -1,11 +1,14 @@
+from dataclasses import asdict
 from functools import cached_property
 from pathlib import Path
+import json
 
 import duckdb
 import pandas as pd
 
 
-from embanalysis.sampler import EmbeddingsSampleMeta
+from embanalysis.sample_data import EmbeddingsSampleMeta, make_meta_object
+from embanalysis.sampler import EmbeddingsSample
 from embanalysis.constants import DB_PATH
 
 
@@ -50,31 +53,61 @@ class DuckDBLoader:
             self.db_path.unlink()
         del self.conn
 
-    def store_sample(self, sample: pd.DataFrame, meta: EmbeddingsSampleMeta):
-        model_id = sample["model_id"].iloc[0]
-
+    def store_sample(
+        self, model_id: str, embeddings_df: pd.DataFrame, meta: EmbeddingsSampleMeta
+    ):
         sample_id = self.conn.execute(
             """
             INSERT INTO samples (model_id, meta)
             VALUES (?, ?)
             RETURNING sample_id;
         """,
-            (model_id, meta),
+            (model_id, asdict(meta)),
         ).fetchone()[0]  # pyright: ignore
 
-        self.conn.execute("""
+        self.conn.execute(
+            """
             INSERT INTO embeddings (model_id, token_id, token, embeddings)
-            SELECT * FROM sample
+            SELECT ?, * FROM embeddings_df
             ON CONFLICT DO NOTHING;
-        """)
+        """,
+            (model_id,),
+        )
 
-        sample["sample_id"] = sample_id
-
-        self.conn.execute("""
+        self.conn.execute(
+            """
             INSERT INTO embedding_to_sample (model_id, token_id, sample_id)
-            SELECT model_id, token_id, sample_id
-            FROM sample;
-        """)
+            SELECT ?, token_id, ?
+            FROM embeddings_df;
+        """,
+            (model_id, sample_id),
+        )
+
+    def get_model_samples(self, model_id: str) -> dict[str, EmbeddingsSample]:
+        """Get all samples for a specific model."""
+        query = """
+            SELECT samples.sample_id, samples.meta
+            FROM samples
+            WHERE samples.model_id = ?;
+        """
+        sample_ids_and_meta = self.conn.execute(query, (model_id,)).fetchall()
+        samples = {}
+        for sample_id, meta in sample_ids_and_meta:
+            query = """
+                SELECT embeddings.token_id, token, embeddings
+                FROM embeddings, embedding_to_sample
+                WHERE embeddings.token_id = embedding_to_sample.token_id
+                AND sample_id = ?;
+            """
+            embeddings_df = self.conn.execute(query, (sample_id,)).fetchdf()
+            meta = make_meta_object(json.loads(meta))
+            samples[meta["tag"]] = EmbeddingsSample(
+                model_id=model_id,
+                meta=meta,
+                embeddings_df=embeddings_df,
+                sample_id=sample_id,
+            )
+        return samples
 
     def list_samples(self) -> pd.DataFrame:
         """List all available samples in the database."""

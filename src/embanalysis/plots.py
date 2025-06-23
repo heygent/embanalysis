@@ -1,9 +1,56 @@
+from dataclasses import dataclass
 import altair as alt
-import marimo as mo
 import numpy as np
+import pandas as pd
+from sklearn.base import BaseEstimator
+from sklearn.compose import ColumnTransformer, make_column_selector
 
+from embanalysis.sample_data import EmbeddingsSampleMeta, ReducedSampleMeta
 
 default_props = {}
+
+
+def wide_embeddings_df(df: pd.DataFrame) -> pd.DataFrame:
+    """Convert embeddings_df to wide format with one column per component."""
+    expanded = pd.json_normalize(df["embeddings"])
+    expanded.columns = [f"embeddings_{i}" for i in expanded.columns]
+    return pd.concat([df.drop("embeddings", axis=1), expanded], axis=1)
+
+
+@dataclass
+class EmbeddingsAnalyzer:
+    model_id: str
+    embeddings_df: pd.DataFrame
+    meta: EmbeddingsSampleMeta
+
+    def from_sample(self, sample):
+        """Initialize from an EmbeddingsSample."""
+        self.model_id = sample.model_id
+        self.embeddings_df = wide_embeddings_df(sample.embeddings_df)
+
+    def run_estimator(self, estimator: BaseEstimator):
+        """Run a scikit-learn estimator only on the embeddings columns of embeddings_df."""
+        transformer = ColumnTransformer(
+            [
+                (
+                    "dim_reduction",
+                    estimator,
+                    make_column_selector(pattern="^embeddings_"),
+                ),
+            ],
+            remainder="passthrough",
+        ).set_output(transform="pandas")
+
+        transformed_df = transformer.fit_transform(self.embeddings_df)
+
+        return EmbeddingsAnalyzer(
+            model_id=self.model_id,
+            embeddings_df=transformed_df,
+            meta=ReducedSampleMeta(
+                original=self.meta,
+                estimator=estimator,
+            ),
+        )
 
 
 def alt_title(data, **kwargs) -> str:

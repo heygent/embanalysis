@@ -4,33 +4,23 @@ import pandas as pd
 
 from embanalysis.constants import DEFAULT_SEED
 from embanalysis.extractor import HFEmbeddingsExtractor
+from embanalysis.sample_data import (
+    EmbeddingsSample,
+    IntegerSampleMeta,
+    RandomSampleMeta,
+)
 from embanalysis.tokenizer import HFTokenizerWrapper
 
-from typing import Literal, TypedDict, Hashable, Iterable
-
-
-class IntegerSampleMeta(TypedDict):
-    tag: Literal["integers"]
-
-
-class RandomSampleMeta(TypedDict):
-    tag: Literal["random"]
-    sample_size: int
-    seed: Hashable
-
-
-type EmbeddingsSampleMeta = IntegerSampleMeta | RandomSampleMeta
+from collections.abc import Iterable
 
 
 def make_embeddings_df(
     token_ids: np.ndarray,
     tokens: Iterable[int | str],
     embeddings: np.ndarray,
-    model_id: str,
 ) -> pd.DataFrame:
     return pd.DataFrame(
         {
-            "model_id": model_id,
             "token_id": token_ids,
             "token": tokens,
             "embeddings": [embeddings[i] for i in range(embeddings.shape[0])],
@@ -73,8 +63,8 @@ class HFEmbeddingsSampler:
         tokens = range(len(token_ids))
         embeddings = self.extractor.extract(token_ids)
 
-        df = make_embeddings_df(token_ids, tokens, embeddings, self.model_id)
-        meta = {"tag": "integers"}
+        df = make_embeddings_df(token_ids, tokens, embeddings)
+        meta = IntegerSampleMeta(model_id=self.model_id)
 
         return df, meta
 
@@ -89,7 +79,11 @@ class HFEmbeddingsSampler:
         tokens = self.tokenizer.token_ids_to_tokens(token_ids)
         embeddings = self.extractor.extract(token_ids)
 
-        df = make_embeddings_df(token_ids, tokens, embeddings, self.model_id)
-        meta = {"tag": "random", "seed": seed}
+        df = make_embeddings_df(token_ids, tokens, embeddings)
+        meta = RandomSampleMeta(
+            model_id=self.model_id,
+            sample_size=sample_size,
+            seed=seed,
+        )
 
         return df, meta
