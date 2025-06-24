@@ -52,7 +52,7 @@ def load(
 
     sampler = HFEmbeddingsSampler.from_model(model_id)
 
-    with DuckDBLoader(db_path) as loader:
+    with DuckDBLoader.from_path(db_path) as loader:
         for df, meta in (
             sampler.single_token_integers(),
             sampler.random(seed=seed),
@@ -65,14 +65,14 @@ def init(
     db_path: DBPathOption = DB_PATH,
 ):
     """Initializes the DuckDB database schema."""
-    with DuckDBLoader(db_path) as loader:
+    with DuckDBLoader.from_path(db_path) as loader:
         loader.init_db()
 
 
 @app.command()
 def reset(db_path: DBPathOption = DB_PATH):
     """Deletes and reinitializes the database."""
-    with DuckDBLoader(db_path) as loader:
+    with DuckDBLoader.from_path(db_path) as loader:
         loader.drop_db()
         loader.init_db()
 
@@ -95,7 +95,7 @@ def samples(
     db_path: DBPathOption = DB_PATH,
 ):
     """Lists all samples in the DuckDB database."""
-    with DuckDBLoader(db_path) as loader:
+    with DuckDBLoader.from_path(db_path) as loader:
         samples = loader.list_samples()
         rich.print(df_to_table(samples))
 
@@ -105,7 +105,7 @@ def models(
     db_path: DBPathOption = DB_PATH,
 ):
     """Lists all models in the DuckDB database."""
-    with DuckDBLoader(db_path) as loader:
+    with DuckDBLoader.from_path(db_path) as loader:
         models = loader.list_models()
         for (model,) in models:
             print(model)

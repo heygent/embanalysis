@@ -39,7 +39,7 @@ build-backend = "hatchling.build"
 packages = ["src/embanalysis"]
 
 [tool.marimo.runtime]
-output_max_bytes = 100_000_000
+output_max_bytes = 1_000_000_000
 
 [tool.uv.sources]
 microsoft-python-type-stubs = { git = "https://github.com/microsoft/python-type-stubs" }

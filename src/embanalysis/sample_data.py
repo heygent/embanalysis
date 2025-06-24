@@ -1,46 +1,47 @@
 from dataclasses import dataclass, field
+from functools import cached_property
 import pandas as pd
 
 from typing import Literal
 
 from sklearn.base import BaseEstimator
 
-
 type EmbeddingsSampleMeta = IntegerSampleMeta | RandomSampleMeta | ReducedSampleMeta
 
 
 @dataclass
 class IntegerSampleMeta:
-    tag: Literal["integers"] = field(init=False, default="integers")
     model_id: str
 
+    tag: Literal["integers"] = "integers"
     def label(self) -> str:
         return "Single Token Integers"
 
 
 @dataclass
 class RandomSampleMeta:
-    tag: Literal["random"] = field(init=False, default="random")
     model_id: str
     sample_size: int
     seed: int
 
+    tag: Literal["random"] = "random"
     def label(self) -> str:
         return f"Random sample (size={self.sample_size}, seed={self.seed})"
 
 
 @dataclass
 class ReducedSampleMeta:
-    tag: Literal["reduced"] = field(init=False, default="reduced")
     original: EmbeddingsSampleMeta
     estimator: BaseEstimator
+
+    tag: Literal["reduced"] = "reduced"
 
     @property
     def model_id(self) -> str:
         return self.original.model_id
 
     def label(self) -> str:
-        return f"Reduced sample of {self.original.label()}"
+        return f"{self.original.label()}: {self.estimator.__class__.__name__}"
 
 
 def make_meta_object(meta: dict) -> EmbeddingsSampleMeta:

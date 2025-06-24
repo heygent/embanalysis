@@ -13,13 +13,15 @@ from embanalysis.constants import DB_PATH
 
 
 class DuckDBLoader:
-    def __init__(self, db_path: str | Path = DB_PATH):
-        self.db_path = Path(db_path)
-
-    @cached_property
-    def conn(self):
-        self.db_path.parent.mkdir(parents=True, exist_ok=True)
-        return duckdb.connect(self.db_path)
+    def __init__(self, conn: duckdb.DuckDBPyConnection):
+        self.conn = conn
+    
+    @classmethod
+    def from_path(cls, db_path: str | Path = DB_PATH):
+        """Create a DuckDBLoader instance from a given path."""
+        db_path.parent.mkdir(parents=True, exist_ok=True)
+        conn = duckdb.connect(db_path)
+        return cls(conn)
 
     def init_db(self):
         self.conn.query("""
@@ -101,8 +103,7 @@ class DuckDBLoader:
             """
             embeddings_df = self.conn.execute(query, (sample_id,)).fetchdf()
             meta = make_meta_object(json.loads(meta))
-            samples[meta["tag"]] = EmbeddingsSample(
-                model_id=model_id,
+            samples[meta.tag] = EmbeddingsSample(
                 meta=meta,
                 embeddings_df=embeddings_df,
                 sample_id=sample_id,
@@ -122,7 +123,8 @@ class DuckDBLoader:
         return self.conn.execute(query).fetchdf()
 
     def list_models(self) -> list[str]:
-        return self.conn.execute("SELECT DISTINCT model_id FROM samples").fetchall()
+        result = self.conn.execute("SELECT DISTINCT model_id FROM samples").fetchall()
+        return [row[0] for row in result]
 
     def close(self):
         """Close the database connection."""

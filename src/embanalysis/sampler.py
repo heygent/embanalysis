@@ -5,7 +5,6 @@ import pandas as pd
 from embanalysis.constants import DEFAULT_SEED
 from embanalysis.extractor import HFEmbeddingsExtractor
 from embanalysis.sample_data import (
-    EmbeddingsSample,
     IntegerSampleMeta,
     RandomSampleMeta,
 )
