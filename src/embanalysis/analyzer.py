@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Self
+from typing import Literal, Self
 import altair as alt
 import numpy as np
 import pandas as pd
@@ -110,8 +110,102 @@ class EmbeddingsAnalyzer:
             anchor="middle",
             **kwargs,
         )
+    
+    def _base_component_chart(self, x_component: int, y_component: int) -> alt.Chart:
+        chart = (
+            alt.Chart(self.embeddings_df)
+            .mark_circle(size=60, opacity=0.7)
+            .properties(title=self.alt_title(), **default_props)
+            .encode(
+                x=alt.X(
+                    f"embeddings_{x_component}",
+                    title=f"Component {x_component + 1}",
+                ),
+                y=alt.Y(
+                    f"embeddings_{y_component}",
+                    title=f"Component {y_component + 1}",
+                ),
+            )
+        )
 
-    def plot(
+        tooltip = [f'embeddings_{x_component}', f'embeddings_{y_component}', 'token']
+
+        return chart, tooltip
+    
+    def plot_gradient(self, x_component: int = 0, y_component: int = 1) -> alt.Chart:
+        chart, tooltip = self._base_component_chart(x_component, y_component)
+
+        return (
+            chart.encode(
+                color=alt.Color(
+                    "token:Q",
+                    scale=alt.Scale(scheme="viridis"),  # type: ignore
+                    title="Token",
+                ),
+                tooltip=tooltip,
+            )
+        )
+    
+    def plot_digit(
+            self,
+            x_component: int = 0,
+            y_component: int = 1,
+            digit_position: Literal[0, 1, 2] = 2,
+        ) -> alt.Chart:
+        """Create a 2D scatter plot of two embeddings components colored by digit position."""
+        chart, tooltip = self._base_component_chart(x_component, y_component)
+
+        if digit_position not in [0, 1, 2]:
+            raise ValueError("digit_position must be 0 (ones), 1 (tens), or 2 (hundreds)")
+
+        position_label = ["Ones", "Tens", "Hundreds"][digit_position]
+
+        return (
+            chart.encode(
+                color=alt.Color("digit:N", title=f"{position_label} Digit"),
+                tooltip=[*tooltip, "digit:N"],
+            ).transform_calculate(
+                digit=f"floor(datum.token / pow(10, {digit_position})) % 10",
+            )
+        )
+    
+    def plot_digit_length(
+            self,
+            x_component: int = 0,
+            y_component: int = 1,
+        ) -> alt.Chart:
+        """Create a 2D scatter plot of two embeddings components colored by digit length."""
+        chart, tooltip = self._base_component_chart(x_component, y_component)
+        return (
+            chart.encode(
+                color=alt.Color("digit_length:N", title="Digit Length"),
+                tooltip=[*tooltip, "digit_length:N"],
+                size=alt.Size(
+                    "digit_length:N", scale=alt.Scale(range=[200, 100, 30]), legend=None
+                ),
+            ).transform_calculate(
+                digit_length="length(toString(datum.token))",
+            )
+        )
+    
+    def plot_components(
+            self,
+            x_component: int = 0,
+            y_component: int = 1,
+            type: Literal['gradient', 'digit', 'digit_length'] = 'gradient',
+            digit_position: int = 2,
+        ) -> alt.Chart:
+        """Create a 2D scatter plot of two embeddings components."""
+
+        match type:
+            case "gradient":
+                return self.plot_gradient(x_component, y_component)
+            case "digit":
+                return self.plot_digit(x_component, y_component, digit_position)
+            case "digit_length":
+                return self.plot_digit_length(x_component, y_component)
+
+    def plot_number_gradient(
         self, x_component: int = 0, y_component: int = 1, colorscheme: str = "viridis"
     ) -> alt.Chart:
         """Create a 2D scatter plot of two embeddings components."""
@@ -190,16 +284,16 @@ class EmbeddingsAnalyzer:
                     f"embeddings_{y_component}:Q",
                     title=f"Component {y_component + 1}",
                 ),
-                color=alt.Color("Digit:N", title=f"{position_label} Digit"),
+                color=alt.Color("digit:N", title=f"{position_label} Digit"),
                 tooltip=[
-                    "Number",
+                    "token",
                     "Digit:N",
                     f"embeddings_{x_component}",
                     f"embeddings_{y_component}",
                 ],
             )
             .transform_calculate(
-                Digit=f"floor(datum.Number / pow(10, {digit_position})) % 10",
+                digit=f"floor(datum.token / pow(10, {digit_position})) % 10",
             )
             .properties(
                 title=f"Embeddings by {position_label} Digit",
@@ -313,7 +407,7 @@ class EmbeddingsAnalyzer:
         charts = []
         for _, row in corr_df.iterrows():
             i, j = int(row["Component1"]), int(row["Component2"])
-            chart = self.plot(x_component=i, y_component=j).properties(
+            chart = self.plot_number_gradient(x_component=i, y_component=j).properties(
                 title=f"Components {i + 1} vs {j + 1} (corr={row['Correlation']:.2f})"
             )
             charts.append(chart)

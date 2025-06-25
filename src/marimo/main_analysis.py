@@ -36,7 +36,7 @@ def _(DB_PATH, DuckDBLoader, duckdb):
 @app.cell
 def _(conn, embeddings, mo):
     models = mo.sql(
-        """
+        f"""
         SELECT DISTINCT model_id FROM embeddings;
         """,
         output=False,
@@ -71,7 +71,14 @@ def _(PCA, integers_analyzer, mo):
     integers_pca = integers_analyzer.run_estimator(PCA(pca_components))
     pca_x_ui = mo.ui.number(start=0, stop=pca_components, value=0, label="X Component")
     pca_y_ui = mo.ui.number(start=0, stop=pca_components, value=1, label="Y Component")
-    return integers_pca, pca_x_ui, pca_y_ui
+    pca_plot_type = mo.ui.dropdown({
+        "Token value gradient": ("gradient",),
+        "Digit length": ("digit_length",),
+        "Ones Digit": ("digit", 0),
+        "Tens Digit": ("digit", 1),
+        "Hundreds Digit": ("digit", 2),
+    }, label="Coloring", value="Token value gradient")
+    return integers_pca, pca_plot_type, pca_x_ui, pca_y_ui
 
 
 @app.cell
@@ -80,14 +87,18 @@ def _():
 
 
 @app.cell
-def _(integers_pca, mo, pca_x_ui, pca_y_ui):
+def _(integers_pca, mo, pca_plot_type, pca_x_ui, pca_y_ui):
     mo.vstack([
-        mo.ui.altair_chart(integers_pca.plot(
+        mo.ui.altair_chart(integers_pca.plot_components(
             pca_x_ui.value,
-            pca_y_ui.value
+            pca_y_ui.value,
+            *pca_plot_type.value
         )),
-        mo.hstack([pca_x_ui, pca_y_ui], align="stretch")
-    ])
+        mo.hstack([
+            mo.vstack([pca_x_ui, pca_y_ui], align="stretch"),
+            pca_plot_type
+        ])
+    ], align="start")
     return
 
 
