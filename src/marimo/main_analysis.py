@@ -3,7 +3,7 @@
 import marimo
 
 __generated_with = "0.13.0"
-app = marimo.App(width="medium", app_title="Analyzing Numerical Embeddings")
+app = marimo.App(app_title="Analyzing Numerical Embeddings")
 
 
 @app.cell
@@ -12,12 +12,20 @@ def _():
     import duckdb
     from embanalysis.duckdb_loader import DuckDBLoader
     from embanalysis.constants import DB_PATH
-    from embanalysis.plots import EmbeddingsAnalyzer
+    from embanalysis.analyzer import EmbeddingsAnalyzer
 
     from sklearn.decomposition import PCA, TruncatedSVD
     from sklearn.manifold import TSNE
     from umap import UMAP
-    return DB_PATH, DuckDBLoader, EmbeddingsAnalyzer, PCA, duckdb, mo
+    return (
+        DB_PATH,
+        DuckDBLoader,
+        EmbeddingsAnalyzer,
+        PCA,
+        TruncatedSVD,
+        duckdb,
+        mo,
+    )
 
 
 @app.cell
@@ -42,33 +50,85 @@ def _(conn, embeddings, mo):
 @app.cell
 def _(mo, models):
     all_model_ids = models['model_id'].to_list()
-    model_id = mo.ui.dropdown(all_model_ids, searchable=True)
-    model_id
-    return (model_id,)
+    model_id_ui = mo.ui.dropdown(all_model_ids, searchable=True, value=all_model_ids[0])
+    return (model_id_ui,)
 
 
 @app.cell
-def _(loader, model_id):
-    samples = loader.get_model_samples(model_id.value)
-    samples
+def _(loader, model_id_ui):
+    model_id = model_id_ui.value
+    samples = loader.get_model_samples(model_id)
     return (samples,)
 
 
 @app.cell
 def _(EmbeddingsAnalyzer, samples):
-    analyzer = EmbeddingsAnalyzer.from_sample(samples['integers'])
-    return (analyzer,)
+    integers_analyzer = EmbeddingsAnalyzer.from_sample(samples['integers'])
+    return (integers_analyzer,)
 
 
 @app.cell
-def _(PCA, analyzer):
-    pca = analyzer.run_estimator(PCA(1000))
-    return (pca,)
+def _(PCA, integers_analyzer, mo):
+    pca_components = 1000
+    integers_pca = integers_analyzer.run_estimator(PCA(pca_components))
+    pca_x_ui = mo.ui.number(start=0, stop=pca_components, value=0, label="X Component")
+    pca_y_ui = mo.ui.number(start=0, stop=pca_components, value=1, label="Y Component")
+    return integers_pca, pca_x_ui, pca_y_ui
 
 
 @app.cell
-def _(pca):
-    pca.embeddings_df
+def _():
+    return
+
+
+@app.cell
+def _(integers_pca, mo, pca_x_ui, pca_y_ui):
+    mo.vstack([
+        mo.ui.altair_chart(integers_pca.plot(
+            pca_x_ui.value,
+            pca_y_ui.value
+        )),
+        mo.hstack([pca_x_ui, pca_y_ui], align="stretch")
+    ])
+    return
+
+
+@app.cell
+def _(TruncatedSVD, integers_analyzer, mo):
+    svd_components = 100
+    integers_svd = integers_analyzer.run_estimator(TruncatedSVD(svd_components))
+    svd_x_ui = mo.ui.number(start=0, stop=svd_components, value=0, label="X Component")
+    svd_y_ui = mo.ui.number(start=0, stop=svd_components, value=1, label="Y Component")
+    return integers_svd, svd_x_ui, svd_y_ui
+
+
+@app.cell
+def _(integers_svd, mo, svd_x_ui, svd_y_ui):
+    mo.vstack([
+        mo.ui.altair_chart(integers_svd.plot(
+            svd_x_ui.value,
+            svd_y_ui.value
+        )),
+        mo.hstack([svd_x_ui, svd_y_ui], align="stretch")
+    ])
+    return
+
+
+@app.cell
+def _(integers_pca, integers_svd, mo, pca_x_ui, pca_y_ui):
+    mo.vstack([
+        mo.hstack([
+            mo.ui.altair_chart(integers_pca.plot(
+                pca_x_ui.value,
+                pca_y_ui.value
+            )),
+            mo.ui.altair_chart(integers_svd.plot(
+                pca_x_ui.value,
+                pca_y_ui.value
+            )),
+        ], widths="equal"),
+        mo.vstack([pca_x_ui, pca_y_ui], justify="start")
+    ])
     return
 
 

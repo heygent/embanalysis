@@ -15,8 +15,6 @@ from umap import UMAP
 
 from embanalysis.sample_data import EmbeddingsSample, EmbeddingsSampleMeta, ReducedSampleMeta
 
-from embanalysis.utils import patch_get_feature_names_out
-
 default_props = {}
 
 

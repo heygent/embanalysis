@@ -7,8 +7,7 @@ import duckdb
 import pandas as pd
 
 
-from embanalysis.sample_data import EmbeddingsSampleMeta, make_meta_object
-from embanalysis.sampler import EmbeddingsSample
+from embanalysis.sample_data import EmbeddingsSample, EmbeddingsSampleMeta, make_meta_object
 from embanalysis.constants import DB_PATH
 
 
