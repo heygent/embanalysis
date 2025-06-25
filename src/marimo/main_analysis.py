@@ -15,8 +15,6 @@ def _():
     from embanalysis.analyzer import EmbeddingsAnalyzer
 
     from sklearn.decomposition import PCA, TruncatedSVD
-    from sklearn.manifold import TSNE
-    from umap import UMAP
     return (
         DB_PATH,
         DuckDBLoader,
@@ -38,7 +36,7 @@ def _(DB_PATH, DuckDBLoader, duckdb):
 @app.cell
 def _(conn, embeddings, mo):
     models = mo.sql(
-        f"""
+        """
         SELECT DISTINCT model_id FROM embeddings;
         """,
         output=False,

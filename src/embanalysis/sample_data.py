@@ -1,5 +1,4 @@
-from dataclasses import dataclass, field
-from functools import cached_property
+from dataclasses import dataclass
 import pandas as pd
 
 from typing import Literal
