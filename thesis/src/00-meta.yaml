@@ -1,0 +1,10 @@
+---
+mainfont: Palatino
+# monofont: InconsolataForPowerline Nerd Font
+documentclass: book
+classoption: a4paper, twoside, 10pt, titlepage
+geometry: a4paper, left=3.5cm, right=3cm, top=2.5cm, bottom=3cm
+lang: en
+link-citations: true
+codeBlockCaptions: true
+---
