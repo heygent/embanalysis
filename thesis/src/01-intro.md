@@ -1,11 +1,5 @@
 # Introduction
 
-> *If the doors of perception were cleansed, everything would appear to man as it is, infinite.*  
->
-> Aldous Huxley
-
-
-
 This work started with a simple premise: why are LLMs bad at math?
 
 This is not really a hard question to answer. Most of the LLMs to date are not built with that purpose in mind, and can rely on tool calling to give good answers to quantitative and numerical questions.
@@ -23,14 +17,18 @@ This idea is explored in two ways:
 - by a literature review, that is meant to clarify what can function as concrete representations in this context
 - by an exploration of numerical embeddings, that is meant to show whether the learned representation of current language models already tends to conform to certain geometrical objects or structures. We show that there is remarkable structure and patterns in the learned representation of current LLMs.
 
+![The dog is happy because the graphicx package has been included correctly.](src/res/dog.jpeg)
+
+<!--
 ## About numerical representation in LLMs
 
-Large Language Models, which as of today predominantly use the Transformer architecture, consist of an initial layer of embeddings that contain the learned vector representation of individual tokens. Tokenization as a process has a significative inductive bias [@singh2024] that can lead to an improvement or worsening of performance in arithmetic tasks. While GPT-2 used to have a purely BPE frequency-based approach on number tokenization, which leads to the tokenization of the most statistically prevalent numbers <?>, modern models either tokenize digits separately (so as $'1234' \rightarrow [1, 2, 3, 4]$), or hardcode certain integer ranges (ex. 0-999) to be encoded as single tokens <?>.
+Large Language Models, which as of today predominantly use the Transformer architecture, consist of <brief description of the transformer architecture that ties into tokenization> an initial layer of embeddings that contain the learned vector representation of individual tokens. Tokenization as a process has a significative inductive bias [@singh2024] that can lead to an improvement or worsening of performance in arithmetic tasks. While GPT-2 used to have a purely BPE frequency-based approach on number tokenization, which leads to the tokenization of the most statistically prevalent numbers <?>, modern models either tokenize digits separately (so as $'1234' \rightarrow [1, 2, 3, 4]$), or hardcode certain integer ranges (ex. 0-999) to be encoded as single tokens <?>.
 
 The latter approach is what is taken into consideration into the analytical part of this work, as it allows examining what representation do LLMs use to represent the numbers in that range.
 
-There have been proposed approaches in the literature that aim at maximizing the inductive bias in the representation by having embeddings that are computed based on the number to be represented. I would argue that this fits very well with the idea of reification: the representation is no longer just a representation, but it has properties of the object that it represents. This can lead to symbolic representation that are directly fungible for the desired computations<?>.
+There have been proposed approaches in the literature that aim at maximizing the inductive bias in the representation by having embeddings that are computed based on the number to be represented. his fits very well with the idea of reification: the representation is no longer just a representation, but it has properties of the object that it represents. This can lead to symbolic representation that are directly fungible for the desired computations<?>.
 
+<span class="free">
 It's fascinating to observe that a case study of a Savant patient, DT [@murray2010], has been reported of having a mathematical landscape that has very similar characteristics:
 
 - Has sequence-space synesthesia with a "mathematical landscape" containing numbers 0-9999
@@ -38,9 +36,8 @@ It's fascinating to observe that a case study of a Savant patient, DT [@murray20
 - Prime numbers have special object properties that distinguish them from other numbers
 - Arithmetic calculations happen automatically - solutions appear as part of his visual landscape without conscious effort
 - fMRI studies showed that even unstructured number sequences had visual structure for DT
+</span>
 
 In [@mottron2006], the hypothesis is also that the capabilities of the savant might come from privileged access to lower-level perceptual processing systems that have been functionally re-dedicated to symbolic material processing. This suggests that mathematical savants may bypass high-level algorithmic reasoning entirely, instead leveraging perceptual mechanisms that can directly recognize patterns in numerical relationships - much like how we might instantly recognize a face without consciously processing its individual features. There are also arguably similar mechanisms already implemented in LLMs, although usually employed in the context of <?> gradient normalization, in the form of skip connections.
 
-![aaaa](res/LogoUniToConvertito.png)
-
-<!-- Skip connections? but I might not have the time to make a solid argument about this. -->
+-->
