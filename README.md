@@ -1,6 +1,21 @@
-To run (requires [uv](https://docs.astral.sh/uv/)):
+# Embeddings Analysis
+
+Extracts embeddings from an HuggingFace model into a DuckDB file and produces analysis and visualizations.
+
+To install:
 
 ```
 uv sync
-uv run marimo edit 01_olmo_analysis.py
+```
+
+To add a model embeddings into the database:
+
+```
+embcli load [HF_MODEL_ID]
+```
+
+To run the notebook with the analysis:
+
+```
+marimo edit src/marimo/main_analysis.py
 ```
