@@ -45,10 +45,10 @@ This idea is explored in two ways:
   geometrical objects or structures. We show that there is remarkable structure and
   patterns in the learned representation of current LLMs.
 
-![The dog is happy because the graphicx package has been included
-correctly.](src/res/dog.jpeg)
 
 ## The Transformer architecture and vector representations
+
+### The inductive bias of Tokenization
 
 Modern LLMs are built on the Transformer architecture [@vaswani2023], which operates by
 converting input text into sequences of discrete tokens that are then mapped to
@@ -60,7 +60,32 @@ tasks.
 While GPT-2 used to have a purely BPE frequency-based approach on number tokenization,
 which leads to the tokenization of the most statistically prevalent numbers <?>, modern
 models either tokenize digits separately (so as $'1234' \rightarrow [1, 2, 3, 4]$), or
-hardcode certain integer ranges (ex. 0-999) to be encoded as single tokens <?>.
+tokenize clusters of 3 digits, encompassing the numbers in the range 0-999.
+
+Most of the tokenizers right now do L2R (left-to-right) clustering, meaning that a number such
+as $12345$ would be divided in two tokens, $123$ and $45$. It has been shown
+[@singh2024] that this kind of clustering leads to a lesser arithmetic performance, as
+the grouping doesn't match the positional system's <way of calculating?>.
+An even more surprising development is that forcing the R2L token clustering of numbers
+in models already trained with L2R clustering through the use of commas in the input
+(ex. $12,345$) leads to big improvements in arithmetic performance. Despite the
+model acquiring vector representations of the objects ... those same representations
+retain the properties that allow for the performance to improve when the tokenization
+scheme is right.
+
+representation of the problem not being optimal<?>
+
+
+| Model             | Strategy               |
+|-------------------|------------------------|
+| LLaMA 1 & 2 | single digit           |
+| LLaMA 3           | L2R chunks of 3 digits |
+| OLMo 2            | L2R chunks of 3 digits |
+| GPT-2         | pure BPE |
+| Claude 3          | R2L chunks of 3 digits |
+
+
+: Language models with their respective tokenization strategy for numbers.
 
 The latter approach is what is taken into consideration into the analytical part of this
 work, as it allows examining what representation do LLMs use to represent the numbers in
@@ -68,7 +93,7 @@ that range.
 
 There have been proposed approaches in the literature that aim at maximizing the
 inductive bias in the representation by having embeddings that are computed based on the
-number to be represented. his fits very well with the idea of reification: the
+number to be represented. This fits very well with the idea of reification: the
 representation is no longer just a representation, but it has properties of the object
 that it represents. This can lead to symbolic representation that are directly fungible
 for the desired computations<?>.
@@ -96,4 +121,5 @@ processing its individual features. There are also arguably similar mechanisms a
 implemented in LLMs, although usually employed in the context of <?> gradient
 normalization, in the form of skip connections.
 
--->
+![The dog is happy because the graphicx package has been included
+correctly.](src/res/dog.jpeg)
