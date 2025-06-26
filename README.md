@@ -1,6 +1,8 @@
-# Embeddings Analysis
+# Concrete Numeric Representations in LLM Embeddings
 
-Extracts embeddings from an HuggingFace model into a DuckDB file and produces analysis and visualizations.
+Thesis project A.A. 24-25
+
+[Download PDF](https://github.com/heygent/embanalysis/raw/main/thesis/out/gentiletti_emanuele_thesis_24-25.pdf)
 
 To install:
 
