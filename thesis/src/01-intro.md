@@ -17,8 +17,8 @@ spectrum disorders [@murray2010] or after traumatic episodes. The people affecte
 possess extraordinary qualities in certain areas, like arts, music or mathematics, while
 usually showing significant impairment in others. One of the possible areas in which
 savants may show exceptional aptitude is calculation: calendrical savants are able to
-instantly know the day of the week of dates far in the future. Such a skill seems
-unlikely to be the product of algorithmic calculation, so alternative hypotheses
+instantly know the day of the week of dates far in the future. These skills are unlikely
+to be the product of algorithmic calculation [@cowan2009], so alternative hypotheses
 emerged.
 
 What I propose here is that the Savant condition can be seen as a parallel to the
@@ -26,8 +26,8 @@ bridging of this capabilities gap in LLMs. In particular, what is taken in consi
 here is the use of concrete representations as described in [@murray2010], where
 abstract numerical concepts are transformed into "highly accessible concrete
 representations" that can be directly manipulated rather than computed through
-algorithmic steps. This reification process—the conversion of abstract concepts into
-concrete entities—appears to provide savants with immediate access to numerical
+algorithmic steps. This reification process - the conversion of abstract concepts into
+concrete entities - appears to provide savants with immediate access to numerical
 relationships that would otherwise require complex calculations.
 
 This is not meant necessarily to give a comprehensive explanation of the phenomenon on
@@ -50,22 +50,17 @@ correctly.](src/res/dog.jpeg)
 
 ## The Transformer architecture and vector representations
 
-Modern LLMs are built on the Transformer architecture [@vaswani2017], which operates by
+Modern LLMs are built on the Transformer architecture [@vaswani2023], which operates by
 converting input text into sequences of discrete tokens that are then mapped to
 high-dimensional vector representations. This initial tokenization step creates an
-inductive bias that profoundly shapes how the model processes information [@singh2024],
-with particularly significant implications for numerical data.
+inductive bias that shapes how the model processes information [@singh2024], with
+significant implications for the application of the numerical data to arithmetical
+tasks.
 
-Large Language Models, which as of today predominantly use the Transformer architecture,
-consist of <brief description of the transformer architecture that ties into
-tokenization> an initial layer of embeddings that contain the learned vector
-representation of individual tokens. Tokenization as a process has a significative
-inductive bias [@singh2024] that can lead to an improvement or worsening of performance
-in arithmetic tasks. While GPT-2 used to have a purely BPE frequency-based approach on
-number tokenization, which leads to the tokenization of the most statistically prevalent
-numbers <?>, modern models either tokenize digits separately (so as $'1234' \rightarrow
-[1, 2, 3, 4]$), or hardcode certain integer ranges (ex. 0-999) to be encoded as single
-tokens <?>.
+While GPT-2 used to have a purely BPE frequency-based approach on number tokenization,
+which leads to the tokenization of the most statistically prevalent numbers <?>, modern
+models either tokenize digits separately (so as $'1234' \rightarrow [1, 2, 3, 4]$), or
+hardcode certain integer ranges (ex. 0-999) to be encoded as single tokens <?>.
 
 The latter approach is what is taken into consideration into the analytical part of this
 work, as it allows examining what representation do LLMs use to represent the numbers in
