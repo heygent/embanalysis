@@ -125,15 +125,27 @@ class EmbeddingsAnalyzer:
                     f"embeddings_{y_component}",
                     title=f"Component {y_component + 1}",
                 ),
-            )
+            ).interactive()
         )
 
-        tooltip = [f'embeddings_{x_component}', f'embeddings_{y_component}', 'token']
+        legend = alt.Legend(
+            labelLimit=150,
+            symbolLimit=30,
+            titleLimit=100,
+            columns=1,
+            padding=10
+        )
 
-        return chart, tooltip
+        tooltip = [
+            alt.Tooltip('token', title='Token'),
+            alt.Tooltip(f'embeddings_{x_component}', title=f"Component {x_component + 1}", format=".5f"),
+            alt.Tooltip(f'embeddings_{y_component}', title=f"Component {y_component + 1}", format=".5f"),
+        ]
+
+        return chart, tooltip, legend
     
     def plot_gradient(self, x_component: int = 0, y_component: int = 1) -> alt.Chart:
-        chart, tooltip = self._base_component_chart(x_component, y_component)
+        chart, tooltip, legend = self._base_component_chart(x_component, y_component)
 
         return (
             chart.encode(
@@ -141,6 +153,7 @@ class EmbeddingsAnalyzer:
                     "token:Q",
                     scale=alt.Scale(scheme="viridis"),  # type: ignore
                     title="Token",
+                    legend=legend,
                 ),
                 tooltip=tooltip,
             )
@@ -153,7 +166,7 @@ class EmbeddingsAnalyzer:
             digit_position: Literal[0, 1, 2] = 2,
         ) -> alt.Chart:
         """Create a 2D scatter plot of two embeddings components colored by digit position."""
-        chart, tooltip = self._base_component_chart(x_component, y_component)
+        chart, tooltip, legend = self._base_component_chart(x_component, y_component)
 
         if digit_position not in [0, 1, 2]:
             raise ValueError("digit_position must be 0 (ones), 1 (tens), or 2 (hundreds)")
@@ -162,8 +175,8 @@ class EmbeddingsAnalyzer:
 
         return (
             chart.encode(
-                color=alt.Color("digit:N", title=f"{position_label} Digit"),
-                tooltip=[*tooltip, "digit:N"],
+                color=alt.Color("digit:N", title=f"{position_label} Digit", legend=legend),
+                tooltip=[*tooltip, alt.Tooltip("digit:N", title=f"{position_label} Digit")],
             ).transform_calculate(
                 digit=f"floor(datum.token / pow(10, {digit_position})) % 10",
             )
@@ -175,16 +188,16 @@ class EmbeddingsAnalyzer:
             y_component: int = 1,
         ) -> alt.Chart:
         """Create a 2D scatter plot of two embeddings components colored by digit length."""
-        chart, tooltip = self._base_component_chart(x_component, y_component)
+        chart, tooltip, legend = self._base_component_chart(x_component, y_component)
         return (
             chart.encode(
-                color=alt.Color("digit_length:N", title="Digit Length"),
-                tooltip=[*tooltip, "digit_length:N"],
+                color=alt.Color("token_length:N", title="Token Length", legend=legend),
+                tooltip=[*tooltip, alt.Tooltip("token_length:N", title="Token Length (in characters/digits)")],
                 size=alt.Size(
-                    "digit_length:N", scale=alt.Scale(range=[200, 100, 30]), legend=None
+                    "token_length:N", scale=alt.Scale(range=[200, 100, 30]), legend=None
                 ),
             ).transform_calculate(
-                digit_length="length(toString(datum.token))",
+                token_length="length(toString(datum.token))",
             )
         )
     
@@ -204,127 +217,6 @@ class EmbeddingsAnalyzer:
                 return self.plot_digit(x_component, y_component, digit_position)
             case "digit_length":
                 return self.plot_digit_length(x_component, y_component)
-
-    def plot_number_gradient(
-        self, x_component: int = 0, y_component: int = 1, colorscheme: str = "viridis"
-    ) -> alt.Chart:
-        """Create a 2D scatter plot of two embeddings components."""
-        return (
-            alt.Chart(self.embeddings_df)
-            .mark_circle(size=60)
-            .encode(
-                x=alt.X(
-                    f"embeddings_{x_component}:Q",
-                    title=f"Component {x_component + 1}",
-                ),
-                y=alt.Y(
-                    f"embeddings_{y_component}:Q",
-                    title=f"Component {y_component + 1}",
-                ),
-                color=alt.Color(
-                    "token:Q",
-                    scale=alt.Scale(scheme=colorscheme),  # type: ignore
-                    title="Number Value",
-                ),
-                tooltip=[
-                    "token",
-                    f"embeddings_{x_component}",
-                    f"embeddings_{y_component}",
-                ],
-            )
-            .properties(
-                title=self.alt_title(),
-                **default_props,
-            )
-            .interactive()
-        )
-
-    def plot_digit_overview(self, x_component=0, y_component=1) -> alt.Chart:
-        """Create a 2x2 grid of scatter plots for each digit position and digit length."""
-        return alt.vconcat(
-            alt.hconcat(
-                self.plot_by_digit(0, x_component, y_component),
-                self.plot_by_digit(1, x_component, y_component),
-            ).resolve_scale(color="independent"),
-            alt.hconcat(
-                self.plot_by_digit(2, x_component, y_component),
-                self.plot_by_digit_length(x_component, y_component),
-            ).resolve_scale(color="independent"),
-        ).properties(title=self.alt_title())
-
-    def plot_by_digit(
-        self,
-        digit_position: int,
-        x_component: int = 0,
-        y_component: int = 1,
-    ) -> alt.Chart:
-        """Create a scatter plot colored by digit position (0=ones, 1=tens, 2=hundreds)."""
-
-        match digit_position:
-            case 0:
-                position_label = "Ones"
-            case 1:
-                position_label = "Tens"
-            case 2:
-                position_label = "Hundreds"
-            case _:
-                raise ValueError(
-                    "digit_position must be 0 (ones), 1 (tens), or 2 (hundreds)"
-                )
-
-        return (
-            alt.Chart(self.embeddings_df)
-            .mark_circle(size=60, opacity=0.7)
-            .encode(
-                x=alt.X(
-                    f"embeddings_{x_component}:Q",
-                    title=f"Component {x_component + 1}",
-                ),
-                y=alt.Y(
-                    f"embeddings_{y_component}:Q",
-                    title=f"Component {y_component + 1}",
-                ),
-                color=alt.Color("digit:N", title=f"{position_label} Digit"),
-                tooltip=[
-                    "token",
-                    "Digit:N",
-                    f"embeddings_{x_component}",
-                    f"embeddings_{y_component}",
-                ],
-            )
-            .transform_calculate(
-                digit=f"floor(datum.token / pow(10, {digit_position})) % 10",
-            )
-            .properties(
-                title=f"Embeddings by {position_label} Digit",
-                **default_props,
-            )
-            .interactive()
-        )
-
-    def plot_by_digit_length(self, x_component: int = 0, y_component: int = 1) -> alt.Chart:
-        """Create a scatter plot comparing single, double, and triple digit numbers."""
-        return (
-            alt.Chart(self.embeddings_df)
-            .mark_circle(opacity=0.7)
-            .encode(
-                x=alt.X(f"embeddings_{x_component}:Q", title=f"Component {x_component + 1}"),
-                y=alt.Y(f"embeddings_{y_component}:Q", title=f"Component {y_component + 1}"),
-                color=alt.Color("DigitLength:N", title="Digit Length"),
-                size=alt.Size(
-                    "DigitLength:N", scale=alt.Scale(range=[200, 100, 30]), legend=None
-                ),
-                tooltip=["Number", "DigitLength:N", f"embeddings_{x_component}", f"embeddings_{y_component}"],
-            )
-            .transform_calculate(
-                DigitLength="length(toString(datum.Number))",
-            )
-            .properties(
-                title="Comparison by Digit Length",
-                **default_props,
-            )
-            .interactive()
-        )
 
     def plot_consecutive_distances(self) -> alt.Chart:
         """Create a chart showing distances between consecutive number embeddings."""
