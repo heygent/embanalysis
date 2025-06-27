@@ -57,10 +57,16 @@ inductive bias that shapes how the model processes information [@singh2024], wit
 significant implications for the application of the numerical data to arithmetical
 tasks.
 
+<BPE Tokenizer description>
+
 While GPT-2 used to have a purely BPE frequency-based approach on number tokenization,
-which leads to the tokenization of the most statistically prevalent numbers <?>, modern
+which leads to an uneven tokenization of numbers based on their frequency, modern
 models either tokenize digits separately (so as $'1234' \rightarrow [1, 2, 3, 4]$), or
 tokenize clusters of 3 digits, encompassing the numbers in the range 0-999.
+
+![GPT-2 number tokenization. Each row represents 100 numbers, yellow squares mean that
+the number is represented by a single token, purple ones by multiple. Image from
+[@millidgeGpt2]](src/res/gpt2_unique_tokens.png){width=500px}
 
 Most of the tokenizers right now do L2R (left-to-right) clustering, meaning that a number such
 as $12345$ would be divided in two tokens, $123$ and $45$. It has been shown
@@ -68,12 +74,32 @@ as $12345$ would be divided in two tokens, $123$ and $45$. It has been shown
 the grouping doesn't match the positional system's <way of calculating?>.
 An even more surprising development is that forcing the R2L token clustering of numbers
 in models already trained with L2R clustering through the use of commas in the input
-(ex. $12,345$) leads to big improvements in arithmetic performance. Despite the
-model acquiring vector representations of the objects ... those same representations
-retain the properties that allow for the performance to improve when the tokenization
-scheme is right.
+(ex. $12,345$) leads to big improvements in arithmetic performance [@millidge]. Despite
+the model learning representations adapted to work with a L2R token clustering strategy,
+forcing a R2L clustering at inference time shows substantial improvements in arithmetic
+tasks, which means that despite being learned through an unfavorable tokenization
+approach, the numeric representations retain the properties that allow for the
+performance to improve when the clustering scheme is corrected.
 
-representation of the problem not being optimal<?>
+There can be different hypotheses on why this might be, for example:
+
+- Arithmetic operations would still work locally in the 0-999 range, which allows for a
+  correct reading on them and possible generalization on a larger scale.
+- The forced tokenization also happens in the data, as numbers are often separated by
+  punctuation in clusters of 3 digits, right to left, for legibility reasons
+  [@singh2024]
+
+Still, we are left with the fact that the learned representations work better for a
+tokenization strategy different from the one the model was trained for. At the very
+least, the data being biased towards a R2L representation (in the form of using the
+Arabic number system and adopting legibility rules that accommodate right to left
+calculations) lead to embeddings that maintain that bias even when
+learned in a L2R fashion.
+
+<the problem I've come to in talking about this is that I want to put this as the
+property of an optimal representation. I guess the thing is here I started talking about
+it as a property of the data, but it would follow that if talking about a certain set of
+data>
 
 
 | Model             | Strategy               |
@@ -121,5 +147,3 @@ processing its individual features. There are also arguably similar mechanisms a
 implemented in LLMs, although usually employed in the context of <?> gradient
 normalization, in the form of skip connections.
 
-![The dog is happy because the graphicx package has been included
-correctly.](src/res/dog.jpeg)
