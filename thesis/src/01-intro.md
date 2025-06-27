@@ -46,26 +46,32 @@ This idea is explored in two ways:
   patterns in the learned representation of current LLMs.
 
 
-## The Transformer architecture and vector representations
+# The Transformer architecture and vector representations
 
-### The inductive bias of Tokenization
+## The inductive bias of Tokenization
 
 Modern LLMs are built on the Transformer architecture [@vaswani2023], which operates by
 converting input text into sequences of discrete tokens that are then mapped to
 high-dimensional vector representations. This initial tokenization step creates an
-inductive bias that shapes how the model processes information [@singh2024], with
+inductive bias that shapes how the model processes information [@ali2024] [@singh2024], with
 significant implications for the application of the numerical data to arithmetical
 tasks.
 
-<BPE Tokenizer description>
-
-While GPT-2 used to have a purely BPE frequency-based approach on number tokenization,
-which leads to an uneven tokenization of numbers based on their frequency, modern
+The most used algorithm for tokenization is currently Byte-Pair Encoding, which, given a
+fixed vocabulary size, starts with individual characters and iteratively merges the most
+frequently occurring pairs of adjacent tokens until the vocabulary limit is reached.
+This process naturally creates longer tokens for common substrings that appear
+frequently in the training data. For numbers, this means that frequently occurring
+numerical patterns like "100", "2020", or "999" might become single tokens, while less
+common numbers get broken into smaller pieces. The result is an idiosyncratic and
+unpredictable tokenization scheme where similar numbers can be tokenized completely
+differently based purely on their frequency in the training corpus. While GPT-2 used to
+have a purely BPE tokenizer, the successive iteration of GPT and generally more recent
 models either tokenize digits separately (so as $'1234' \rightarrow [1, 2, 3, 4]$), or
-tokenize clusters of 3 digits, encompassing the numbers in the range 0-999.
+tokenize clusters of 3 digits, encompassing the integers in the range 0-999.
 
 ![GPT-2 number tokenization. Each row represents 100 numbers, yellow squares mean that
-the number is represented by a single token, purple ones by multiple. Image from
+the number is represented by a single token, purple ones by multiple
 [@millidgeGpt2]](src/res/gpt2_unique_tokens.png){width=500px}
 
 Most of the tokenizers right now do L2R (left-to-right) clustering, meaning that a number such
@@ -96,11 +102,6 @@ Arabic number system and adopting legibility rules that accommodate right to lef
 calculations) lead to embeddings that maintain that bias even when
 learned in a L2R fashion.
 
-<the problem I've come to in talking about this is that I want to put this as the
-property of an optimal representation. I guess the thing is here I started talking about
-it as a property of the data, but it would follow that if talking about a certain set of
-data>
-
 
 | Model             | Strategy               |
 |-------------------|------------------------|
@@ -108,34 +109,64 @@ data>
 | LLaMA 3           | L2R chunks of 3 digits |
 | OLMo 2            | L2R chunks of 3 digits |
 | GPT-2         | pure BPE |
-| Claude 3          | R2L chunks of 3 digits |
+| GPT-3.5/4         | L2R chunks of 3 digits |
+| Claude 3/4        | R2L chunks of 3 digits |
 
 
 : Language models with their respective tokenization strategy for numbers.
 
-The latter approach is what is taken into consideration into the analytical part of this
-work, as it allows examining what representation do LLMs use to represent the numbers in
-that range.
+<!-- the problem I've come to in talking about this is that I want to put this as the
+property of an optimal representation. I guess the thing is here I started talking about
+it as a property of the data, but it would follow that if talking about a certain set of
+data -->
 
-There have been proposed approaches in the literature that aim at maximizing the
-inductive bias in the representation by having embeddings that are computed based on the
-number to be represented. This fits very well with the idea of reification: the
-representation is no longer just a representation, but it has properties of the object
-that it represents. This can lead to symbolic representation that are directly fungible
-for the desired computations<?>.
+## Reification as computed embeddings - xVal
 
-<span class="free"> It's fascinating to observe that a case study of a Savant patient,
-DT [@murray2010], has been reported of having a mathematical landscape that has very
-similar characteristics:
+There have been other, more comprehensive approaches to the improvement of the
+representation of numeric values. xVal is a notable one, as its approach encompasses
+real numbers beyond just integers and does away with learning different representation
+for each number.
+
+The idea is maximizing the inductive bias in the representation by having embeddings
+that are computed based on the number to be represented. Numerical values
+represented by a single embedding vector associated with the `[NUM]` special token.
+
+This fits very well with the idea of reification: the embedding is no longer just a
+representation, but it contains and has properties of the object it represents.
+
+The model uses two separate heads for number and token predictions. If the token
+head predicts a `[NUM]` token as the successor, the number head gets activated and
+outputs a scalar. The rest of the weights in the transformer blocks are shared, allowing
+the learning of representations that are useful for both discrete text
+prediction and continuous numerical prediction. This means the model develops
+number-aware internal representations throughout all its layers, not just at the output.
+The shared weights force the model to learn features that work for both linguistic and
+mathematical reasoning simultaneously.
+
+The approach is shown to improve performance over a series of other techniques, mostly
+using a standard notation to represent numbers.
+
+> Nota: qua l'incastro dovrebbe essere con [@murray2010] e il caso di DT, descritto
+> sotto. Il problema è che il "panorama numerico" descritto sembra essere più discreto
+> che continuo, mentre qua si parla della codifica di numeri continui. Potrebbe essere
+> preferibile incastrarsi direttamente alla parte di analisi, dove vengono visualizzati
+> gli embedding nel range 0-9999, anche se xVal è un buon esempio di reificazione.
+
+ A case study of a Savant patient, DT [@murray2010], has been reported of having a
+ mathematical landscape with the following characteristics:
 
 - Has sequence-space synesthesia with a "mathematical landscape" containing numbers
   0-9999
+  - sequence-space synesthesia: *spatial sequence synesthesia consists of visualising certain sequences in physical space.*
 - Each number has specific colors, textures, sizes, and sometimes movements or sounds
 - Prime numbers have special object properties that distinguish them from other numbers
 - Arithmetic calculations happen automatically - solutions appear as part of his visual
   landscape without conscious effort
 - fMRI studies showed that even unstructured number sequences had visual structure for
-  DT </span>
+  DT
+
+# Paragraphs yet to contextualize - not a real section
+
 
 In [@mottron2006], the hypothesis is also that the capabilities of the savant might come
 from privileged access to lower-level perceptual processing systems that have been
@@ -146,4 +177,3 @@ relationships - much like how we might instantly recognize a face without consci
 processing its individual features. There are also arguably similar mechanisms already
 implemented in LLMs, although usually employed in the context of <?> gradient
 normalization, in the form of skip connections.
-
