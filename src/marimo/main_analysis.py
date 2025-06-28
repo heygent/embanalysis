@@ -3,10 +3,13 @@
 import marimo
 
 __generated_with = "0.13.0"
-app = marimo.App(width="columns", app_title="Analyzing Numerical Embeddings")
+app = marimo.App(
+    app_title="Analyzing Numerical Embeddings",
+    layout_file="layouts/main_analysis.slides.json",
+)
 
 
-@app.cell(column=0)
+@app.cell
 def _():
     import marimo as mo
     import duckdb
@@ -17,11 +20,14 @@ def _():
     from embanalysis.marimo_analyzer import component_plot_ui, plot_components_with_ui
 
     from sklearn.decomposition import PCA, TruncatedSVD
+    from sklearn.manifold import TSNE
+    from umap import UMAP
     return (
         DB_PATH,
         DuckDBLoader,
         EmbeddingsAnalyzer,
         PCA,
+        TSNE,
         TruncatedSVD,
         component_plot_ui,
         duckdb,
@@ -88,6 +94,25 @@ def _(PCA, TruncatedSVD, integers_analyzer):
 
 
 @app.cell
+def _(mo):
+    mo.md(r"""## Component correlations""")
+    return
+
+
+@app.cell
+def _(integers_svd, mo):
+    mo.ui.altair_chart(integers_svd.plot_correlation_heatmap())
+    return
+
+
+@app.cell
+def _(integers_svd, mo):
+    corr_table = mo.ui.table(integers_svd.top_correlations_df(), selection='single')
+    corr_table
+    return (corr_table,)
+
+
+@app.cell
 def _(component_plot_ui, corr_table, pca_components, svd_components):
     if len(corr_table.value) == 1:
         x = corr_table.value['Component1'].item()
@@ -95,10 +120,16 @@ def _(component_plot_ui, corr_table, pca_components, svd_components):
     else:
         x = 0
         y = 1
-    
+
     svd_ui = component_plot_ui(svd_components, x, y)
     pca_ui = component_plot_ui(pca_components, x, y)
     return pca_ui, svd_ui
+
+
+@app.cell
+def _(mo):
+    mo.md(r"""## Component Plots""")
+    return
 
 
 @app.cell
@@ -119,6 +150,18 @@ def _(integers_svd, plot_components_with_ui, svd_ui):
 
 
 @app.cell
+def _(mo):
+    mo.md(r"""## Variance""")
+    return
+
+
+@app.cell
+def _(integers_svd):
+    integers_svd.variance_df
+    return
+
+
+@app.cell
 def _(integers_pca, mo):
     mo.ui.altair_chart(integers_pca.plot_explained_variance())
     return
@@ -131,25 +174,30 @@ def _(integers_pca, mo):
 
 
 @app.cell
-def _():
+def _(mo):
+    mo.md("""# Non-linear analysis""")
     return
 
 
 @app.cell
-def _():
-    return
-
-
-@app.cell(column=1)
-def _():
-    return
+def _(TSNE, component_plot_ui, integers_analyzer):
+    tsne_kwargs = dict(
+        n_components=2, 
+        perplexity=75,
+        learning_rate=500,
+        early_exaggeration=20,
+        random_state=42,
+    )
+    tsne = TSNE(**tsne_kwargs)
+    integers_tsne = integers_analyzer.run_estimator(tsne)
+    tsne_ui = component_plot_ui(tsne_kwargs['n_components'])
+    return integers_tsne, tsne_ui
 
 
 @app.cell
-def _(integers_svd, mo):
-    corr_table = mo.ui.table(integers_svd.top_correlations_df(), selection='single', pagination=False)
-    corr_table
-    return (corr_table,)
+def _(integers_tsne, plot_components_with_ui, tsne_ui):
+    plot_components_with_ui(integers_tsne, tsne_ui)
+    return
 
 
 if __name__ == "__main__":

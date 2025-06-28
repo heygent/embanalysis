@@ -9,7 +9,11 @@ import re
 from sklearn.base import BaseEstimator
 from sklearn.compose import ColumnTransformer, make_column_selector
 
-from embanalysis.sample_data import EmbeddingsSample, EmbeddingsSampleMeta, ReducedSampleMeta
+from embanalysis.sample_data import (
+    EmbeddingsSample,
+    EmbeddingsSampleMeta,
+    ReducedSampleMeta,
+)
 
 default_props = {}
 
@@ -17,9 +21,10 @@ default_props = {}
 def wide_embeddings_df(df: pd.DataFrame) -> pd.DataFrame:
     """Convert embeddings_df to wide format with one column per component."""
 
-    expanded = pd.DataFrame(df['embeddings'].tolist())
+    expanded = pd.DataFrame(df["embeddings"].tolist())
     expanded.columns = [f"embeddings_{i}" for i in expanded.columns]
     return pd.concat([df.drop("embeddings", axis=1), expanded], axis=1)
+
 
 @dataclass
 class EmbeddingsAnalyzer:
@@ -44,7 +49,11 @@ class EmbeddingsAnalyzer:
 
         transformer = ColumnTransformer(
             [
-                ("index", "passthrough", make_column_selector(dtype_include=["int", "object"])),
+                (
+                    "index",
+                    "passthrough",
+                    make_column_selector(dtype_include=["int", "object"]),
+                ),
                 (
                     "dim_reduction",
                     estimator,
@@ -52,7 +61,7 @@ class EmbeddingsAnalyzer:
                 ),
             ],
             remainder="passthrough",
-            verbose_feature_names_out=verbose_feature_names_out
+            verbose_feature_names_out=verbose_feature_names_out,
         ).set_output(transform="pandas")
 
         transformed_df = transformer.fit_transform(self.embeddings_df)
@@ -64,7 +73,7 @@ class EmbeddingsAnalyzer:
                 estimator=transformer.named_transformers_["dim_reduction"],
             ),
         )
-    
+
     @cached_property
     def variance_df(self) -> pd.DataFrame:
         estimator = self.meta.estimator
@@ -78,8 +87,7 @@ class EmbeddingsAnalyzer:
 
     @cached_property
     def embeddings_df_justdata(self) -> pd.DataFrame:
-        return self.embeddings_df.drop(['token_id', 'token'], axis=1)
-
+        return self.embeddings_df.drop(["token_id", "token"], axis=1)
 
     def alt_title(self, **kwargs) -> alt.TitleParams:
         """Generate title parameters for altair charts."""
@@ -91,7 +99,7 @@ class EmbeddingsAnalyzer:
             anchor="middle",
             **kwargs,
         )
-    
+
     def _base_component_chart(self, x_component: int, y_component: int) -> alt.Chart:
         chart = (
             alt.Chart(self.embeddings_df)
@@ -106,89 +114,93 @@ class EmbeddingsAnalyzer:
                     f"embeddings_{y_component}",
                     title=f"Component {y_component + 1}",
                 ),
-            ).interactive()
+            )
+            .interactive()
         )
 
         legend = alt.Legend(
-            labelLimit=150,
-            symbolLimit=30,
-            titleLimit=100,
-            columns=1,
-            padding=10
+            labelLimit=150, symbolLimit=30, titleLimit=100, columns=1, padding=10
         )
 
         tooltip = [
-            alt.Tooltip('token', title='Token'),
-            alt.Tooltip(f'embeddings_{x_component}', title=f"Component {x_component + 1}", format=".5f"),
-            alt.Tooltip(f'embeddings_{y_component}', title=f"Component {y_component + 1}", format=".5f"),
+            alt.Tooltip("token", title="Token"),
+            alt.Tooltip(
+                f"embeddings_{x_component}",
+                title=f"Component {x_component + 1}",
+                format=".5f",
+            ),
+            alt.Tooltip(
+                f"embeddings_{y_component}",
+                title=f"Component {y_component + 1}",
+                format=".5f",
+            ),
         ]
 
         return chart, tooltip, legend
-    
+
     def plot_gradient(self, x_component: int = 0, y_component: int = 1) -> alt.Chart:
         chart, tooltip, legend = self._base_component_chart(x_component, y_component)
 
-        return (
-            chart.encode(
-                color=alt.Color(
-                    "token:Q",
-                    scale=alt.Scale(scheme="viridis"),  # type: ignore
-                    title="Token",
-                    legend=legend,
-                ),
-                tooltip=tooltip,
-            )
+        return chart.encode(
+            color=alt.Color(
+                "token:Q",
+                scale=alt.Scale(scheme="viridis"),  # type: ignore
+                title="Token",
+                legend=legend,
+            ),
+            tooltip=tooltip,
         )
-    
+
     def plot_digit(
-            self,
-            x_component: int = 0,
-            y_component: int = 1,
-            digit_position: Literal[0, 1, 2] = 2,
-        ) -> alt.Chart:
+        self,
+        x_component: int = 0,
+        y_component: int = 1,
+        digit_position: Literal[0, 1, 2] = 2,
+    ) -> alt.Chart:
         """Create a 2D scatter plot of two embeddings components colored by digit position."""
         chart, tooltip, legend = self._base_component_chart(x_component, y_component)
 
         if digit_position not in [0, 1, 2]:
-            raise ValueError("digit_position must be 0 (ones), 1 (tens), or 2 (hundreds)")
+            raise ValueError(
+                "digit_position must be 0 (ones), 1 (tens), or 2 (hundreds)"
+            )
 
         position_label = ["Ones", "Tens", "Hundreds"][digit_position]
 
-        return (
-            chart.encode(
-                color=alt.Color("digit:N", title=f"{position_label} Digit", legend=legend),
-                tooltip=[*tooltip, alt.Tooltip("digit:N", title=f"{position_label} Digit")],
-            ).transform_calculate(
-                digit=f"floor(datum.token / pow(10, {digit_position})) % 10",
-            )
+        return chart.encode(
+            color=alt.Color("digit:N", title=f"{position_label} Digit", legend=legend),
+            tooltip=[*tooltip, alt.Tooltip("digit:N", title=f"{position_label} Digit")],
+        ).transform_calculate(
+            digit=f"floor(datum.token / pow(10, {digit_position})) % 10",
         )
-    
+
     def plot_digit_length(
-            self,
-            x_component: int = 0,
-            y_component: int = 1,
-        ) -> alt.Chart:
+        self,
+        x_component: int = 0,
+        y_component: int = 1,
+    ) -> alt.Chart:
         """Create a 2D scatter plot of two embeddings components colored by digit length."""
         chart, tooltip, legend = self._base_component_chart(x_component, y_component)
-        return (
-            chart.encode(
-                color=alt.Color("token_length:N", title="Token Length", legend=legend),
-                tooltip=[*tooltip, alt.Tooltip("token_length:N", title="Token Length/Digits")],
-                size=alt.Size(
-                    "token_length:N", scale=alt.Scale(range=[200, 100, 30]), legend=None
-                ),
-            ).transform_calculate(
-                token_length="length(toString(datum.token))",
-            )
+        return chart.encode(
+            color=alt.Color("token_length:N", title="Token Length", legend=legend),
+            tooltip=[
+                *tooltip,
+                alt.Tooltip("token_length:N", title="Token Length/Digits"),
+            ],
+            size=alt.Size(
+                "token_length:N", scale=alt.Scale(range=[200, 100, 30]), legend=None
+            ),
+        ).transform_calculate(
+            token_length="length(toString(datum.token))",
         )
-    
+
     def plot_components(
-            self,
-            x_component: int = 0,
-            y_component: int = 1,
-            type: Literal['gradient', 'digit', 'digit_length'] = 'gradient',
-            digit_position: int = 2,
-        ) -> alt.Chart:
+        self,
+        x_component: int = 0,
+        y_component: int = 1,
+        type: Literal["gradient", "digit", "digit_length"] = "gradient",
+        digit_position: int = 2,
+    ) -> alt.Chart:
         """Create a 2D scatter plot of two embeddings components."""
 
         match type:
@@ -202,9 +214,11 @@ class EmbeddingsAnalyzer:
     def plot_consecutive_distances(self) -> alt.Chart:
         """Create a chart showing distances between consecutive number embeddings."""
         # Get embedding columns
-        embedding_cols = [col for col in self.embeddings_df.columns if col.startswith('embeddings_')]
+        embedding_cols = [
+            col for col in self.embeddings_df.columns if col.startswith("embeddings_")
+        ]
         embedding_data = self.embeddings_df[embedding_cols].values
-        
+
         consecutive_distances = np.linalg.norm(
             embedding_data[1:] - embedding_data[:-1], axis=1
         )
@@ -270,7 +284,7 @@ class EmbeddingsAnalyzer:
             if facet
             else base_chart.encode(y=alt.Y("Value:Q", title="Value"))
         )
-    
+
     def top_correlations_df(
         self, n_vectors: int = 20, min_correlation=0.01
     ) -> pd.DataFrame:
@@ -286,17 +300,13 @@ class EmbeddingsAnalyzer:
             "Correlation": correlations[idx_i, idx_j],
         }
         corr_df = pd.DataFrame(data)
-
-        # Sort by absolute correlation descending
-        corr_df = corr_df.reindex(
-            corr_df["Correlation"].abs().sort_values(ascending=False).index
+        corr_df = corr_df[corr_df["Correlation"].abs() >= min_correlation]
+        corr_df.sort_values(
+            by="Correlation", ascending=False, inplace=True, key=lambda x: x.abs()
         )
-        corr_df = corr_df[["Component1", "Component2", "Correlation"]]
-        return corr_df[corr_df["Correlation"].abs() >= min_correlation]
-    
-    def top_correlated_components(self, n_vectors: int = 20, min_correlation=0.01) -> list[tuple[int, int]]:
-        top_correlations_df = self.top_correlations_df(n_vectors, min_correlation=min_correlation)[['Component1', 'Component2']]
-        return list(top_correlations_df.itertuples(index=False, name=None))
+        corr_df.reset_index(drop=True, inplace=True)
+
+        return corr_df
 
     def plot_top_correlated_components(self, n_vectors: int = 10) -> alt.Chart:
         """
@@ -327,7 +337,9 @@ class EmbeddingsAnalyzer:
     def plot_correlation_heatmap(self, n_vectors: int = 20) -> alt.Chart:
         """Create a heatmap showing correlations between the top components, with value labels."""
         # Get embedding columns
-        embedding_cols = [col for col in self.embeddings_df.columns if col.startswith('embeddings_')]
+        embedding_cols = [
+            col for col in self.embeddings_df.columns if col.startswith("embeddings_")
+        ]
         n_vectors = min(n_vectors, len(embedding_cols))
         embedding_data = self.embeddings_df[embedding_cols[:n_vectors]].values
         correlations = np.corrcoef(embedding_data.T)
@@ -423,7 +435,9 @@ class EmbeddingsAnalyzer:
         )
 
         threshold_rule = (
-            alt.Chart().mark_rule(color="red", strokeDash=[4, 4]).encode(y=alt.Y(datum=threshold, title="Threshold"))
+            alt.Chart()
+            .mark_rule(color="red", strokeDash=[4, 4])
+            .encode(y=alt.Y(datum=threshold, title="Threshold"))
         )
 
         return chart + threshold_rule
@@ -433,5 +447,3 @@ class EmbeddingsAnalyzer:
         return alt.hconcat(
             self.plot_explained_variance(), self.plot_cumulative_variance()
         ).properties(title=self.alt_title())
-
-

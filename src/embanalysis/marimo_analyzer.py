@@ -26,12 +26,13 @@ def plot_components_with_ui(analyzer, ui):
                     ui["x"].value, ui["y"].value, *ui["plot_type"].value
                 )
             ),
-            mo.hstack(
-                [
-                    mo.vstack([ui["x"], ui["y"]], align="stretch"),
-                    ui["plot_type"]
-                ]
-            ),
+            ui.hstack()
+            # mo.hstack(
+            #     [
+            #         mo.vstack([ui["x"], ui["y"]], align="stretch"),
+            #         ui["plot_type"]
+            #     ]
+            # ),
         ],
         align="start",
     )
