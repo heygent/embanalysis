@@ -146,24 +146,43 @@ mathematical reasoning simultaneously.
 The approach is shown to improve performance over a series of other techniques, mostly
 using a standard notation to represent numbers.
 
-> Nota: qua l'incastro dovrebbe essere con [@murray2010] e il caso di DT, descritto
-> sotto. Il problema è che il "panorama numerico" descritto sembra essere più discreto
-> che continuo, mentre qua si parla della codifica di numeri continui. Potrebbe essere
-> preferibile incastrarsi direttamente alla parte di analisi, dove vengono visualizzati
-> gli embedding nel range 0-9999, anche se xVal è un buon esempio di reificazione.
+## The search for better suited representation
 
- A case study of a Savant patient, DT [@murray2010], has been reported of having a
- mathematical landscape with the following characteristics:
+A case study of a Savant patient, DT [@murray2010], has been reported of having a
+mathematical landscape with the following characteristics:
 
 - Has sequence-space synesthesia with a "mathematical landscape" containing numbers
   0-9999
-  - sequence-space synesthesia: *spatial sequence synesthesia consists of visualising certain sequences in physical space.*
 - Each number has specific colors, textures, sizes, and sometimes movements or sounds
 - Prime numbers have special object properties that distinguish them from other numbers
 - Arithmetic calculations happen automatically - solutions appear as part of his visual
   landscape without conscious effort
 - fMRI studies showed that even unstructured number sequences had visual structure for
   DT
+
+Sequence-space synesthesia consists in the visualization of certain sequences in physical
+space.
+
+# Embeddings Analysis
+
+The analytic part of this work consists in the search for structure in LLM numerical
+embeddings.
+
+As stated previously, many recent open source models use an L2R tokenization scheme that
+performs better when the tokenization is forced into R2L. There are no large scale open
+source models using R2L tokenization as of the time of writing, but the correction in
+performance with the tokenization change could be a hint that the learned L2R
+representation might still have similar properties to a R2L one.
+
+We're looking for clues of mathematical properties being encoded in the embeddings. As
+the results show,
+
+To check whether there is comparable structure in representation in LLMs, a variety of
+analysis 
+
+
+
+
 
 # Paragraphs yet to contextualize - not a real section
 
@@ -173,6 +192,4 @@ functionally re-dedicated to symbolic material processing. This suggests that
 mathematical savants may bypass high-level algorithmic reasoning entirely, instead
 leveraging perceptual mechanisms that can directly recognize patterns in numerical
 relationships - much like how we might instantly recognize a face without consciously
-processing its individual features. There are also arguably similar mechanisms already
-implemented in LLMs, although usually employed in the context of <?> gradient
-normalization, in the form of skip connections.
+processing its individual features.
