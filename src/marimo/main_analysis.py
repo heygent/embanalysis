@@ -180,15 +180,15 @@ def _(mo):
 
 
 @app.cell
-def _(TSNE, component_plot_ui, integers_analyzer):
-    tsne_kwargs = dict(
+def _(TSNE, component_plot_ui, integers_analyzer, tsne_kwargs):
+    tsne = TSNE(
         n_components=2, 
         perplexity=75,
-        learning_rate=500,
+        learning_rate=50,
         early_exaggeration=20,
         random_state=42,
     )
-    tsne = TSNE(**tsne_kwargs)
+
     integers_tsne = integers_analyzer.run_estimator(tsne)
     tsne_ui = component_plot_ui(tsne_kwargs['n_components'])
     return integers_tsne, tsne_ui
@@ -198,6 +198,22 @@ def _(TSNE, component_plot_ui, integers_analyzer):
 def _(integers_tsne, plot_components_with_ui, tsne_ui):
     plot_components_with_ui(integers_tsne, tsne_ui)
     return
+
+
+@app.cell
+def _(TSNE, component_plot_ui, integers_analyzer, tsne_kwargs):
+    umap_kwargs = dict(
+        n_components=2, 
+        perplexity=75,
+        learning_rate=50,
+        early_exaggeration=20,
+        random_state=42,
+    )
+    tsne = TSNE(**tsne_kwargs)
+
+    integers_tsne = integers_analyzer.run_estimator(tsne)
+    tsne_ui = component_plot_ui(tsne_kwargs['n_components'])
+    return integers_tsne, tsne_ui
 
 
 if __name__ == "__main__":

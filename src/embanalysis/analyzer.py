@@ -4,10 +4,8 @@ from typing import Literal
 import altair as alt
 import numpy as np
 import pandas as pd
-import re
 
 from sklearn.base import BaseEstimator
-from sklearn.compose import ColumnTransformer, make_column_selector
 
 from embanalysis.sample_data import (
     EmbeddingsSample,
@@ -42,35 +40,32 @@ class EmbeddingsAnalyzer:
     def run_estimator(self, estimator: BaseEstimator):
         """Run a scikit-learn estimator only on the embeddings columns of embeddings_df."""
 
-        def verbose_feature_names_out(s1, s2):
-            if s1 == "dim_reduction":
-                return re.sub(r"\D+", "embeddings_", s2)
-            return s2
+        # Select embeddings columns
+        embedding_cols = [col for col in self.embeddings_df.columns if col.startswith("embeddings_")]
+        other_cols = [col for col in self.embeddings_df.columns if not col.startswith("embeddings_")]
 
-        transformer = ColumnTransformer(
-            [
-                (
-                    "index",
-                    "passthrough",
-                    make_column_selector(dtype_include=["int", "object"]),
-                ),
-                (
-                    "dim_reduction",
-                    estimator,
-                    make_column_selector(pattern="^embeddings_"),
-                ),
-            ],
-            remainder="passthrough",
-            verbose_feature_names_out=verbose_feature_names_out,
-        ).set_output(transform="pandas")
+        # Fit estimator on embeddings
+        embeddings_data = self.embeddings_df[embedding_cols].values
+        transformed = estimator.fit_transform(embeddings_data)
 
-        transformed_df = transformer.fit_transform(self.embeddings_df)
+        # If transformed is 1D, make it 2D
+        if transformed.ndim == 1:
+            transformed = transformed.reshape(-1, 1)
+
+        # Find number of columns from transformed data
+        n_components = transformed.shape[1]
+
+        transformed_cols = [f"embeddings_{i}" for i in range(n_components)]
+        transformed_df = pd.DataFrame(transformed, columns=transformed_cols, index=self.embeddings_df.index)
+
+        # Concatenate with other columns
+        result_df = pd.concat([self.embeddings_df[other_cols], transformed_df], axis=1)
 
         return EmbeddingsAnalyzer(
-            embeddings_df=transformed_df,
+            embeddings_df=result_df,
             meta=ReducedSampleMeta(
-                original=self.meta,
-                estimator=transformer.named_transformers_["dim_reduction"],
+            original=self.meta,
+            estimator=estimator,
             ),
         )
 
@@ -447,3 +442,38 @@ class EmbeddingsAnalyzer:
         return alt.hconcat(
             self.plot_explained_variance(), self.plot_cumulative_variance()
         ).properties(title=self.alt_title())
+
+    def plot_component_loadings(self, n_components: int = 5) -> alt.Chart:
+        """Plot the loadings (eigenvectors) showing feature contributions to each component."""
+        estimator = self.meta.estimator
+        
+        # Create DataFrame with loadings
+        loading_dfs = []
+        for i in range(min(n_components, estimator.components_.shape[0])):
+            df = pd.DataFrame({
+                "Feature_Index": np.arange(len(estimator.components_[i])),
+                "Loading": estimator.components_[i],
+                "Component": f"Component {i + 1}",
+                "Magnitude": np.abs(estimator.components_[i])
+            })
+            loading_dfs.append(df)
+        
+        loadings_df = pd.concat(loading_dfs)
+        
+        return (
+            alt.Chart(loadings_df)
+            .mark_line()
+            .encode(
+                x=alt.X("Feature_Index:Q", title="Original Feature Index"),
+                y=alt.Y("Loading:Q", title="Loading Value"),
+                color=alt.Color("Component:N"),
+                tooltip=["Component", "Feature_Index", "Loading:Q"]
+            )
+            .facet(row="Component:N")
+            .resolve_scale(y="independent")
+            .properties(
+                title="Principal Component Loadings (Eigenvectors)",
+                width=400,
+                height=100
+            )
+        )
