@@ -1,5 +1,6 @@
 from dataclasses import dataclass
-from typing import Literal, Self
+from functools import cached_property
+from typing import Literal
 import altair as alt
 import numpy as np
 import pandas as pd
@@ -7,11 +8,6 @@ import re
 
 from sklearn.base import BaseEstimator
 from sklearn.compose import ColumnTransformer, make_column_selector
-
-from sklearn.decomposition import PCA, TruncatedSVD
-from sklearn.manifold import TSNE
-from umap import UMAP
-
 
 from embanalysis.sample_data import EmbeddingsSample, EmbeddingsSampleMeta, ReducedSampleMeta
 
@@ -48,6 +44,7 @@ class EmbeddingsAnalyzer:
 
         transformer = ColumnTransformer(
             [
+                ("index", "passthrough", make_column_selector(dtype_include=["int", "object"])),
                 (
                     "dim_reduction",
                     estimator,
@@ -64,41 +61,25 @@ class EmbeddingsAnalyzer:
             embeddings_df=transformed_df,
             meta=ReducedSampleMeta(
                 original=self.meta,
-                estimator=estimator,
+                estimator=transformer.named_transformers_["dim_reduction"],
             ),
         )
     
-    def pca(self, **kwargs) -> Self:
-        """Run PCA on the embeddings and return a new EmbeddingsAnalyzer."""
-        return self.run_estimator(
-            PCA(n_components=1000, **kwargs)
+    @cached_property
+    def variance_df(self) -> pd.DataFrame:
+        estimator = self.meta.estimator
+        return pd.DataFrame(
+            {
+                "Component": np.arange(1, len(estimator.explained_variance_) + 1),
+                "ExplainedVariance": estimator.explained_variance_,
+                "ExplainedVarianceRatio": estimator.explained_variance_ratio_,
+            }
         )
 
-    def svd(self, **kwargs) -> Self:
-        """Run PCA on the embeddings and return a new EmbeddingsAnalyzer."""
-        return self.run_estimator(
-            TruncatedSVD(n_components=100, **kwargs)
-        )
-    
-    def tsne(self, **kwargs) -> Self:
-        """Run t-SNE on the embeddings and return a new EmbeddingsAnalyzer."""
-        return self.run_estimator(
-            TSNE(
-                n_components=2, 
-                perplexity=75,
-                max_iter=3000,
-                learning_rate=500,
-                early_exaggeration=20,
-                random_state=42,
-                 **kwargs
-            )
-        )
-    
-    def umap(self, **kwargs) -> Self:
-        """Run UMAP on the embeddings and return a new EmbeddingsAnalyzer."""
-        return self.run_estimator(
-            UMAP(n_components=2, **kwargs)
-        )
+    @cached_property
+    def embeddings_df_justdata(self) -> pd.DataFrame:
+        return self.embeddings_df.drop(['token_id', 'token'], axis=1)
+
 
     def alt_title(self, **kwargs) -> alt.TitleParams:
         """Generate title parameters for altair charts."""
@@ -192,7 +173,7 @@ class EmbeddingsAnalyzer:
         return (
             chart.encode(
                 color=alt.Color("token_length:N", title="Token Length", legend=legend),
-                tooltip=[*tooltip, alt.Tooltip("token_length:N", title="Token Length (in characters/digits)")],
+                tooltip=[*tooltip, alt.Tooltip("token_length:N", title="Token Length/Digits")],
                 size=alt.Size(
                     "token_length:N", scale=alt.Scale(range=[200, 100, 30]), legend=None
                 ),
@@ -289,6 +270,33 @@ class EmbeddingsAnalyzer:
             if facet
             else base_chart.encode(y=alt.Y("Value:Q", title="Value"))
         )
+    
+    def top_correlations_df(
+        self, n_vectors: int = 20, min_correlation=0.01
+    ) -> pd.DataFrame:
+        df = self.embeddings_df_justdata
+        n_vectors = min(n_vectors, df.shape[1])
+        correlations = np.corrcoef(df.iloc[:, :n_vectors].T)
+
+        # Get upper triangle indices (excluding diagonal)
+        idx_i, idx_j = np.triu_indices(n_vectors, k=1)
+        data = {
+            "Component1": idx_i,
+            "Component2": idx_j,
+            "Correlation": correlations[idx_i, idx_j],
+        }
+        corr_df = pd.DataFrame(data)
+
+        # Sort by absolute correlation descending
+        corr_df = corr_df.reindex(
+            corr_df["Correlation"].abs().sort_values(ascending=False).index
+        )
+        corr_df = corr_df[["Component1", "Component2", "Correlation"]]
+        return corr_df[corr_df["Correlation"].abs() >= min_correlation]
+    
+    def top_correlated_components(self, n_vectors: int = 20, min_correlation=0.01) -> list[tuple[int, int]]:
+        top_correlations_df = self.top_correlations_df(n_vectors, min_correlation=min_correlation)[['Component1', 'Component2']]
+        return list(top_correlations_df.itertuples(index=False, name=None))
 
     def plot_top_correlated_components(self, n_vectors: int = 10) -> alt.Chart:
         """
@@ -372,7 +380,6 @@ class EmbeddingsAnalyzer:
 
     def plot_explained_variance(self) -> alt.Chart:
         """Create a chart showing the explained variance per component."""
-        # This assumes there's a variance_df attribute - might need adjustment
         return (
             alt.Chart(self.variance_df)
             .mark_line(point=True)
@@ -388,7 +395,7 @@ class EmbeddingsAnalyzer:
             .interactive()
         )
 
-    def plot_cumulative_variance(self) -> alt.Chart:
+    def plot_cumulative_variance(self, threshold: float = 0.9) -> alt.Chart:
         """Create a chart showing the cumulative explained variance."""
         # This assumes there's a variance_df attribute - might need adjustment
         chart = (
@@ -416,7 +423,7 @@ class EmbeddingsAnalyzer:
         )
 
         threshold_rule = (
-            alt.Chart().mark_rule(color="red", strokeDash=[4, 4]).encode(y=alt.Y(datum=0.9))
+            alt.Chart().mark_rule(color="red", strokeDash=[4, 4]).encode(y=alt.Y(datum=threshold, title="Threshold"))
         )
 
         return chart + threshold_rule
