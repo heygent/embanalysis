@@ -167,7 +167,6 @@ using a standard notation to represent numbers.
 
 # Paragraphs yet to contextualize - not a real section
 
-
 In [@mottron2006], the hypothesis is also that the capabilities of the savant might come
 from privileged access to lower-level perceptual processing systems that have been
 functionally re-dedicated to symbolic material processing. This suggests that

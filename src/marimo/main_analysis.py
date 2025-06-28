@@ -3,16 +3,18 @@
 import marimo
 
 __generated_with = "0.13.0"
-app = marimo.App(app_title="Analyzing Numerical Embeddings")
+app = marimo.App(width="columns", app_title="Analyzing Numerical Embeddings")
 
 
-@app.cell
+@app.cell(column=0)
 def _():
     import marimo as mo
     import duckdb
     from embanalysis.duckdb_loader import DuckDBLoader
     from embanalysis.constants import DB_PATH
     from embanalysis.analyzer import EmbeddingsAnalyzer
+
+    from embanalysis.marimo_analyzer import component_plot_ui, plot_components_with_ui
 
     from sklearn.decomposition import PCA, TruncatedSVD
     return (
@@ -21,8 +23,10 @@ def _():
         EmbeddingsAnalyzer,
         PCA,
         TruncatedSVD,
+        component_plot_ui,
         duckdb,
         mo,
+        plot_components_with_ui,
     )
 
 
@@ -56,6 +60,7 @@ def _(mo, models):
 def _(loader, model_id_ui):
     model_id = model_id_ui.value
     samples = loader.get_model_samples(model_id)
+    model_id_ui
     return (samples,)
 
 
@@ -66,84 +71,85 @@ def _(EmbeddingsAnalyzer, samples):
 
 
 @app.cell
-def _(PCA, integers_analyzer, mo):
-    pca_components = 1000
-    integers_pca = integers_analyzer.run_estimator(PCA(pca_components))
-    pca_x_ui = mo.ui.number(start=0, stop=pca_components, value=0, label="X Component")
-    pca_y_ui = mo.ui.number(start=0, stop=pca_components, value=1, label="Y Component")
-    pca_plot_type = mo.ui.dropdown({
-        "Token value gradient": ("gradient",),
-        "Digit length": ("digit_length",),
-        "Ones Digit": ("digit", 0),
-        "Tens Digit": ("digit", 1),
-        "Hundreds Digit": ("digit", 2),
-    }, label="Coloring", value="Token value gradient")
-    return integers_pca, pca_plot_type, pca_x_ui, pca_y_ui
-
-
-@app.cell
-def _():
+def _(mo):
+    mo.md(r"""# Linear analysis - PCA and SVD""")
     return
 
 
 @app.cell
-def _(integers_pca, mo, pca_plot_type, pca_x_ui, pca_y_ui):
-    mo.vstack([
-        mo.ui.altair_chart(integers_pca.plot_components(
-            pca_x_ui.value,
-            pca_y_ui.value,
-            *pca_plot_type.value
-        )),
-        mo.hstack([
-            mo.vstack([pca_x_ui, pca_y_ui], align="stretch"),
-            pca_plot_type
-        ])
-    ], align="start")
-    return
-
-
-@app.cell
-def _(TruncatedSVD, integers_analyzer, mo):
+def _(PCA, TruncatedSVD, integers_analyzer):
     svd_components = 100
     integers_svd = integers_analyzer.run_estimator(TruncatedSVD(svd_components))
-    svd_x_ui = mo.ui.number(start=0, stop=svd_components, value=0, label="X Component")
-    svd_y_ui = mo.ui.number(start=0, stop=svd_components, value=1, label="Y Component")
-    return integers_svd, svd_x_ui, svd_y_ui
+
+    pca_components = 1000
+    integers_pca = integers_analyzer.run_estimator(PCA(pca_components))
+
+    return integers_pca, integers_svd, pca_components, svd_components
 
 
 @app.cell
-def _(integers_svd, mo, svd_x_ui, svd_y_ui):
-    mo.vstack([
-        mo.ui.altair_chart(integers_svd.plot(
-            svd_x_ui.value,
-            svd_y_ui.value
-        )),
-        mo.hstack([svd_x_ui, svd_y_ui], align="stretch")
-    ])
-    return
+def _(component_plot_ui, corr_table, pca_components, svd_components):
+    if len(corr_table.value) == 1:
+        x = corr_table.value['Component1'].item()
+        y = corr_table.value['Component2'].item()
+    else:
+        x = 0
+        y = 1
+    
+    svd_ui = component_plot_ui(svd_components, x, y)
+    pca_ui = component_plot_ui(pca_components, x, y)
+    return pca_ui, svd_ui
 
 
 @app.cell
-def _(integers_pca, integers_svd, mo, pca_x_ui, pca_y_ui):
-    mo.vstack([
-        mo.hstack([
-            mo.ui.altair_chart(integers_pca.plot(
-                pca_x_ui.value,
-                pca_y_ui.value
-            )),
-            mo.ui.altair_chart(integers_svd.plot(
-                pca_x_ui.value,
-                pca_y_ui.value
-            )),
-        ], widths="equal"),
-        mo.vstack([pca_x_ui, pca_y_ui], justify="start")
-    ])
+def _(integers_pca, pca_ui, plot_components_with_ui):
+    plot_components_with_ui(integers_pca, pca_ui)
     return
 
 
 @app.cell
 def _():
     return
+
+
+@app.cell
+def _(integers_svd, plot_components_with_ui, svd_ui):
+    plot_components_with_ui(integers_svd, svd_ui)
+    return
+
+
+@app.cell
+def _(integers_pca, mo):
+    mo.ui.altair_chart(integers_pca.plot_explained_variance())
+    return
+
+
+@app.cell
+def _(integers_pca, mo):
+    mo.ui.altair_chart(integers_pca.plot_cumulative_variance())
+    return
+
+
+@app.cell
+def _():
+    return
+
+
+@app.cell
+def _():
+    return
+
+
+@app.cell(column=1)
+def _():
+    return
+
+
+@app.cell
+def _(integers_svd, mo):
+    corr_table = mo.ui.table(integers_svd.top_correlations_df(), selection='single', pagination=False)
+    corr_table
+    return (corr_table,)
 
 
 if __name__ == "__main__":
