@@ -15,11 +15,15 @@ class DuckDBLoader:
         self.conn = conn
     
     @classmethod
-    def from_path(cls, db_path: str | Path = DB_PATH):
+    def from_path(cls, db_path: str | Path = DB_PATH, read_only: bool = False):
         """Create a DuckDBLoader instance from a given path."""
         db_path.parent.mkdir(parents=True, exist_ok=True)
-        conn = duckdb.connect(db_path)
+        conn = duckdb.connect(db_path, read_only=read_only)
         return cls(conn)
+    
+    @classmethod
+    def default(cls, *args, **kwargs):
+        return cls.from_path(*args, **kwargs)
 
     def init_db(self):
         self.conn.query("""

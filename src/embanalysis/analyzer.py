@@ -176,15 +176,21 @@ class EmbeddingsAnalyzer:
     ) -> alt.Chart:
         """Create a 2D scatter plot of two embeddings components colored by digit length."""
         chart, tooltip, legend = self._base_component_chart(x_component, y_component)
+
+        if self.meta.original.tag == 'random':
+            color_type = "quantitative"
+        else:
+            color_type = "nominal"
+
         return chart.encode(
-            color=alt.Color("token_length:N", title="Token Length", legend=legend),
+            color=alt.Color("token_length", title="Token Length", legend=legend, type=color_type),
             tooltip=[
                 *tooltip,
-                alt.Tooltip("token_length:N", title="Token Length/Digits"),
+                alt.Tooltip("token_length", title="Token Length/Digits", type=color_type),
             ],
-            size=alt.Size(
-                "token_length:N", scale=alt.Scale(range=[200, 100, 30]), legend=None
-            ),
+            # size=alt.Size(
+            #     "token_length:N", scale=alt.Scale(range=[200, 100, 30]), legend=None
+            # ),
         ).transform_calculate(
             token_length="length(toString(datum.token))",
         )
@@ -193,12 +199,15 @@ class EmbeddingsAnalyzer:
         self,
         x_component: int = 0,
         y_component: int = 1,
-        type: Literal["gradient", "digit", "digit_length"] = "gradient",
+        plot_type: Literal["gradient", "digit", "digit_length"] = "gradient",
         digit_position: int = 2,
     ) -> alt.Chart:
         """Create a 2D scatter plot of two embeddings components."""
+        
+        if self.meta.original.tag == 'random':
+            return self.plot_digit_length(x_component, y_component)
 
-        match type:
+        match plot_type:
             case "gradient":
                 return self.plot_gradient(x_component, y_component)
             case "digit":
@@ -303,20 +312,21 @@ class EmbeddingsAnalyzer:
 
         return corr_df
 
-    def plot_top_correlated_components(self, n_vectors: int = 10) -> alt.Chart:
+    def plot_top_correlated_components(self, n_vectors: int = 10, corr_df = None) -> alt.Chart:
         """
         Plot the plot_by_digit_length chart for the top correlated component pairs.
         Arranges the plots in a grid with two plots per row.
         """
-        corr_df = self.top_correlations_df(n_vectors)
+        if corr_df is None:
+            corr_df = self.top_correlations_df(n_vectors)
         charts = []
         for _, row in corr_df.iterrows():
             i, j = int(row["Component1"]), int(row["Component2"])
-            chart = self.plot_number_gradient(x_component=i, y_component=j).properties(
+            chart = self.plot_components(plot_type='gradient', x_component=i, y_component=j).properties(
                 title=f"Components {i + 1} vs {j + 1} (corr={row['Correlation']:.2f})"
             )
             charts.append(chart)
-            chart = self.plot_by_digit_length(x_component=i, y_component=j).properties(
+            chart = self.plot_components(plot_type='digit_length', x_component=i, y_component=j).properties(
                 title=f"Components {i + 1} vs {j + 1} (corr={row['Correlation']:.2f}) by digit length"
             )
             charts.append(chart)

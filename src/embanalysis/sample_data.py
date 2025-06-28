@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import pandas as pd
 
 from typing import Literal
@@ -58,7 +58,7 @@ def make_meta_object(meta: dict) -> EmbeddingsSampleMeta:
 class EmbeddingsSample[M: EmbeddingsSampleMeta = EmbeddingsSampleMeta]:
     sample_id: int
     meta: M
-    embeddings_df: pd.DataFrame
+    embeddings_df: pd.DataFrame = field(repr=False)
 
     @property
     def model_id(self) -> str:

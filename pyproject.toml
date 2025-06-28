@@ -19,6 +19,7 @@ dependencies = [
     "altair>=5.5.0",
     "umap-learn>=0.5.7",
     "typer>=0.16.0",
+    "vl-convert-python>=1.8.0",
 ]
 
 [dependency-groups]

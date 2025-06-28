@@ -29,6 +29,7 @@ def _():
         PCA,
         TSNE,
         TruncatedSVD,
+        UMAP,
         component_plot_ui,
         duckdb,
         mo,
@@ -180,29 +181,8 @@ def _(mo):
 
 
 @app.cell
-def _(TSNE, component_plot_ui, integers_analyzer, tsne_kwargs):
-    tsne = TSNE(
-        n_components=2, 
-        perplexity=75,
-        learning_rate=50,
-        early_exaggeration=20,
-        random_state=42,
-    )
-
-    integers_tsne = integers_analyzer.run_estimator(tsne)
-    tsne_ui = component_plot_ui(tsne_kwargs['n_components'])
-    return integers_tsne, tsne_ui
-
-
-@app.cell
-def _(integers_tsne, plot_components_with_ui, tsne_ui):
-    plot_components_with_ui(integers_tsne, tsne_ui)
-    return
-
-
-@app.cell
-def _(TSNE, component_plot_ui, integers_analyzer, tsne_kwargs):
-    umap_kwargs = dict(
+def _(TSNE, component_plot_ui, integers_analyzer):
+    tsne_kwargs = dict(
         n_components=2, 
         perplexity=75,
         learning_rate=50,
@@ -212,8 +192,57 @@ def _(TSNE, component_plot_ui, integers_analyzer, tsne_kwargs):
     tsne = TSNE(**tsne_kwargs)
 
     integers_tsne = integers_analyzer.run_estimator(tsne)
-    tsne_ui = component_plot_ui(tsne_kwargs['n_components'])
-    return integers_tsne, tsne_ui
+    tsne_ui = component_plot_ui(tsne_kwargs['n_components'] - 1)
+    return integers_tsne, tsne_kwargs, tsne_ui
+
+
+@app.cell
+def _(integers_tsne, plot_components_with_ui, tsne_ui):
+    plot_components_with_ui(integers_tsne, tsne_ui)
+    return
+
+
+@app.cell
+def _(UMAP, component_plot_ui, integers_analyzer, tsne_kwargs):
+    umap_kwargs = dict(
+        n_components=2, 
+    )
+    umap = UMAP(**umap_kwargs)
+
+    integers_umap = integers_analyzer.run_estimator(umap)
+    umap_ui = component_plot_ui(tsne_kwargs['n_components'] - 1)
+    return integers_umap, umap_ui
+
+
+@app.cell
+def _(integers_umap, plot_components_with_ui, umap_ui):
+    plot_components_with_ui(integers_umap, umap_ui)
+    return
+
+
+@app.cell
+def _(mo):
+    mo.md(r"""# Component patterns""")
+    return
+
+
+@app.cell
+def _(integers_pca):
+    c1 = integers_pca.meta.estimator.components_[0]
+    c1
+    return
+
+
+@app.cell
+def _(integers_pca):
+    c2 = integers_pca.embeddings_df['embeddings_1']
+    c2
+    return
+
+
+@app.cell
+def _():
+    return
 
 
 if __name__ == "__main__":
