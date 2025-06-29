@@ -225,7 +225,7 @@ $$
 ### Linear analysis
 
 ![Principal components 1 and 2 of the OLMo model. Random embeddings sample for
-comparison.](../plots/OLMo-2-1124-7B_00_pca_components_gradient_v1.png)
+comparison.](src/plots/OLMo-2-1124-7B_00_pca_components_gradient_v1.svg)
 
 Projecting the numerical token embeddings onto the first two principal
 components reveals a U-shaped curve. This structure constitutes a one-dimensional
@@ -239,7 +239,7 @@ gradient is particularly smooth, suggesting that similar numbers maintain spatia
 proximity in the reduced space.
 
 ![SVD for the two main components of the OLMo model, with random embeddings sample for
-comparison](../plots/OLMo-2-1124-7B_02_svd_components_gradient_v1.png)
+comparison](src/plots/OLMo-2-1124-7B_02_svd_components_gradient_v1.svg)
 
 The SVD visualization, lacking the data centering done in the PCA, shows a much more
 consistent geometric structure, suggesting that the encoding of information might be
@@ -248,13 +248,13 @@ between data points. There is also a very notable recursive, fractal structure,
 repeating itself for numbers with one, two and three digits.
 
 ![SVD coloring done by digit length and hundreds digit, highlighting the clustering
-properties of the embeddings.](../plots/OLMo-2-1124-7B_03_svd_digit_visualizations_v1.png
+properties of the embeddings.](src/plots/OLMo-2-1124-7B_03_svd_digit_visualizations_v1.svg
 )
 
 #### Explained variance
 
 ![OLMo PCA - explained variance
-overview](../plots/OLMo-2-1124-7B_01_pca_variance_overview_v1.png)
+overview](src/plots/OLMo-2-1124-7B_01_pca_variance_overview_v1.svg)
 The explained variance by component plot (left) shows a sharp drop within the first few
 components, meaning that the first principal components capture dramatically more
 variance than subsequent ones. The cumulative explained variance shows that
@@ -268,7 +268,7 @@ capture 90% of the variance.
 
 ### Non-linear analysis
 
-![t-SNE visualization for OLMo embeddings.](../plots/OLMo-2-1124-7B_07_tsne_components_gradient_v1.png)
+![t-SNE visualization for OLMo embeddings.](src/plots/OLMo-2-1124-7B_07_tsne_components_gradient_v1.svg)
 
 
 | Parameter           | Value     |
@@ -292,9 +292,9 @@ gradually increasing numbers turn around the center before abruptly getting back
 start. When interpreting the colors as indicators of depth, it can look like a spiral
 from a top-down perspective.
 
-![UMAP visualization with cosine distance](../plots/OLMo-2-1124-7B_09_umap_cosine_components_gradient_v1.png)
+![UMAP visualization with cosine distance](src/plots/OLMo-2-1124-7B_09_umap_cosine_components_gradient_v1.svg)
 
-![UMAP visualization with Euclidean distance](../plots/OLMo-2-1124-7B_11_umap_euclidean_components_gradient_v1.png)
+![UMAP visualization with Euclidean distance](src/plots/OLMo-2-1124-7B_11_umap_euclidean_components_gradient_v1.svg)
 
 UMAP has been run using both Euclidean and cosine distances, since the SVD visualization
 has shown that absolute distances can matter in this model. In the UMAP case we can
@@ -305,28 +305,38 @@ hundreds' digit. Using Euclidean distances gives a picture similar to t-SNE, but
 projected and stretched and with more dispersion for numbers close to zero. The
 spiral-like conformation is also notable here.
 
+### Component correlation analysis
+
+By taking all the components and their correlations with the properties we're testing
+for, we're able to find the most correlative component-property pairs. Most of the
+components that exhibit a strong correlation does so in terms of their magnitude
+(measured as the correlation with the $log_{10}$ of the number considered).
+
 
 
 ## Llama-3.2-1B-Instruct
 
 ### Linear analysis
 
-![PCA visualization of Llama embeddings.](../plots/Llama-3.2-1B-Instruct_00_pca_components_gradient_v1.png)
+![PCA visualization of Llama embeddings.](src/plots/Llama-3.2-1B-Instruct_00_pca_components_gradient_v1.svg)
 
 The PCA projection shows a continuous, arc-shaped curved manifold, with smoother
 transitions between numbers and a distinct separation with numbers close to 0. As with
 what was seen with OLMo, it looks like the PCA centering might end up destroying
 geometric relationships that are better preserved in the SVD visualizations.
 
+<!-- It is also notable how this visualization looks like it's forcing a curve, compared to
+the SVD one. This <TODO finish this> -->
+
 ![SVD visualization of Llama
-embeddings](../plots/Llama-3.2-1B-Instruct_02_svd_components_gradient_v1.png)
+embeddings](src/plots/Llama-3.2-1B-Instruct_02_svd_components_gradient_v1.svg)
 
 The SVD plot shows a remarkably linear arrangement - numbers form an almost straight
 diagonal line from small (yellow) to large (purple) values. This linear structure is
 much more pronounced than OLMo-2's curved SVD patterns, and it is a unique shape rather
 than a recursive, recurring pattern.
 
-![Llama SVD visualization by digit](../plots/Llama-3.2-1B-Instruct_03_svd_digit_visualizations_v1.png)
+![Llama SVD visualization by digit](src/plots/Llama-3.2-1B-Instruct_03_svd_digit_visualizations_v1.svg)
 
 The digit-based coloring reveals clear but subtle clustering by mathematical
 properties. Unlike OLMo-2's distinct spatial territories, Llama-3.2 shows gradual
@@ -335,13 +345,43 @@ organization patterns.
 
 #### Explained variance
 
-![Llama PCA explained variance.](../plots/Llama-3.2-1B-Instruct_01_pca_variance_overview_v1.png)
+![Llama PCA explained variance.](src/plots/Llama-3.2-1B-Instruct_01_pca_variance_overview_v1.svg)
 
 
 The explained variance plot reveals slightly higher information concentration than OLMo-2.
 Llama-3.2 reaches 90% explained variance with approximately 500 components compared
 to OLMo-2's 500 components. This suggests more efficient numerical encoding in the
 smaller model.
+
+### Non-Linear analysis
+
+These nonlinear projections reveal dramatically different organizational patterns from
+both the linear methods and from OLMo-2's structures.
+
+![t-SNE structure in Llama](src/plots/Llama-3.2-1B-Instruct_07_tsne_components_gradient_v1.svg)
+
+The t-SNE visualization is very unusual, and show continuous, winding structures that
+might look like they had been uncoiled or unwound from a higher-dimensional spiral
+arrangement. The mathematical progression follows these winding paths smoothly. This can
+be informative, as for their particularly keen encoding of the Fibonacci sequence, as
+will be shown successively.
+
+![UMAP with cosine similarity in
+Llama](src/plots/Llama-3.2-1B-Instruct_09_umap_cosine_components_gradient_v1.svg)
+
+![Clustering in UMAP with cosine
+similarity](src/plots/Llama-3.2-1B-Instruct_10_umap_cosine_digit_visualizations_v1.svg
+)
+
+![UMAP with Euclidean distance in
+Llama](src/plots/Llama-3.2-1B-Instruct_11_umap_euclidean_components_gradient_v1.svg)
+
+The UMAP visualization is resembling the OLMo's one. It's also interesting to see that
+changing the distance function to Euclidean doesn't have particular effects, unlike the
+previous OLMo visualization.
+
+### Correlation with mathematical properties
+
 
 
 # Mathematical Property Detection in OLMo-2 Embeddings: Analysis Report
@@ -436,20 +476,18 @@ The analysis provides evidence that OLMo-2 has developed specialized mathematica
 ### 4.2 Comparison to Mathematical Cognition Research
 These findings show interesting parallels to research on mathematical cognition:
 
-- **Magnitude representation**: The strong magnitude correlations align with research on the "number sense" and logarithmic number representation in human cognition
-- **Specialized modules**: The existence of property-specific dimensions resembles theories of domain-specific cognitive modules
-- **Hierarchical processing**: The organization from basic (magnitude) to complex (Fibonacci) properties mirrors developmental theories of mathematical understanding
+- **Magnitude representation**: The strong magnitude correlations align with research on
+  the "number sense" and logarithmic number representation in human cognition
+- **Specialized modules**: The existence of property-specific dimensions resembles
+  theories of domain-specific cognitive modules
+- **Hierarchical processing**: The organization from basic (magnitude) to complex
+  (Fibonacci) properties mirrors developmental theories of mathematical understanding
 
-However, we note these are structural similarities rather than direct evidence of identical mechanisms.
+However, we note these are structural similarities rather than direct evidence of
+identical mechanisms.
 
-### 4.3 Implications for Model Enhancement
-The identification of specialized mathematical dimensions suggests potential enhancement strategies:
 
-1. **Targeted amplification**: Specific dimensions could be enhanced during fine-tuning for mathematical tasks
-2. **Ensemble utilization**: Multiple property detectors could be combined for more robust mathematical reasoning
-3. **Transfer learning**: These representations might transfer to related mathematical domains
-
-### 4.4 Limitations and Future Work
+### 4.3 Limitations and Future Work
 Several limitations should be noted:
 
 - **Single-token limitation**: Analysis focused only on numbers representable as single tokens

@@ -148,6 +148,28 @@ class EmbeddingsAnalyzer:
             ),
             tooltip=tooltip,
         )
+    
+    def strong_property_correlation_bar_chart(self) -> alt.Chart:
+        dim_corr_df = self.dimension_property_correlations_df()
+
+        strong_corrs_df = dim_corr_df[
+            (dim_corr_df['Correlation'].abs() > 0.20) & 
+            (dim_corr_df['P_Value'] < 0.05)
+        ].copy()
+
+        counts_per_property = strong_corrs_df['Property'].value_counts().reset_index()
+        counts_per_property.columns = ['Property', 'Count']
+
+        return alt.Chart(counts_per_property).mark_bar().encode(
+            x=alt.X('Property:N', title='Property', sort='-y'),
+            y=alt.Y('Count:Q', title='Number of Strongly Correlated Dimensions'),
+            color=alt.Color('Property:N', legend=None),
+            tooltip=['Property:N', 'Count:Q']
+        ).properties(
+            title='Number of Strongly Correlated Dimensions (>0.20, p<0.05) per Property',
+            width=400,
+            #height=400
+        )
 
     def plot_digit(
         self,
