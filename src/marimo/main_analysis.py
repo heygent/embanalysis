@@ -84,6 +84,12 @@ def _(mo):
 
 
 @app.cell
+def _(integers_analyzer):
+    integers_analyzer.embeddings_df.isna().any().any()
+    return
+
+
+@app.cell
 def _(PCA, TruncatedSVD, integers_analyzer):
     svd_components = 100
     integers_svd = integers_analyzer.run_estimator(TruncatedSVD(svd_components))
@@ -92,6 +98,23 @@ def _(PCA, TruncatedSVD, integers_analyzer):
     integers_pca = integers_analyzer.run_estimator(PCA(pca_components))
 
     return integers_pca, integers_svd, pca_components, svd_components
+
+
+@app.cell
+def _(conn, embeddings, mo):
+    emblendf = mo.sql(
+        f"""
+        SELECT embeddings FROM embeddings where model_id ilike '%olmo%'
+        """,
+        engine=conn
+    )
+    return (emblendf,)
+
+
+@app.cell
+def _(emblendf):
+    emblendf.isna().any()
+    return
 
 
 @app.cell
@@ -237,6 +260,24 @@ def _(integers_pca):
 def _(integers_pca):
     c2 = integers_pca.embeddings_df['embeddings_1']
     c2
+    return
+
+
+@app.cell
+def _(integers_analyzer):
+    integers_analyzer.dimension_property_correlations_df()
+    return
+
+
+@app.cell
+def _(integers_analyzer):
+    integers_analyzer.analyze_correlations_with_properties()
+    return
+
+
+@app.cell
+def _(integers_analyzer):
+    integers_analyzer.plot_dimension_property_correlations(100)
     return
 
 

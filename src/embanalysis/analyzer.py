@@ -534,7 +534,7 @@ class EmbeddingsAnalyzer:
         )
         
         return (heatmap + text).properties(
-            title=self.alt_title(text="Dimension-Property Correlations"),
+            title=self.alt_title(), # text="Dimension-Property Correlations"),
             width=400,
             height=max(300, len(filtered_df['Dimension'].unique()) * 20)
         )

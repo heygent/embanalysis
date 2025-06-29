@@ -101,9 +101,10 @@ class DuckDBLoader:
                 SELECT embeddings.token_id, token, embeddings
                 FROM embeddings, embedding_to_sample
                 WHERE embeddings.token_id = embedding_to_sample.token_id
+                AND embeddings.model_id = ?
                 AND sample_id = ?;
             """
-            embeddings_df = self.conn.execute(query, (sample_id,)).fetchdf()
+            embeddings_df = self.conn.execute(query, (model_id, sample_id)).fetchdf()
             meta = make_meta_object(json.loads(meta))
             samples[meta.tag] = EmbeddingsSample(
                 meta=meta,
