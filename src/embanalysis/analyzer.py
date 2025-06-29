@@ -160,12 +160,26 @@ class EmbeddingsAnalyzer:
         counts_per_property = strong_corrs_df['Property'].value_counts().reset_index()
         counts_per_property.columns = ['Property', 'Count']
 
-        return alt.Chart(counts_per_property).mark_bar().encode(
+        bar = alt.Chart(counts_per_property).mark_bar().encode(
             x=alt.X('Property:N', title='Property', sort='-y'),
             y=alt.Y('Count:Q', title='Number of Strongly Correlated Dimensions'),
             color=alt.Color('Property:N', legend=None),
             tooltip=['Property:N', 'Count:Q']
-        ).properties(
+        )
+
+        text = alt.Chart(counts_per_property).mark_text(
+            align='center',
+            baseline='bottom',
+            dy=-2,
+            fontSize=14,
+            fontWeight='bold'
+        ).encode(
+            x=alt.X('Property:N', sort='-y'),
+            y=alt.Y('Count:Q'),
+            text=alt.Text('Count:Q')
+        )
+
+        return (bar + text).properties(
             title='Number of Strongly Correlated Dimensions (>0.20, p<0.05) per Property',
             width=400,
             #height=400

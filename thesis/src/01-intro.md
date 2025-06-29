@@ -77,7 +77,10 @@ the number is represented by a single token, purple ones by multiple
 Most of the tokenizers right now do L2R (left-to-right) clustering, meaning that a number such
 as $12345$ would be divided in two tokens, $123$ and $45$. It has been shown
 [@singh2024] that this kind of clustering leads to a lesser arithmetic performance, as
-the grouping doesn't match the positional system's <way of calculating?>.
+the grouping doesn't match our positional system's intuitive structure, where digits in
+the same positional groups (units, tens, hundreds) should ideally be processed together
+for optimal numerical reasoning and arithmetic operations.
+
 An even more surprising development is that forcing the R2L token clustering of numbers
 in models already trained with L2R clustering through the use of commas in the input
 (ex. $12,345$) leads to big improvements in arithmetic performance [@millidge2024]. Despite
@@ -152,20 +155,43 @@ numerical embeddings.
 
 ## The search for better suited representation
 
-A case study of a Savant patient, DT [@murray2010], has been reported of having a
-mathematical landscape with the following characteristics:
-
+A case study of savant patient DT [@murray2010] reveals a mathematical cognitive
+architecture with the following characteristics:
 - Has sequence-space synesthesia with a "mathematical landscape" containing numbers
   0-9999
-- Each number has specific colors, textures, sizes, and sometimes movements or sounds
-- Prime numbers have special object properties that distinguish them from other numbers
+- Each number possesses specific colors, textures, sizes, and sometimes movements or
+  sounds
+- Prime numbers have distinctive object properties that distinguish them from other
+  numbers
 - Arithmetic calculations happen automatically - solutions appear as part of his visual
   landscape without conscious effort
-- fMRI studies showed that even unstructured number sequences had visual structure for
-  DT
+- fMRI studies showed that even unstructured number sequences had coherent visual
+  structure for DT
 
-Sequence-space synesthesia consists in the visualization of certain sequences in physical
-space.
+Sequence-space synesthesia involves the spontaneous visualization of numerical sequences
+in organized spatial arrangements. The remarkable mathematical abilities of savants with
+this condition suggest that their specialized perceptual representations confer
+significant computational advantages over conventional symbolic processing.
+
+Mottron et al. [@mottron2006] hypothesize that savant capabilities emerge from
+privileged access to lower-level perceptual processing systems that have been
+functionally re-dedicated to symbolic material processing. Under this framework,
+mathematical savants may bypass high-level algorithmic reasoning entirely, instead
+leveraging perceptual mechanisms that directly recognize patterns in numerical
+relationships—much like how we instantly recognize a face without consciously processing
+its individual features.
+
+This raises a compelling question for artificial intelligence: Do large language models
+spontaneously develop similar specialized mathematical representations during training?
+If so, understanding these representations could inform approaches for enhancing
+mathematical reasoning capabilities in AI systems.
+
+We investigate whether state-of-the-art language models develop systematic mathematical
+property detectors within their embedding spaces, analogous to the specialized numerical
+representations observed in savant cognition. Specifically, we examine whether numerical
+tokens are organized according to mathematical properties such as magnitude, primality,
+digit structure, and sequence patterns like the Fibonacci series.
+
 
 # Embeddings Analysis
 
@@ -181,7 +207,9 @@ similar properties to the R2L ones.
 We're looking for clues of mathematical properties being encoded in the embeddings. As
 the results show, we find strong correlations between embedding dimensions and
 mathematical properties, the strongest one being magnitude (data) and a very interesting
-one being the distance between the number and their closest Fibonacci number.
+one being the distance between the number and their closest Fibonacci number, with the
+catch that further study is needed to see if this strong connection comes from
+confounding factors.
 
 ## Methodology
 
@@ -219,6 +247,13 @@ $$
 
 - Fibonacci proximity: distance between the number and the nearest Fibonacci number,
   measured in integers between the two.
+
+We took two models in consideration:
+
+- OLMo-2-1124-7B is a model by AllenAI, which is favorable to research uses thanks to
+  the full disclosure of training data, code, logs and checkpoints
+- Llama-3.2-1B-Instruct, due to being a small and manageable model to do analysis with
+  on limited hardware
 
 ## OLMo-2-1124-7B
 
@@ -313,6 +348,55 @@ components that exhibit a strong correlation does so in terms of their magnitude
 (measured as the correlation with the $log_{10}$ of the number considered).
 
 
+| Dimension | Property           |   Correlation |        P_Value |
+|----------:|:-------------------|--------------:|---------------:|
+|       514 | magnitude           |     -0.672870 | 8.446593e-133  |
+|      3085 | magnitude           |     -0.606534 | 1.646729e-101  |
+|      2538 | magnitude           |     -0.567317 | 3.016150e-86   |
+|       665 | magnitude           |     -0.500278 | 1.891640e-64   |
+|       514 | digit_count         |     -0.484543 | 5.301794e-60   |
+|      1012 | magnitude           |     -0.475346 | 1.653308e-57   |
+|      1012 | digit_count         |     -0.462706 | 3.346741e-54   |
+|      2538 | digit_count         |     -0.454433 | 4.115639e-52   |
+|      3085 | digit_count         |     -0.451884 | 1.766273e-51   |
+|      3879 | magnitude           |      0.446828 | 3.059244e-50   |
+|       110 | magnitude           |      0.445026 | 8.359542e-50   |
+|      1820 | magnitude           |      0.430705 | 1.991192e-46   |
+|      1107 | magnitude           |     -0.428056 | 8.055688e-46   |
+|      3502 | magnitude           |      0.425927 | 2.456033e-45   |
+|       421 | magnitude           |     -0.423685 | 7.871414e-45   |
+|        90 | magnitude           |      0.419583 | 6.487704e-44   |
+|      3548 | magnitude           |      0.411402 | 3.991055e-42   |
+|      1554 | magnitude           |     -0.409980 | 8.075082e-42   |
+|      3085 | fibonacci_proximity |      0.409860 | 8.566550e-42   |
+|      2267 | magnitude           |     -0.407845 | 2.310910e-41   |
+|      3865 | magnitude           |     -0.402690 | 2.836130e-40   |
+|      1480 | magnitude           |     -0.398972 | 1.683700e-39   |
+|      3508 | magnitude           |      0.398403 | 2.206384e-39   |
+|      2021 | magnitude           |     -0.394376 | 1.475325e-38   |
+|      1406 | magnitude           |      0.389584 | 1.368223e-37   |
+
+
+: The 25 most correlated component-property pairs.
+
+Magnitude and digit count would be expected to be widely encoded, and they seem in fact
+the dominant factor (also, they would be correlated with each other). The most
+interesting property shown here is definitely Fibonacci_proximity, representing the
+distance between the number and the closest Fibonacci number. Having a correlation index
+of 0.409 with a very small p-value would be a strong indicator that this is an important
+factor in the encoding of the embeddings.
+However, after further consideration it was noticed that can be explained by the strong
+correlation between the Fibonacci proximity and magnitude itself ($\approx 0.547$,
+p-value $< 1e-79$). This confounding factor might make the correlation by itself
+inconclusive, and further research would be needed to establish the connection
+between the two quantities. There are also two strong correlation with both the
+is_fibonacci and the is_prime property, which shows the embeddings are likely encoding
+some information about the primality of the number considered and their relationship to
+the Fibonacci series.
+
+![Mathematical properties with the number of associated strongly correlated
+dimensions](src/plots/OLMo-2-1124-7B_13_strong_property_correlations_v1.svg)
+
 
 ## Llama-3.2-1B-Instruct
 
@@ -372,7 +456,6 @@ Llama](src/plots/Llama-3.2-1B-Instruct_09_umap_cosine_components_gradient_v1.svg
 ![Clustering in UMAP with cosine
 similarity](src/plots/Llama-3.2-1B-Instruct_10_umap_cosine_digit_visualizations_v1.svg
 )
-
 ![UMAP with Euclidean distance in
 Llama](src/plots/Llama-3.2-1B-Instruct_11_umap_euclidean_components_gradient_v1.svg)
 
@@ -382,150 +465,70 @@ previous OLMo visualization.
 
 ### Correlation with mathematical properties
 
+![Dimensions strongly correlated with properties in Llama 3.2](src/plots/Llama-3.2-1B-Instruct_13_strong_property_correlations_v1.svg)
+In this case we see a lot more components directly encoding for digit_count, as well as
+for parity. There are 12 strongly correlated components with primality and 10 with being
+a Fibonacci number. There is still a big number of components strongly correlated with
+the fibonacci_proximity, which would need further analysis to fully establish whether
+their sensitivity to magnitude dominates over the detection of Fibonacci numbers.
 
+# Conclusions
 
-# Mathematical Property Detection in OLMo-2 Embeddings: Analysis Report
+This thesis investigated whether Large Language Models develop structured numerical
+representations that might share organizational principles with the specialized
+representations observed in mathematical savants. Through analysis of numerical
+embeddings in OLMo-2-1124-7B and Llama-3.2-1B-Instruct, we found evidence of systematic
+mathematical structure within learned representations.
 
+## Key Findings
 
-### 2.3 Analysis Techniques
-- **Correlation analysis**: Pearson correlation between embedding dimensions and mathematical properties
-- **Dimensionality reduction**: UMAP, t-SNE, PCA, and TruncatedSVD for visualization
-- **Statistical significance testing**: P-values computed for all correlations
+### Structured Numerical Embeddings
 
-## 3. Results
+Our analysis revealed that numerical tokens are not randomly distributed in embedding
+space but follow organized patterns:
 
-### 3.1 Dimensionality Reduction Analysis
-Visualization through multiple dimensionality reduction techniques revealed consistent organizational patterns:
+**Geometric Organization**: Principal component analysis showed that numerical
+embeddings lie on low-dimensional manifolds. OLMo-2 exhibited U-shaped curves with
+recursive patterns across digit ranges, while Llama-3.2 displayed more linear
+arrangements. Both models required only ~500 components to capture 90% of variance,
+indicating substantial dimensionality reduction from the full 4096-dimensional space.
 
-- **Token length clustering**: Numbers grouped primarily by digit count (1-digit, 2-digit, 3-digit)
-- **Hierarchical structure**: Within length clusters, sub-structures emerged based on individual digit properties
-- **Smooth transitions**: Continuous neighborhoods suggest interpolation capabilities between similar numbers
+**Mathematical Property Correlations**: Multiple embedding dimensions showed significant
+correlations with mathematical properties:
+- Magnitude and digit count exhibited the strongest correlations (r > 0.67)
+- Primality was encoded across multiple dimensions
+- Fibonacci number proximity showed notable correlations, though potentially influenced
+  by magnitude effects
+- Binary properties like evenness were systematically represented
 
-The consistency across different reduction methods (UMAP, t-SNE, PCA, TruncatedSVD) indicates robust underlying structure rather than technique-specific artifacts.
+The consistent organization of numerical embeddings according to mathematical properties
+suggests that neural language models might spontaneously develop structured
+representations during training. This organization goes beyond simple ordering,
+incorporating complex mathematical relationships like primality and sequence membership.
 
-### 3.2 Correlation Analysis Results
+## Limitations
 
-#### 3.2.1 Magnitude and Scale Detection
-The strongest correlations observed were with magnitude-related properties:
+The analysis was limited to two models and a specific set of mathematical properties.
+The relationship between Fibonacci proximity and magnitude highlights the challenge of
+isolating specific property detectors from general ordering mechanisms. Further
+investigation with controlled experiments would be needed to establish causal
+relationships.
 
-| Dimension | Property | Correlation | P-Value | Interpretation |
-|-----------|----------|-------------|---------|----------------|
-| 514 | magnitude | -0.673 | 8.4×10⁻¹³³ | Strong magnitude detector |
-| 3085 | magnitude | -0.607 | 1.6×10⁻¹⁰¹ | Secondary magnitude detector |
-| 2538 | magnitude | -0.567 | 3.0×10⁻⁸⁶ | Tertiary magnitude detector |
+Whether these findings extend to larger models, different architectures, or other
+mathematical domains remains to be determined. The observed structures may reflect
+training data properties as much as emergent organizational principles.
 
-The negative correlations indicate these dimensions activate more strongly for smaller numbers, which aligns with frequency distributions in natural language (smaller numbers appear more often in text).
+## Future Directions
 
-#### 3.2.2 Structural Property Detection
-Digit count showed the next strongest correlations:
+This work suggests several research directions: investigating mathematical
+representations across model scales and architectures, exploring computed embedding
+approaches that leverage discovered geometric structures, and examining whether similar
+organizational principles apply to other domains where specialized representations might
+be beneficial.
 
-| Dimension | Property | Correlation | P-Value |
-|-----------|----------|-------------|---------|
-| 514 | digit_count | -0.485 | 5.3×10⁻⁶⁰ |
-| 1012 | digit_count | -0.463 | 3.3×10⁻⁵⁴ |
-| 2538 | digit_count | -0.454 | 4.1×10⁻⁵² |
-
-#### 3.2.3 Fibonacci Sequence Detection
-Notably, specific dimensions showed significant correlation with Fibonacci proximity:
-
-| Dimension | Property | Correlation | P-Value |
-|-----------|----------|-------------|---------|
-| 3085 | fibonacci_proximity | 0.410 | 8.6×10⁻⁴² |
-| 1318 | fibonacci_proximity | 0.383 | 2.2×10⁻³⁶ |
-
-This finding is particularly interesting as Fibonacci sequences were not explicitly present in the model's training objective.
-
-#### 3.2.4 Prime Number Detection
-Earlier analysis with binary prime detection revealed weaker but statistically significant correlations:
-
-| Dimension | Property | Correlation | P-Value |
-|-----------|----------|-------------|---------|
-| 3278 | is_prime | 0.200 | 1.6×10⁻¹⁰ |
-| 1266 | is_prime | -0.200 | 1.6×10⁻¹⁰ |
-
-Multiple dimensions showed both positive and negative correlations with primality, suggesting ensemble-based detection mechanisms.
-
-### 3.3 Multi-Modal Mathematical Dimensions
-Several dimensions showed significant correlations with multiple mathematical properties:
-
-**Dimension 3085:**
-- Magnitude: r = -0.607
-- Fibonacci proximity: r = 0.410
-- Digit count: r = -0.452
-
-This suggests some embedding dimensions function as multi-modal mathematical property detectors rather than single-property specialists.
-
-### 3.4 Visualization Analysis
-The Fibonacci detector analysis (Dimension 3085) revealed:
-
-- **Linear relationship**: Clear positive correlation between Fibonacci proximity and dimension activation
-- **Bimodal distribution**: Distinct separation between high and low Fibonacci proximity groups
-- **Nonlinear response curve**: Gradual activation changes rather than binary on/off responses
-- **Actual Fibonacci number clustering**: True Fibonacci numbers (0,1,1,2,3,5,8,13...) clustered at high activation values
-
-## 4. Discussion
-
-### 4.1 Evidence for Specialized Mathematical Representations
-The analysis provides evidence that OLMo-2 has developed specialized mathematical property detectors within its embedding space. Key observations supporting this conclusion:
-
-1. **Statistical significance**: P-values as low as 10⁻¹³³ indicate these correlations are not due to chance
-2. **Multiple independent detectors**: Different dimensions specialize in different mathematical properties
-3. **Hierarchical organization**: From basic properties (magnitude) to complex patterns (Fibonacci sequences)
-4. **Consistent visualization patterns**: Multiple dimensionality reduction techniques show similar organizational structures
-
-### 4.2 Comparison to Mathematical Cognition Research
-These findings show interesting parallels to research on mathematical cognition:
-
-- **Magnitude representation**: The strong magnitude correlations align with research on
-  the "number sense" and logarithmic number representation in human cognition
-- **Specialized modules**: The existence of property-specific dimensions resembles
-  theories of domain-specific cognitive modules
-- **Hierarchical processing**: The organization from basic (magnitude) to complex
-  (Fibonacci) properties mirrors developmental theories of mathematical understanding
-
-However, we note these are structural similarities rather than direct evidence of
-identical mechanisms.
-
-
-### 4.3 Limitations and Future Work
-Several limitations should be noted:
-
-- **Single-token limitation**: Analysis focused only on numbers representable as single tokens
-- **Correlation vs. causation**: While correlations are strong, causal relationships remain to be established
-- **Model-specific findings**: Results are specific to OLMo-2 and may not generalize to other architectures
-- **Limited mathematical domain coverage**: Analysis focused on basic properties rather than advanced mathematical concepts
-
-Future work should investigate:
-- Multi-token number representations
-- Cross-model validation of findings
-- Performance correlation between embedding structure and mathematical task performance
-- Enhancement experiments using identified specialized dimensions
-
-## 5. Conclusion
-
-This analysis demonstrates that OLMo-2-1124-7B has developed sophisticated mathematical property detection capabilities within its embedding space. The emergence of specialized dimensions for magnitude, digit count, Fibonacci sequences, and prime numbers occurs without explicit mathematical training objectives, suggesting these representations arise naturally from language modeling.
-
-The hierarchical organization observed—from basic magnitude detection to complex sequence recognition—provides insights into how large language models internally represent numerical concepts. While these findings show structural similarities to theories of mathematical cognition, further research is needed to establish the functional significance of these representations for mathematical reasoning performance.
-
-The identification of specific mathematical property detectors opens new avenues for model interpretation and enhancement, potentially leading to more effective approaches for improving mathematical capabilities in large language models.
-
-## References
-
-*[Note: This would include relevant citations to savant syndrome research, mathematical cognition studies, and embedding analysis literature in the actual thesis]*
-
-
-
-# Paragraphs yet to contextualize - not a real section
-
-In [@mottron2006], the hypothesis is also that the capabilities of the savant might come
-from privileged access to lower-level perceptual processing systems that have been
-functionally re-dedicated to symbolic material processing. This suggests that
-mathematical savants may bypass high-level algorithmic reasoning entirely, instead
-leveraging perceptual mechanisms that can directly recognize patterns in numerical
-relationships - much like how we might instantly recognize a face without consciously
-processing its individual features.
-
-Given the strong association between sequence-space synesthesia and Savant syndrome,
-the additional sensorial information wouldn't just be an aberration, but possibly
-the encoding of structural and mathematical information on a hijacked channel.
-The encoding, giving the subjects the extraordinary abilities they are gifted with, 
+The findings contribute to understanding how neural language models organize
+mathematical information and suggest that structured representations may emerge
+naturally in systems trained on numerical data. While modest in scope, these results
+provide a foundation for further investigation into the relationship between
+representational structure and mathematical reasoning capabilities in artificial
+systems.
