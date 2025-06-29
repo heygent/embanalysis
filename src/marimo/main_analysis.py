@@ -1,8 +1,6 @@
-
-
 import marimo
 
-__generated_with = "0.13.0"
+__generated_with = "0.14.9"
 app = marimo.App(
     app_title="Analyzing Numerical Embeddings",
     layout_file="layouts/main_analysis.slides.json",
@@ -84,12 +82,6 @@ def _(mo):
 
 
 @app.cell
-def _(integers_analyzer):
-    integers_analyzer.embeddings_df.isna().any().any()
-    return
-
-
-@app.cell
 def _(PCA, TruncatedSVD, integers_analyzer):
     svd_components = 100
     integers_svd = integers_analyzer.run_estimator(TruncatedSVD(svd_components))
@@ -98,23 +90,6 @@ def _(PCA, TruncatedSVD, integers_analyzer):
     integers_pca = integers_analyzer.run_estimator(PCA(pca_components))
 
     return integers_pca, integers_svd, pca_components, svd_components
-
-
-@app.cell
-def _(conn, embeddings, mo):
-    emblendf = mo.sql(
-        f"""
-        SELECT embeddings FROM embeddings where model_id ilike '%olmo%'
-        """,
-        engine=conn
-    )
-    return (emblendf,)
-
-
-@app.cell
-def _(emblendf):
-    emblendf.isna().any()
-    return
 
 
 @app.cell
@@ -187,13 +162,9 @@ def _(integers_svd):
 
 @app.cell
 def _(integers_pca, mo):
-    mo.ui.altair_chart(integers_pca.plot_explained_variance())
-    return
-
-
-@app.cell
-def _(integers_pca, mo):
-    mo.ui.altair_chart(integers_pca.plot_cumulative_variance())
+    mo.hstack([
+    mo.ui.altair_chart(integers_pca.plot_explained_variance()), mo.ui.altair_chart(integers_pca.plot_cumulative_variance())
+    ], widths='equal')
     return
 
 
@@ -229,6 +200,16 @@ def _(integers_tsne, plot_components_with_ui, tsne_ui):
 def _(UMAP, component_plot_ui, integers_analyzer, tsne_kwargs):
     umap_kwargs = dict(
         n_components=2, 
+        # Increase from default 15 to preserve more global structure
+        n_neighbors=50,        
+        # Decrease from default 0.1 for tighter local clusters
+        min_dist=0.05,         
+        metric="cosine",
+        # Increase from default 1.0 to spread out the visualization
+        spread=1.5,            
+        # Increase to enhance local structure preservation
+        local_connectivity=2,  
+        random_state=42,
     )
     umap = UMAP(**umap_kwargs)
 
@@ -240,6 +221,35 @@ def _(UMAP, component_plot_ui, integers_analyzer, tsne_kwargs):
 @app.cell
 def _(integers_umap, plot_components_with_ui, umap_ui):
     plot_components_with_ui(integers_umap, umap_ui)
+    return
+
+
+@app.cell
+def _(UMAP, component_plot_ui, integers_analyzer):
+    umap_euc_kwargs = dict(
+        n_components=2, 
+        # Increase from default 15 to preserve more global structure
+        n_neighbors=50,        
+        # Decrease from default 0.1 for tighter local clusters
+        min_dist=0.05,         
+        metric="euclidean",
+        # Increase from default 1.0 to spread out the visualization
+        spread=1.5,            
+        # Increase to enhance local structure preservation
+        local_connectivity=2,  
+        random_state=42,
+    )
+
+    umap_euc = UMAP(**umap_euc_kwargs)
+
+    integers_umap_euc = integers_analyzer.run_estimator(umap_euc)
+    umap_euc_ui = component_plot_ui(umap_euc_kwargs['n_components'] - 1)
+    return integers_umap_euc, umap_euc_ui
+
+
+@app.cell
+def _(integers_umap_euc, plot_components_with_ui, umap_euc_ui):
+    plot_components_with_ui(integers_umap_euc, umap_euc_ui)
     return
 
 
@@ -277,7 +287,7 @@ def _(integers_analyzer):
 
 @app.cell
 def _(integers_analyzer):
-    integers_analyzer.plot_dimension_property_correlations(100)
+    integers_analyzer.plot_dimension_property_correlations(80)
     return
 
 

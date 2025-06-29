@@ -27,12 +27,5 @@ def plot_components_with_ui(analyzer, ui):
                 )
             ),
             ui.hstack()
-            # mo.hstack(
-            #     [
-            #         mo.vstack([ui["x"], ui["y"]], align="stretch"),
-            #         ui["plot_type"]
-            #     ]
-            # ),
         ],
-        align="start",
     )
