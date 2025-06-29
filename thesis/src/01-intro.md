@@ -125,6 +125,8 @@ property of an optimal representation. I guess the thing is here I started talki
 it as a property of the data, but it would follow that if talking about a certain set of
 data -->
 
+\newpage
+
 ## Reification as computed embeddings - xVal
 
 There have been other, more comprehensive approaches to the improvement of the
@@ -256,6 +258,8 @@ We took two models in consideration:
 - Llama-3.2-1B-Instruct, due to being a small and manageable model to do analysis with
   on limited hardware
 
+\newpage
+
 ## OLMo-2-1124-7B
 
 ### Linear analysis
@@ -290,7 +294,8 @@ properties of the embeddings.](src/plots/OLMo-2-1124-7B_03_svd_digit_visualizati
 #### Explained variance
 
 ![OLMo PCA - explained variance
-overview](src/plots/OLMo-2-1124-7B_01_pca_variance_overview_v1.svg)
+overview](src/plots/OLMo-2-1124-7B_01_pca_variance_overview_v1.svg){height=225px}
+
 The explained variance by component plot (left) shows a sharp drop within the first few
 components, meaning that the first principal components capture dramatically more
 variance than subsequent ones. The cumulative explained variance shows that
@@ -301,6 +306,7 @@ than their full 4096 dimensions, and that they lie on a low-dimensional manifold
 full representation space. Only one-fifth of the total embedding space is necessary to
 capture 90% of the variance.
 
+\newpage
 
 ### Non-linear analysis
 
@@ -370,15 +376,9 @@ components that exhibit a strong correlation does so in terms of their magnitude
 |      3548 | magnitude           |      0.411402 | 3.991055e-42   |
 |      1554 | magnitude           |     -0.409980 | 8.075082e-42   |
 |      3085 | fibonacci_proximity |      0.409860 | 8.566550e-42   |
-|      2267 | magnitude           |     -0.407845 | 2.310910e-41   |
-|      3865 | magnitude           |     -0.402690 | 2.836130e-40   |
-|      1480 | magnitude           |     -0.398972 | 1.683700e-39   |
-|      3508 | magnitude           |      0.398403 | 2.206384e-39   |
-|      2021 | magnitude           |     -0.394376 | 1.475325e-38   |
-|      1406 | magnitude           |      0.389584 | 1.368223e-37   |
 
 
-: The 25 most correlated component-property pairs.
+: The most correlated component-property pairs.
 
 Magnitude and digit count would be expected to be widely encoded, and they seem in fact
 the dominant factor (also, they would be correlated with each other). The most
@@ -396,8 +396,9 @@ some information about the primality of the number considered and their relation
 the Fibonacci series.
 
 ![Mathematical properties with the number of associated strongly correlated
-dimensions](src/plots/OLMo-2-1124-7B_13_strong_property_correlations_v1.svg)
+dimensions](src/plots/OLMo-2-1124-7B_13_strong_property_correlations_v1.svg){width=40%}
 
+\newpage
 
 ## Llama-3.2-1B-Instruct
 
@@ -430,13 +431,15 @@ organization patterns.
 
 #### Explained variance
 
-![Llama PCA explained variance.](src/plots/Llama-3.2-1B-Instruct_01_pca_variance_overview_v1.svg)
-
+![Llama PCA explained
+variance.](src/plots/Llama-3.2-1B-Instruct_01_pca_variance_overview_v1.svg){width=80%}
 
 The explained variance plot reveals slightly higher information concentration than OLMo-2.
 Llama-3.2 reaches 90% explained variance with approximately 500 components compared
 to OLMo-2's 500 components. This suggests more efficient numerical encoding in the
 smaller model.
+
+\newpage
 
 ### Non-Linear analysis
 
@@ -467,6 +470,7 @@ previous OLMo visualization.
 ### Correlation with mathematical properties
 
 ![Dimensions strongly correlated with properties in Llama 3.2](src/plots/Llama-3.2-1B-Instruct_13_strong_property_correlations_v1.svg)
+
 In this case we see a lot more components directly encoding for digit_count, as well as
 for parity. There are 12 strongly correlated components with primality and 10 with being
 a Fibonacci number. There is still a big number of components strongly correlated with
