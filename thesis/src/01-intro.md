@@ -102,7 +102,7 @@ Still, we are left with the fact that the learned representations work better fo
 tokenization strategy different from the one the model was trained for. At the very
 least, the data being biased towards a R2L representation (in the form of using the
 Arabic number system and adopting legibility rules that accommodate right to left
-calculations) lead to embeddings that maintain that bias even when
+calculations) leads to embeddings that maintain that bias even when
 learned in a L2R fashion. This can be a possible hint towards the optimality of certain
 representations compared to others, given the resilience in preferring a certain
 tokenization scheme over the one the model is trained on.
