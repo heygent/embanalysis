@@ -274,8 +274,9 @@ def _(integers_pca):
 
 
 @app.cell
-def _(integers_analyzer):
-    integers_analyzer.dimension_property_correlations_df()
+def _(integers_analyzer, mo):
+    dim_corr_df = integers_analyzer.dimension_property_correlations_df()
+    mo.ui.table(dim_corr_df.reset_index(drop=True))
     return
 
 

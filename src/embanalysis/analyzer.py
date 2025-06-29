@@ -117,7 +117,7 @@ class EmbeddingsAnalyzer:
         )
 
         legend = alt.Legend(
-            labelLimit=150, symbolLimit=30, titleLimit=100, columns=1, padding=10
+            labelLimit=300, symbolLimit=100, titleLimit=500, columns=1, padding=10
         )
 
         tooltip = [

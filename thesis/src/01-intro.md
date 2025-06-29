@@ -80,7 +80,7 @@ as $12345$ would be divided in two tokens, $123$ and $45$. It has been shown
 the grouping doesn't match the positional system's <way of calculating?>.
 An even more surprising development is that forcing the R2L token clustering of numbers
 in models already trained with L2R clustering through the use of commas in the input
-(ex. $12,345$) leads to big improvements in arithmetic performance [@millidge]. Despite
+(ex. $12,345$) leads to big improvements in arithmetic performance [@millidge2024]. Despite
 the model learning representations adapted to work with a L2R token clustering strategy,
 forcing a R2L clustering at inference time shows substantial improvements in arithmetic
 tasks, which means that despite being learned through an unfavorable tokenization
@@ -251,6 +251,21 @@ repeating itself for numbers with one, two and three digits.
 properties of the embeddings.](../plots/OLMo-2-1124-7B_03_svd_digit_visualizations_v1.png
 )
 
+#### Explained variance
+
+![OLMo PCA - explained variance
+overview](../plots/OLMo-2-1124-7B_01_pca_variance_overview_v1.png)
+The explained variance by component plot (left) shows a sharp drop within the first few
+components, meaning that the first principal components capture dramatically more
+variance than subsequent ones. The cumulative explained variance shows that
+approximatively 600 principal components are needed to reach 90% of explained variance.
+
+By this we can conclude that the embeddings have a much lower intrinsic dimensionality
+than their full 4096 dimensions, and that they lie on a low-dimensional manifold in the
+full representation space. Only one-fifth of the total embedding space is necessary to
+capture 90% of the variance.
+
+
 ### Non-linear analysis
 
 ![t-SNE visualization for OLMo embeddings.](../plots/OLMo-2-1124-7B_07_tsne_components_gradient_v1.png)
@@ -265,7 +280,7 @@ properties of the embeddings.](../plots/OLMo-2-1124-7B_03_svd_digit_visualizatio
 | random_state        | 42        |
 
 
-: t-SNE hyperparameters for the presented plot.
+: t-SNE hyperparameters for the presented plots.
 
 
 
@@ -290,10 +305,43 @@ hundreds' digit. Using Euclidean distances gives a picture similar to t-SNE, but
 projected and stretched and with more dispersion for numbers close to zero. The
 spiral-like conformation is also notable here.
 
-### Components correlations with mathematical properties
 
 
+## Llama-3.2-1B-Instruct
 
+### Linear analysis
+
+![PCA visualization of Llama embeddings.](../plots/Llama-3.2-1B-Instruct_00_pca_components_gradient_v1.png)
+
+The PCA projection shows a continuous, arc-shaped curved manifold, with smoother
+transitions between numbers and a distinct separation with numbers close to 0. As with
+what was seen with OLMo, it looks like the PCA centering might end up destroying
+geometric relationships that are better preserved in the SVD visualizations.
+
+![SVD visualization of Llama
+embeddings](../plots/Llama-3.2-1B-Instruct_02_svd_components_gradient_v1.png)
+
+The SVD plot shows a remarkably linear arrangement - numbers form an almost straight
+diagonal line from small (yellow) to large (purple) values. This linear structure is
+much more pronounced than OLMo-2's curved SVD patterns, and it is a unique shape rather
+than a recursive, recurring pattern.
+
+![Llama SVD visualization by digit](../plots/Llama-3.2-1B-Instruct_03_svd_digit_visualizations_v1.png)
+
+The digit-based coloring reveals clear but subtle clustering by mathematical
+properties. Unlike OLMo-2's distinct spatial territories, Llama-3.2 shows gradual
+transitions along the linear arrangement while maintaining digit-based
+organization patterns.
+
+#### Explained variance
+
+![Llama PCA explained variance.](../plots/Llama-3.2-1B-Instruct_01_pca_variance_overview_v1.png)
+
+
+The explained variance plot reveals slightly higher information concentration than OLMo-2.
+Llama-3.2 reaches 90% explained variance with approximately 500 components compared
+to OLMo-2's 500 components. This suggests more efficient numerical encoding in the
+smaller model.
 
 
 # Mathematical Property Detection in OLMo-2 Embeddings: Analysis Report
