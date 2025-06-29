@@ -157,6 +157,7 @@ numerical embeddings.
 
 A case study of savant patient DT [@murray2010] reveals a mathematical cognitive
 architecture with the following characteristics:
+
 - Has sequence-space synesthesia with a "mathematical landscape" containing numbers
   0-9999
 - Each number possesses specific colors, textures, sizes, and sometimes movements or
@@ -340,7 +341,7 @@ hundreds' digit. Using Euclidean distances gives a picture similar to t-SNE, but
 projected and stretched and with more dispersion for numbers close to zero. The
 spiral-like conformation is also notable here.
 
-### Component correlation analysis
+### Correlation with mathematical properties
 
 By taking all the components and their correlations with the properties we're testing
 for, we're able to find the most correlative component-property pairs. Most of the
