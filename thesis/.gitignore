@@ -1,0 +1,19 @@
+# Quarto outputs
+/.quarto/
+_book/
+
+# LaTeX temporary files
+*.aux
+*.log
+*.out
+*.toc
+*.synctex.gz
+*.fdb_latexmk
+*.fls
+*.tex
+
+# OS generated files
+.DS_Store
+
+index_files/
+out/
