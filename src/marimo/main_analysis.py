@@ -20,6 +20,7 @@ def _():
     from sklearn.decomposition import PCA, TruncatedSVD
     from sklearn.manifold import TSNE
     from umap import UMAP
+
     return (
         DB_PATH,
         DuckDBLoader,
@@ -49,14 +50,14 @@ def _(conn, embeddings, mo):
         SELECT DISTINCT model_id FROM embeddings;
         """,
         output=False,
-        engine=conn
+        engine=conn,
     )
     return (models,)
 
 
 @app.cell
 def _(mo, models):
-    all_model_ids = models['model_id'].to_list()
+    all_model_ids = models["model_id"].to_list()
     model_id_ui = mo.ui.dropdown(all_model_ids, searchable=True, value=all_model_ids[0])
     return (model_id_ui,)
 
@@ -71,7 +72,7 @@ def _(loader, model_id_ui):
 
 @app.cell
 def _(EmbeddingsAnalyzer, samples):
-    integers_analyzer = EmbeddingsAnalyzer.from_sample(samples['integers'])
+    integers_analyzer = EmbeddingsAnalyzer.from_sample(samples["integers"])
     return (integers_analyzer,)
 
 
@@ -106,7 +107,7 @@ def _(integers_svd, mo):
 
 @app.cell
 def _(integers_svd, mo):
-    corr_table = mo.ui.table(integers_svd.top_correlations_df(), selection='single')
+    corr_table = mo.ui.table(integers_svd.top_correlations_df(), selection="single")
     corr_table
     return (corr_table,)
 
@@ -114,8 +115,8 @@ def _(integers_svd, mo):
 @app.cell
 def _(component_plot_ui, corr_table, pca_components, svd_components):
     if len(corr_table.value) == 1:
-        x = corr_table.value['Component1'].item()
-        y = corr_table.value['Component2'].item()
+        x = corr_table.value["Component1"].item()
+        y = corr_table.value["Component2"].item()
     else:
         x = 0
         y = 1
@@ -162,9 +163,13 @@ def _(integers_svd):
 
 @app.cell
 def _(integers_pca, mo):
-    mo.hstack([
-    mo.ui.altair_chart(integers_pca.plot_explained_variance()), mo.ui.altair_chart(integers_pca.plot_cumulative_variance())
-    ], widths='equal')
+    mo.hstack(
+        [
+            mo.ui.altair_chart(integers_pca.plot_explained_variance()),
+            mo.ui.altair_chart(integers_pca.plot_cumulative_variance()),
+        ],
+        widths="equal",
+    )
     return
 
 
@@ -177,7 +182,7 @@ def _(mo):
 @app.cell
 def _(TSNE, component_plot_ui, integers_analyzer):
     tsne_kwargs = dict(
-        n_components=2, 
+        n_components=2,
         perplexity=75,
         learning_rate=50,
         early_exaggeration=20,
@@ -186,7 +191,7 @@ def _(TSNE, component_plot_ui, integers_analyzer):
     tsne = TSNE(**tsne_kwargs)
 
     integers_tsne = integers_analyzer.run_estimator(tsne)
-    tsne_ui = component_plot_ui(tsne_kwargs['n_components'] - 1)
+    tsne_ui = component_plot_ui(tsne_kwargs["n_components"] - 1)
     return integers_tsne, tsne_kwargs, tsne_ui
 
 
@@ -199,22 +204,22 @@ def _(integers_tsne, plot_components_with_ui, tsne_ui):
 @app.cell
 def _(UMAP, component_plot_ui, integers_analyzer, tsne_kwargs):
     umap_kwargs = dict(
-        n_components=2, 
+        n_components=2,
         # Increase from default 15 to preserve more global structure
-        n_neighbors=50,        
+        n_neighbors=50,
         # Decrease from default 0.1 for tighter local clusters
-        min_dist=0.05,         
+        min_dist=0.05,
         metric="cosine",
         # Increase from default 1.0 to spread out the visualization
-        spread=1.5,            
+        spread=1.5,
         # Increase to enhance local structure preservation
-        local_connectivity=2,  
+        local_connectivity=2,
         random_state=42,
     )
     umap = UMAP(**umap_kwargs)
 
     integers_umap = integers_analyzer.run_estimator(umap)
-    umap_ui = component_plot_ui(tsne_kwargs['n_components'] - 1)
+    umap_ui = component_plot_ui(tsne_kwargs["n_components"] - 1)
     return integers_umap, umap_ui
 
 
@@ -227,23 +232,23 @@ def _(integers_umap, plot_components_with_ui, umap_ui):
 @app.cell
 def _(UMAP, component_plot_ui, integers_analyzer):
     umap_euc_kwargs = dict(
-        n_components=2, 
+        n_components=2,
         # Increase from default 15 to preserve more global structure
-        n_neighbors=50,        
+        n_neighbors=50,
         # Decrease from default 0.1 for tighter local clusters
-        min_dist=0.05,         
+        min_dist=0.05,
         metric="euclidean",
         # Increase from default 1.0 to spread out the visualization
-        spread=1.5,            
+        spread=1.5,
         # Increase to enhance local structure preservation
-        local_connectivity=2,  
+        local_connectivity=2,
         random_state=42,
     )
 
     umap_euc = UMAP(**umap_euc_kwargs)
 
     integers_umap_euc = integers_analyzer.run_estimator(umap_euc)
-    umap_euc_ui = component_plot_ui(umap_euc_kwargs['n_components'] - 1)
+    umap_euc_ui = component_plot_ui(umap_euc_kwargs["n_components"] - 1)
     return integers_umap_euc, umap_euc_ui
 
 
@@ -268,7 +273,7 @@ def _(integers_pca):
 
 @app.cell
 def _(integers_pca):
-    c2 = integers_pca.embeddings_df['embeddings_1']
+    c2 = integers_pca.embeddings_df["embeddings_1"]
     c2
     return
 

@@ -80,8 +80,10 @@ def golden_ratio_resonance(numbers):
             # Check if n/phi^k is close to an integer for various k
             max_resonance = 0
             for k in range(-5, 6):  # Check various powers of phi
-                ratio = n / (phi ** k)
-                closeness_to_integer = 1 - min(ratio - int(ratio), int(ratio) + 1 - ratio)
+                ratio = n / (phi**k)
+                closeness_to_integer = 1 - min(
+                    ratio - int(ratio), int(ratio) + 1 - ratio
+                )
                 max_resonance = max(max_resonance, closeness_to_integer)
 
             resonances.append(max_resonance)

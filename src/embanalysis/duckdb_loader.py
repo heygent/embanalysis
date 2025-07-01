@@ -6,21 +6,25 @@ import duckdb
 import pandas as pd
 
 
-from embanalysis.sample_data import EmbeddingsSample, EmbeddingsSampleMeta, make_meta_object
+from embanalysis.sample_data import (
+    EmbeddingsSample,
+    EmbeddingsSampleMeta,
+    make_meta_object,
+)
 from embanalysis.constants import DB_PATH
 
 
 class DuckDBLoader:
     def __init__(self, conn: duckdb.DuckDBPyConnection):
         self.conn = conn
-    
+
     @classmethod
     def from_path(cls, db_path: str | Path = DB_PATH, read_only: bool = False):
         """Create a DuckDBLoader instance from a given path."""
         db_path.parent.mkdir(parents=True, exist_ok=True)
         conn = duckdb.connect(db_path, read_only=read_only)
         return cls(conn)
-    
+
     @classmethod
     def default(cls, *args, **kwargs):
         return cls.from_path(*args, **kwargs)

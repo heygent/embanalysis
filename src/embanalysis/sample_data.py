@@ -13,6 +13,7 @@ class IntegerSampleMeta:
     model_id: str
 
     tag: Literal["integers"] = "integers"
+
     def label(self) -> str:
         return "Single Token Integers"
 
@@ -24,6 +25,7 @@ class RandomSampleMeta:
     seed: int
 
     tag: Literal["random"] = "random"
+
     def label(self) -> str:
         return f"Random sample (size={self.sample_size}, seed={self.seed})"
 

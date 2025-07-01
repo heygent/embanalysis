@@ -10,7 +10,13 @@ from sympy.ntheory.primetest import isprime, is_square
 
 from sklearn.base import BaseEstimator
 
-from embanalysis.number_utils import distance_to_nearest_prime, fibonacci_proximity, golden_ratio_resonance, is_fibonacci, squareness_score
+from embanalysis.number_utils import (
+    distance_to_nearest_prime,
+    fibonacci_proximity,
+    golden_ratio_resonance,
+    is_fibonacci,
+    squareness_score,
+)
 from embanalysis.sample_data import (
     EmbeddingsSample,
     EmbeddingsSampleMeta,
@@ -18,6 +24,7 @@ from embanalysis.sample_data import (
 )
 
 default_props = {}
+
 
 def wide_embeddings_df(df: pd.DataFrame) -> pd.DataFrame:
     """Convert embeddings_df to wide format with one column per component."""
@@ -44,8 +51,14 @@ class EmbeddingsAnalyzer:
         """Run a scikit-learn estimator only on the embeddings columns of embeddings_df."""
 
         # Select embeddings columns
-        embedding_cols = [col for col in self.embeddings_df.columns if col.startswith("embeddings_")]
-        other_cols = [col for col in self.embeddings_df.columns if not col.startswith("embeddings_")]
+        embedding_cols = [
+            col for col in self.embeddings_df.columns if col.startswith("embeddings_")
+        ]
+        other_cols = [
+            col
+            for col in self.embeddings_df.columns
+            if not col.startswith("embeddings_")
+        ]
 
         # Fit estimator on embeddings
         embeddings_data = self.embeddings_df[embedding_cols].values
@@ -59,7 +72,9 @@ class EmbeddingsAnalyzer:
         n_components = transformed.shape[1]
 
         transformed_cols = [f"embeddings_{i}" for i in range(n_components)]
-        transformed_df = pd.DataFrame(transformed, columns=transformed_cols, index=self.embeddings_df.index)
+        transformed_df = pd.DataFrame(
+            transformed, columns=transformed_cols, index=self.embeddings_df.index
+        )
 
         # Concatenate with other columns
         result_df = pd.concat([self.embeddings_df[other_cols], transformed_df], axis=1)
@@ -67,8 +82,8 @@ class EmbeddingsAnalyzer:
         return EmbeddingsAnalyzer(
             embeddings_df=result_df,
             meta=ReducedSampleMeta(
-            original=self.meta,
-            estimator=estimator,
+                original=self.meta,
+                estimator=estimator,
             ),
         )
 
@@ -148,41 +163,44 @@ class EmbeddingsAnalyzer:
             ),
             tooltip=tooltip,
         )
-    
+
     def strong_property_correlation_bar_chart(self) -> alt.Chart:
         dim_corr_df = self.dimension_property_correlations_df()
 
         strong_corrs_df = dim_corr_df[
-            (dim_corr_df['Correlation'].abs() > 0.20) & 
-            (dim_corr_df['P_Value'] < 0.05)
+            (dim_corr_df["Correlation"].abs() > 0.20) & (dim_corr_df["P_Value"] < 0.05)
         ].copy()
 
-        counts_per_property = strong_corrs_df['Property'].value_counts().reset_index()
-        counts_per_property.columns = ['Property', 'Count']
+        counts_per_property = strong_corrs_df["Property"].value_counts().reset_index()
+        counts_per_property.columns = ["Property", "Count"]
 
-        bar = alt.Chart(counts_per_property).mark_bar().encode(
-            x=alt.X('Property:N', title='Property', sort='-y'),
-            y=alt.Y('Count:Q', title='Number of Strongly Correlated Dimensions'),
-            color=alt.Color('Property:N', legend=None),
-            tooltip=['Property:N', 'Count:Q']
+        bar = (
+            alt.Chart(counts_per_property)
+            .mark_bar()
+            .encode(
+                x=alt.X("Property:N", title="Property", sort="-y"),
+                y=alt.Y("Count:Q", title="Number of Strongly Correlated Dimensions"),
+                color=alt.Color("Property:N", legend=None),
+                tooltip=["Property:N", "Count:Q"],
+            )
         )
 
-        text = alt.Chart(counts_per_property).mark_text(
-            align='center',
-            baseline='bottom',
-            dy=-2,
-            fontSize=14,
-            fontWeight='bold'
-        ).encode(
-            x=alt.X('Property:N', sort='-y'),
-            y=alt.Y('Count:Q'),
-            text=alt.Text('Count:Q')
+        text = (
+            alt.Chart(counts_per_property)
+            .mark_text(
+                align="center", baseline="bottom", dy=-2, fontSize=14, fontWeight="bold"
+            )
+            .encode(
+                x=alt.X("Property:N", sort="-y"),
+                y=alt.Y("Count:Q"),
+                text=alt.Text("Count:Q"),
+            )
         )
 
         return (bar + text).properties(
-            title='Number of Strongly Correlated Dimensions (>0.20, p<0.05) per Property',
+            title="Number of Strongly Correlated Dimensions (>0.20, p<0.05) per Property",
             width=400,
-            #height=400
+            # height=400
         )
 
     def plot_digit(
@@ -216,16 +234,20 @@ class EmbeddingsAnalyzer:
         """Create a 2D scatter plot of two embeddings components colored by digit length."""
         chart, tooltip, legend = self._base_component_chart(x_component, y_component)
 
-        if self.meta.original.tag == 'random':
+        if self.meta.original.tag == "random":
             color_type = "quantitative"
         else:
             color_type = "nominal"
 
         return chart.encode(
-            color=alt.Color("token_length", title="Token Length", legend=legend, type=color_type),
+            color=alt.Color(
+                "token_length", title="Token Length", legend=legend, type=color_type
+            ),
             tooltip=[
                 *tooltip,
-                alt.Tooltip("token_length", title="Token Length/Digits", type=color_type),
+                alt.Tooltip(
+                    "token_length", title="Token Length/Digits", type=color_type
+                ),
             ],
             # size=alt.Size(
             #     "token_length:N", scale=alt.Scale(range=[200, 100, 30]), legend=None
@@ -242,8 +264,8 @@ class EmbeddingsAnalyzer:
         digit_position: int = 2,
     ) -> alt.Chart:
         """Create a 2D scatter plot of two embeddings components."""
-        
-        if self.meta.original.tag == 'random':
+
+        if self.meta.original.tag == "random":
             return self.plot_digit_length(x_component, y_component)
 
         match plot_type:
@@ -330,85 +352,95 @@ class EmbeddingsAnalyzer:
 
     def dimension_property_correlations_df(self) -> pd.DataFrame:
         """
-        Create a dataframe showing correlations between each embedding dimension 
+        Create a dataframe showing correlations between each embedding dimension
         and various numerical properties.
-        
+
         Returns:
             DataFrame with columns: Dimension, Property, Correlation, P_Value
         """
         # Get the numbers (tokens) from the dataframe
-        numbers = self.embeddings_df['token'].astype(int).values
+        numbers = self.embeddings_df["token"].astype(int).values
         print(type(numbers))
-        
+
         # Calculate properties
         properties = {
-            'magnitude': np.log10(numbers + 1),
-            'is_even': (numbers % 2 == 0).astype(int),
-            'is_prime': np.array([isprime(n) for n in numbers], dtype=int),
-            'prime_proximity': -distance_to_nearest_prime(numbers),
-            'perfect_square': np.array([is_square(n) for n in numbers], dtype=int),
-            'squareness': squareness_score(numbers),
-            'is_fibonacci': np.array([is_fibonacci(n) for n in numbers], dtype=int),
-            'fibonacci_proximity': fibonacci_proximity(numbers),
-            'golden_ratio_resonance': golden_ratio_resonance(numbers),
-            'digit_count': [len(str(n)) for n in numbers]
+            "magnitude": np.log10(numbers + 1),
+            "is_even": (numbers % 2 == 0).astype(int),
+            "is_prime": np.array([isprime(n) for n in numbers], dtype=int),
+            "prime_proximity": -distance_to_nearest_prime(numbers),
+            "perfect_square": np.array([is_square(n) for n in numbers], dtype=int),
+            "squareness": squareness_score(numbers),
+            "is_fibonacci": np.array([is_fibonacci(n) for n in numbers], dtype=int),
+            "fibonacci_proximity": fibonacci_proximity(numbers),
+            "golden_ratio_resonance": golden_ratio_resonance(numbers),
+            "digit_count": [len(str(n)) for n in numbers],
         }
-        
+
         # Get embedding columns
-        embedding_cols = [col for col in self.embeddings_df.columns if col.startswith("embeddings_")]
-        
+        embedding_cols = [
+            col for col in self.embeddings_df.columns if col.startswith("embeddings_")
+        ]
+
         # Calculate correlations for each dimension and property
         correlation_data = []
-        
+
         for dim_col in embedding_cols:
             dimension_values = self.embeddings_df[dim_col].values
-            dimension_idx = int(dim_col.split('_')[1])  # Extract dimension index
-            
+            dimension_idx = int(dim_col.split("_")[1])  # Extract dimension index
+
             for prop_name, prop_values in properties.items():
                 try:
                     correlation, p_value = pearsonr(dimension_values, prop_values)
-                    correlation_data.append({
-                        'Dimension': dimension_idx,
-                        'Property': prop_name,
-                        'Correlation': correlation,
-                        'P_Value': p_value,
-                        'Abs_Correlation': abs(correlation)
-                    })
+                    correlation_data.append(
+                        {
+                            "Dimension": dimension_idx,
+                            "Property": prop_name,
+                            "Correlation": correlation,
+                            "P_Value": p_value,
+                            "Abs_Correlation": abs(correlation),
+                        }
+                    )
                 except Exception:
                     # Handle cases where correlation can't be computed
-                    correlation_data.append({
-                        'Dimension': dimension_idx,
-                        'Property': prop_name,
-                        'Correlation': np.nan,
-                        'P_Value': np.nan,
-                        'Abs_Correlation': np.nan
-                    })
-        
+                    correlation_data.append(
+                        {
+                            "Dimension": dimension_idx,
+                            "Property": prop_name,
+                            "Correlation": np.nan,
+                            "P_Value": np.nan,
+                            "Abs_Correlation": np.nan,
+                        }
+                    )
+
         df = pd.DataFrame(correlation_data)
-        
+
         # Sort by absolute correlation value (descending)
-        df = df.sort_values('Abs_Correlation', ascending=False, na_position='last')
+        df = df.sort_values("Abs_Correlation", ascending=False, na_position="last")
         df = df.reset_index(drop=True)
-        
+
         return df
 
-    def get_top_dimension_property_correlations(self, top_n: int = 10, min_abs_correlation: float = 0.1) -> pd.DataFrame:
+    def get_top_dimension_property_correlations(
+        self, top_n: int = 10, min_abs_correlation: float = 0.1
+    ) -> pd.DataFrame:
         """
         Get the top correlations between embedding dimensions and numerical properties.
-        
+
         Args:
             top_n: Number of top correlations to return
             min_abs_correlation: Minimum absolute correlation threshold
-            
+
         Returns:
             DataFrame with top correlations, filtered and sorted
         """
         corr_df = self.dimension_property_correlations_df()
-        
+
         # Filter by minimum correlation and take top N
-        filtered_df = corr_df[corr_df['Abs_Correlation'] >= min_abs_correlation].head(top_n)
-        
-        return filtered_df[['Dimension', 'Property', 'Correlation', 'P_Value']]
+        filtered_df = corr_df[corr_df["Abs_Correlation"] >= min_abs_correlation].head(
+            top_n
+        )
+
+        return filtered_df[["Dimension", "Property", "Correlation", "P_Value"]]
 
     def top_correlations_df(
         self, n_vectors: int = 20, min_correlation=0.01
@@ -433,7 +465,9 @@ class EmbeddingsAnalyzer:
 
         return corr_df
 
-    def plot_top_correlated_components(self, n_vectors: int = 10, corr_df = None) -> alt.Chart:
+    def plot_top_correlated_components(
+        self, n_vectors: int = 10, corr_df=None
+    ) -> alt.Chart:
         """
         Plot the plot_by_digit_length chart for the top correlated component pairs.
         Arranges the plots in a grid with two plots per row.
@@ -443,11 +477,15 @@ class EmbeddingsAnalyzer:
         charts = []
         for _, row in corr_df.iterrows():
             i, j = int(row["Component1"]), int(row["Component2"])
-            chart = self.plot_components(plot_type='gradient', x_component=i, y_component=j).properties(
+            chart = self.plot_components(
+                plot_type="gradient", x_component=i, y_component=j
+            ).properties(
                 title=f"Components {i + 1} vs {j + 1} (corr={row['Correlation']:.2f})"
             )
             charts.append(chart)
-            chart = self.plot_components(plot_type='digit_length', x_component=i, y_component=j).properties(
+            chart = self.plot_components(
+                plot_type="digit_length", x_component=i, y_component=j
+            ).properties(
                 title=f"Components {i + 1} vs {j + 1} (corr={row['Correlation']:.2f}) by digit length"
             )
             charts.append(chart)
@@ -516,22 +554,26 @@ class EmbeddingsAnalyzer:
             height=600,
         )
 
-    def plot_dimension_property_correlations(self, top_n: int = 20, min_abs_correlation: float = 0.1) -> alt.Chart:
+    def plot_dimension_property_correlations(
+        self, top_n: int = 20, min_abs_correlation: float = 0.1
+    ) -> alt.Chart:
         """
         Create a heatmap showing correlations between embedding dimensions and numerical properties.
-        
+
         Args:
             top_n: Number of top correlations to show
             min_abs_correlation: Minimum absolute correlation to display
-            
+
         Returns:
             Altair chart showing the correlation heatmap
         """
         corr_df = self.dimension_property_correlations_df()
-        
+
         # Filter by minimum correlation and take top N
-        filtered_df = corr_df[corr_df['Abs_Correlation'] >= min_abs_correlation].head(top_n)
-        
+        filtered_df = corr_df[corr_df["Abs_Correlation"] >= min_abs_correlation].head(
+            top_n
+        )
+
         # Create heatmap
         heatmap = (
             alt.Chart(filtered_df)
@@ -542,17 +584,17 @@ class EmbeddingsAnalyzer:
                 color=alt.Color(
                     "Correlation:Q",
                     scale=alt.Scale(scheme="blueorange", domain=[-1, 1]),
-                    title="Correlation"
+                    title="Correlation",
                 ),
                 tooltip=[
-                    "Dimension:O", 
-                    "Property:N", 
+                    "Dimension:O",
+                    "Property:N",
                     alt.Tooltip("Correlation:Q", format=".3f"),
-                    alt.Tooltip("P_Value:Q", format=".2e")
-                ]
+                    alt.Tooltip("P_Value:Q", format=".2e"),
+                ],
             )
         )
-        
+
         # Add text labels for correlations
         text = (
             alt.Chart(filtered_df)
@@ -564,15 +606,15 @@ class EmbeddingsAnalyzer:
                 color=alt.condition(
                     "abs(datum.Correlation) > 0.5",
                     alt.value("white"),
-                    alt.value("black")
-                )
+                    alt.value("black"),
+                ),
             )
         )
-        
+
         return (heatmap + text).properties(
-            title=self.alt_title(), # text="Dimension-Property Correlations"),
+            title=self.alt_title(),  # text="Dimension-Property Correlations"),
             width=400,
-            height=max(300, len(filtered_df['Dimension'].unique()) * 20)
+            height=max(300, len(filtered_df["Dimension"].unique()) * 20),
         )
 
     def plot_explained_variance(self) -> alt.Chart:
@@ -636,20 +678,22 @@ class EmbeddingsAnalyzer:
     def plot_component_loadings(self, n_components: int = 5) -> alt.Chart:
         """Plot the loadings (eigenvectors) showing feature contributions to each component."""
         estimator = self.meta.estimator
-        
+
         # Create DataFrame with loadings
         loading_dfs = []
         for i in range(min(n_components, estimator.components_.shape[0])):
-            df = pd.DataFrame({
-                "Feature_Index": np.arange(len(estimator.components_[i])),
-                "Loading": estimator.components_[i],
-                "Component": f"Component {i + 1}",
-                "Magnitude": np.abs(estimator.components_[i])
-            })
+            df = pd.DataFrame(
+                {
+                    "Feature_Index": np.arange(len(estimator.components_[i])),
+                    "Loading": estimator.components_[i],
+                    "Component": f"Component {i + 1}",
+                    "Magnitude": np.abs(estimator.components_[i]),
+                }
+            )
             loading_dfs.append(df)
-        
+
         loadings_df = pd.concat(loading_dfs)
-        
+
         return (
             alt.Chart(loadings_df)
             .mark_line()
@@ -657,14 +701,14 @@ class EmbeddingsAnalyzer:
                 x=alt.X("Feature_Index:Q", title="Original Feature Index"),
                 y=alt.Y("Loading:Q", title="Loading Value"),
                 color=alt.Color("Component:N"),
-                tooltip=["Component", "Feature_Index", "Loading:Q"]
+                tooltip=["Component", "Feature_Index", "Loading:Q"],
             )
             .facet(row="Component:N")
             .resolve_scale(y="independent")
             .properties(
                 title="Principal Component Loadings (Eigenvectors)",
                 width=400,
-                height=100
+                height=100,
             )
         )
 
