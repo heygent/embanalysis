@@ -1,3 +1,5 @@
+from abc import ABC, abstractmethod
+from typing import Self
 import numpy as np
 import pandas as pd
 
@@ -12,6 +14,17 @@ from embanalysis.number_utils import (
     is_fibonacci,
     squareness_score,
 )
+
+class FunctionChain:
+    def __init__(self, *functions):
+        self.functions = functions
+        self.name = " -> ".join(fn.__name__ for fn in functions)
+
+    def __call__(self, *args, **kwargs):
+        result = args
+        for fn in self.functions:
+            result = fn(*result, **kwargs)
+        return result
 
 
 def make_properties_df(numbers):
