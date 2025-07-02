@@ -15,7 +15,7 @@ def _():
     from embanalysis.constants import DB_PATH
     from embanalysis.analyzer import EmbeddingsAnalyzer
 
-    from embanalysis.marimo_analyzer import component_plot_ui, plot_components_with_ui
+    from embanalysis.marimo_utils import component_plot_ui, plot_components_with_ui
 
     from sklearn.decomposition import PCA, TruncatedSVD
     from sklearn.manifold import TSNE
@@ -50,7 +50,7 @@ def _(conn, embeddings, mo):
         SELECT DISTINCT model_id FROM embeddings;
         """,
         output=False,
-        engine=conn,
+        engine=conn
     )
     return (models,)
 
@@ -101,7 +101,7 @@ def _(mo):
 
 @app.cell
 def _(integers_svd, mo):
-    mo.ui.altair_chart(integers_svd.plot_correlation_heatmap())
+    mo.ui.altair_chart(integers_svd.plot.correlation_heatmap())
     return
 
 
@@ -139,11 +139,6 @@ def _(integers_pca, pca_ui, plot_components_with_ui):
 
 
 @app.cell
-def _():
-    return
-
-
-@app.cell
 def _(integers_svd, plot_components_with_ui, svd_ui):
     plot_components_with_ui(integers_svd, svd_ui)
     return
@@ -165,8 +160,8 @@ def _(integers_svd):
 def _(integers_pca, mo):
     mo.hstack(
         [
-            mo.ui.altair_chart(integers_pca.plot_explained_variance()),
-            mo.ui.altair_chart(integers_pca.plot_cumulative_variance()),
+            mo.ui.altair_chart(integers_pca.plot.explained_variance()),
+            mo.ui.altair_chart(integers_pca.plot.cumulative_variance()),
         ],
         widths="equal",
     )
@@ -293,7 +288,7 @@ def _(integers_analyzer):
 
 @app.cell
 def _(integers_analyzer):
-    integers_analyzer.plot_dimension_property_correlations(80)
+    integers_analyzer.plot.dimension_property_correlations(80)
     return
 
 

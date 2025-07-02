@@ -28,7 +28,7 @@ def plot_components_with_ui(analyzer, ui):
     return mo.vstack(
         [
             mo.ui.altair_chart(
-                analyzer.plot_components(
+                analyzer.plot.components(
                     ui["x"].value, ui["y"].value, *ui["plot_type"].value
                 )
             ),
