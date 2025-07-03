@@ -45,10 +45,7 @@ def squareness_score(numbers):
 
 def is_fibonacci(n):
     """Check if a number is a Fibonacci number"""
-    if n < 0:
-        return False
-    # A number is Fibonacci if one of these is a perfect square
-    return is_square(5 * n * n + 4) or is_square(5 * n * n - 4)
+    return n >= 0 and (is_square(5 * n * n + 4) or is_square(5 * n * n - 4))
 
 
 def fibonacci_proximity(numbers, max_fib=1000):
@@ -89,3 +86,15 @@ def golden_ratio_resonance(numbers):
             resonances.append(max_resonance)
 
     return np.array(resonances)
+
+def sequence_proximity(numbers, sequence):
+    """Distance to nearest number in a given sequence"""
+    sequence = np.array(sequence)
+    proximities = []
+
+    for n in numbers:
+        distances = np.abs(sequence - n)
+        min_distance = np.min(distances)
+        proximities.append(-min_distance)  # Negative so closer numbers have higher values
+
+    return np.array(proximities)

@@ -12,6 +12,11 @@ from embanalysis.number_utils import (
     squareness_score,
 )
 
+boolean_fns = [
+    np.vectorize(isprime),
+    np.vectorize(is_square),
+]
+
 
 def make_properties_df(numbers):
     return pd.DataFrame(

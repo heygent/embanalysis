@@ -1,10 +1,6 @@
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-
-OUT_PATH = PROJECT_ROOT / "output"
-OUT_PATH.mkdir(exist_ok=True)
-
 DB_PATH = PROJECT_ROOT / "output" / "embeddings.duckdb"
 
 HF_MODEL_ALIASES = {

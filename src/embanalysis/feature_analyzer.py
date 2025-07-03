@@ -1,10 +1,8 @@
-from abc import ABC, abstractmethod
-from typing import Self
 import numpy as np
 import pandas as pd
 
 from sympy import isprime
-from sympy.ntheory.primetest import is_square
+from sympy.ntheory.generate import sieve
 
 from embanalysis.analyzer import EmbeddingsAnalyzer
 from embanalysis.number_utils import (
@@ -15,16 +13,12 @@ from embanalysis.number_utils import (
     squareness_score,
 )
 
-class FunctionChain:
-    def __init__(self, *functions):
-        self.functions = functions
-        self.name = " -> ".join(fn.__name__ for fn in functions)
 
-    def __call__(self, *args, **kwargs):
-        result = args
-        for fn in self.functions:
-            result = fn(*result, **kwargs)
-        return result
+def generate_sequences(stop: int = 1000):
+    return {
+        'primes': np.fromiter(sieve.primerange(0, stop), dtype=int),
+    }
+
 
 
 def make_properties_df(numbers):
