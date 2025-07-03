@@ -88,7 +88,7 @@ class EmbeddingsVisualizer:
 
     def strong_property_correlation_bar_chart(self) -> alt.Chart:
         """Create a bar chart showing properties with strong correlations to dimensions."""
-        dim_corr_df = self.analyzer.dimension_property_correlations_df()
+        dim_corr_df = self.analyzer.feature_to_sequence_analysis_df()
 
         strong_corrs_df = dim_corr_df[
             (dim_corr_df["Correlation"].abs() > 0.20) & (dim_corr_df["P_Value"] < 0.05)
@@ -341,7 +341,7 @@ class EmbeddingsVisualizer:
         Returns:
             Altair chart showing the correlation heatmap
         """
-        corr_df = self.analyzer.dimension_property_correlations_df()
+        corr_df = self.analyzer.feature_to_sequence_analysis_df()
 
         # Filter by minimum correlation and take top N
         filtered_df = corr_df[corr_df["Abs_Correlation"] >= min_abs_correlation].head(

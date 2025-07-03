@@ -21,6 +21,7 @@ dependencies = [
     "typer>=0.16.0",
     "vl-convert-python>=1.8.0",
     "sympy>=1.13.1",
+    "toolz>=1.0.0",
 ]
 
 [dependency-groups]

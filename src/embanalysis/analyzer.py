@@ -5,17 +5,10 @@ import numpy as np
 import pandas as pd
 from scipy.stats import pearsonr
 
-from sympy.ntheory.primetest import isprime, is_square
-
 from sklearn.base import BaseEstimator
 
-from embanalysis.number_utils import (
-    distance_to_nearest_prime,
-    fibonacci_proximity,
-    golden_ratio_resonance,
-    is_fibonacci,
-    squareness_score,
-)
+from embanalysis.feature_analysis import make_sequences
+
 from embanalysis.sample_data import (
     EmbeddingsSample,
     EmbeddingsSampleMeta,
@@ -107,10 +100,13 @@ class EmbeddingsAnalyzer:
         """Get just the data columns (exclude token_id and token)."""
         return self.embeddings_df.drop(["token_id", "token"], axis=1)
 
-    def dimension_property_correlations_df(self) -> pd.DataFrame:
+    def feature_to_sequence_analysis_df(self) -> pd.DataFrame:
         """
         Create a dataframe showing correlations between each embedding dimension
-        and various numerical properties.
+        and various numerical sequences.
+        
+        This method now uses the new feature analysis system while maintaining
+        backward compatibility with the original property calculations.
 
         Returns:
             DataFrame with columns: Dimension, Property, Correlation, P_Value
@@ -118,19 +114,7 @@ class EmbeddingsAnalyzer:
         # Get the numbers (tokens) from the dataframe
         numbers = self.embeddings_df["token"].astype(int).values
 
-        # Calculate properties
-        properties = {
-            "magnitude": np.log10(numbers + 1),
-            "is_even": (numbers % 2 == 0).astype(int),
-            "is_prime": np.array([isprime(n) for n in numbers], dtype=int),
-            "prime_proximity": -distance_to_nearest_prime(numbers),
-            "perfect_square": np.array([is_square(n) for n in numbers], dtype=int),
-            "squareness": squareness_score(numbers),
-            "is_fibonacci": np.array([is_fibonacci(n) for n in numbers], dtype=int),
-            "fibonacci_proximity": fibonacci_proximity(numbers),
-            "golden_ratio_resonance": golden_ratio_resonance(numbers),
-            "digit_count": [len(str(n)) for n in numbers],
-        }
+        properties = make_sequences(max_token=numbers.max() + 1)
 
         # Get embedding columns
         embedding_cols = [
@@ -175,6 +159,24 @@ class EmbeddingsAnalyzer:
         df = df.reset_index(drop=True)
 
         return df
+    
+    def dimension_sequence_correlations_df(self, sequences=None, encodings=None, **kwargs) -> pd.DataFrame:
+        """
+        Create a dataframe showing correlations between embedding dimensions and mathematical sequences.
+        
+        This method uses the new feature analysis system for more flexible sequence analysis.
+        
+        Args:
+            sequences: List of sequence names to analyze (default: all available)
+            encodings: List of encoding types ["binary", "smooth", "direct"] (default: all)
+            **kwargs: Additional parameters for encodings (e.g., sigma for smooth)
+            
+        Returns:
+            DataFrame with columns: Dimension, Property, Correlation, P_Value, Abs_Correlation
+        """
+        return self.feature_analysis.analyze_correlations(
+            sequences=sequences, encodings=encodings, **kwargs
+        )
 
     def get_top_dimension_property_correlations(
         self, top_n: int = 10, min_abs_correlation: float = 0.1
@@ -189,7 +191,7 @@ class EmbeddingsAnalyzer:
         Returns:
             DataFrame with top correlations, filtered and sorted
         """
-        corr_df = self.dimension_property_correlations_df()
+        corr_df = self.feature_to_sequence_analysis_df()
 
         # Filter by minimum correlation and take top N
         filtered_df = corr_df[corr_df["Abs_Correlation"] >= min_abs_correlation].head(
