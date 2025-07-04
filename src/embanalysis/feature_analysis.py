@@ -1,3 +1,4 @@
+import functools
 import numpy as np
 from scipy.ndimage import gaussian_filter1d
 
@@ -53,7 +54,7 @@ def direct_encoded_base_sequences(max_token: int = 1000):
         'numbers': np.arange(max_token),
         'sin': np.sin(np.arange(max_token)),
         'cos': np.cos(np.arange(max_token)),
-        'even': np.arange(0, max_token, 2),
+        'even': np.arange(0, max_token * 2, 2),
         'log': np.log10(np.arange(max_token) + 1),
     }
 
@@ -78,18 +79,23 @@ def one_hot_gaussian_smooth(binary, sigma=2.0):
     else:
         return binary.astype(float)
 
-def make_sequences(max_token: int, sigma: float = 2.0):
+@functools.cache
+def make_sequences(max_token: int):
+    return direct_encoded_base_sequences(max_token) | binary_encoded_base_sequences(max_token)
+
+@functools.cache
+def make_encoded_sequences(max_token: int, sigma: float = 2.0):
     encoded_sequences = {}
 
     direct_sequences = direct_encoded_base_sequences(max_token)
     for name, seq in direct_sequences.items():
-        encoded_sequences[f'{name}/direct'] = seq 
+        encoded_sequences[name, 'direct'] = seq 
 
     binary_sequences = binary_encoded_base_sequences(max_token)
     for name, seq in binary_sequences.items():
         one_hot = one_hot_encode(seq, max_token)
-        encoded_sequences[f'{name}/binary'] = one_hot
-        encoded_sequences[f'{name}/gauss'] = one_hot_gaussian_smooth(one_hot, sigma=sigma)
+        encoded_sequences[name, 'binary'] = one_hot
+        encoded_sequences[name, 'gauss'] = one_hot_gaussian_smooth(one_hot, sigma=sigma)
 
     return encoded_sequences
     

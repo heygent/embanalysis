@@ -5,8 +5,11 @@ import numpy as np
 import pandas as pd
 
 from embanalysis.analyzer import EmbeddingsAnalyzer
+from embanalysis.feature_analysis import make_encoded_sequences, make_sequences
 
-default_props = {}
+default_props = {
+    "width": 600,
+}
 
 @dataclass
 class EmbeddingsVisualizer:
@@ -194,6 +197,37 @@ class EmbeddingsVisualizer:
                 return self.digit(x_component, y_component, digit_position)
             case "digit_length":
                 return self.digit_length(x_component, y_component)
+    
+    def feature(self, component: int = 0) -> alt.Chart:
+        """Create a chart showing the values of a single component."""
+        embedding_col = f"embeddings_{component}"
+        return (
+            alt.Chart(self.analyzer.embeddings_df)
+            .mark_line()
+            .encode(
+                x=alt.X("token:Q", title="Token ID"),
+                y=alt.Y(embedding_col, title=f"Component {component} Value"),
+                tooltip=["token", embedding_col],
+            )
+            .properties(
+                title=f"Component {component} Values",
+                **default_props,
+            )
+            .interactive(bind_y=False)
+        )
+    
+    def feature_with_discrete_sequences(self, feature: int, sequence_names: list[str]) -> alt.Chart:
+        """Create a chart showing the values of a specific sequence."""
+        all_sequences_df = pd.DataFrame(make_encoded_sequences(len(self.analyzer.embeddings_df)))
+        all_sequences_df.columns = all_sequences_df.columns.map(lambda x: "/".join(x))
+        all_sequences_df.reset_index(inplace=True)
+        
+        chart = self.feature(feature)
+        for sequence in sequence_names:
+            chart += alt.Chart(all_sequences_df).mark_rule(strokeDash=[5, 5]).encode(x='index', y=f'{sequence}/binary:Q')
+        
+        return chart
+        
 
     def consecutive_distances(self) -> alt.Chart:
         """Create a chart showing distances between consecutive number embeddings."""
@@ -344,7 +378,7 @@ class EmbeddingsVisualizer:
         corr_df = self.analyzer.feature_to_sequence_analysis_df()
 
         # Filter by minimum correlation and take top N
-        filtered_df = corr_df[corr_df["Abs_Correlation"] >= min_abs_correlation].head(
+        filtered_df = corr_df[corr_df["Correlation"].abs() >= min_abs_correlation].head(
             top_n
         )
 

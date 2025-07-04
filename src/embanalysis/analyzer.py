@@ -4,10 +4,11 @@ from typing import Self
 import numpy as np
 import pandas as pd
 from scipy.stats import pearsonr
+from sklearn.feature_selection import mutual_info_regression
 
 from sklearn.base import BaseEstimator
 
-from embanalysis.feature_analysis import make_sequences
+from embanalysis.feature_analysis import make_encoded_sequences
 
 from embanalysis.sample_data import (
     EmbeddingsSample,
@@ -96,88 +97,66 @@ class EmbeddingsAnalyzer:
         )
 
     @cached_property
-    def embeddings_df_justdata(self) -> pd.DataFrame:
+    def embeddings_df_without_token_data(self) -> pd.DataFrame:
         """Get just the data columns (exclude token_id and token)."""
         return self.embeddings_df.drop(["token_id", "token"], axis=1)
 
     def feature_to_sequence_analysis_df(self) -> pd.DataFrame:
         """
-        Create a dataframe showing correlations between each embedding dimension
-        and various numerical sequences.
+        Create a dataframe showing correlations and mutual information between each 
+        embedding dimension and various numerical sequences.
         
         This method now uses the new feature analysis system while maintaining
         backward compatibility with the original property calculations.
 
         Returns:
-            DataFrame with columns: Dimension, Property, Correlation, P_Value
+            DataFrame with columns: Dimension, Property, Encoding, Correlation, P_Value, Mutual_Info
         """
         # Get the numbers (tokens) from the dataframe
-        numbers = self.embeddings_df["token"].astype(int).values
 
-        properties = make_sequences(max_token=numbers.max() + 1)
+        sequences = make_encoded_sequences(len(self.embeddings_df))
 
         # Get embedding columns
         embedding_cols = [
             col for col in self.embeddings_df.columns if col.startswith("embeddings_")
         ]
 
-        # Calculate correlations for each dimension and property
+        # Calculate correlations and mutual information for each dimension and property
         correlation_data = []
 
         for dim_col in embedding_cols:
             dimension_values = self.embeddings_df[dim_col].values
             dimension_idx = int(dim_col.split("_")[1])  # Extract dimension index
 
-            for prop_name, prop_values in properties.items():
-                try:
-                    correlation, p_value = pearsonr(dimension_values, prop_values)
-                    correlation_data.append(
-                        {
-                            "Dimension": dimension_idx,
-                            "Property": prop_name,
-                            "Correlation": correlation,
-                            "P_Value": p_value,
-                            "Abs_Correlation": abs(correlation),
-                        }
-                    )
-                except Exception:
-                    # Handle cases where correlation can't be computed
-                    correlation_data.append(
-                        {
-                            "Dimension": dimension_idx,
-                            "Property": prop_name,
-                            "Correlation": np.nan,
-                            "P_Value": np.nan,
-                            "Abs_Correlation": np.nan,
-                        }
-                    )
+            for (sequence_name, encoding), prop_values in sequences.items():
+                # Calculate Pearson correlation
+                correlation, p_value = pearsonr(dimension_values, prop_values)
+                
+                # Calculate mutual information
+                # Reshape for sklearn (expects 2D array for X)
+                X = dimension_values.reshape(-1, 1)
+                y = prop_values
+                mutual_info = mutual_info_regression(X, y, random_state=42)[0]
+                
+                correlation_data.append(
+                    {
+                        "Dimension": dimension_idx,
+                        "Property": sequence_name,
+                        "Encoding": encoding,
+                        "Correlation": correlation,
+                        "P_Value": p_value,
+                        "Mutual_Info": mutual_info,
+                    }
+                )
 
         df = pd.DataFrame(correlation_data)
 
         # Sort by absolute correlation value (descending)
-        df = df.sort_values("Abs_Correlation", ascending=False, na_position="last")
+        df = df.sort_values("Correlation", ascending=False, na_position="last", key=lambda x: x.abs())
         df = df.reset_index(drop=True)
 
         return df
     
-    def dimension_sequence_correlations_df(self, sequences=None, encodings=None, **kwargs) -> pd.DataFrame:
-        """
-        Create a dataframe showing correlations between embedding dimensions and mathematical sequences.
-        
-        This method uses the new feature analysis system for more flexible sequence analysis.
-        
-        Args:
-            sequences: List of sequence names to analyze (default: all available)
-            encodings: List of encoding types ["binary", "smooth", "direct"] (default: all)
-            **kwargs: Additional parameters for encodings (e.g., sigma for smooth)
-            
-        Returns:
-            DataFrame with columns: Dimension, Property, Correlation, P_Value, Abs_Correlation
-        """
-        return self.feature_analysis.analyze_correlations(
-            sequences=sequences, encodings=encodings, **kwargs
-        )
-
     def get_top_dimension_property_correlations(
         self, top_n: int = 10, min_abs_correlation: float = 0.1
     ) -> pd.DataFrame:
@@ -194,17 +173,17 @@ class EmbeddingsAnalyzer:
         corr_df = self.feature_to_sequence_analysis_df()
 
         # Filter by minimum correlation and take top N
-        filtered_df = corr_df[corr_df["Abs_Correlation"] >= min_abs_correlation].head(
+        filtered_df = corr_df[corr_df["Correlation"].abs() >= min_abs_correlation].head(
             top_n
         )
 
-        return filtered_df[["Dimension", "Property", "Correlation", "P_Value"]]
+        return filtered_df[["Dimension", "Property", "Correlation", "P_Value", "Mutual_Info"]]
 
     def top_correlations_df(
         self, n_vectors: int = 20, min_correlation=0.01
     ) -> pd.DataFrame:
         """Calculate correlations between embedding dimensions."""
-        df = self.embeddings_df_justdata
+        df = self.embeddings_df_without_token_data
         n_vectors = min(n_vectors, df.shape[1])
         correlations = np.corrcoef(df.iloc[:, :n_vectors].T)
 
@@ -226,7 +205,7 @@ class EmbeddingsAnalyzer:
 
     def analyze_correlations_with_properties(self, n_vectors: int = 20):
         """Analyze correlations between embedding dimensions and numerical properties."""
-        df = self.embeddings_df_justdata
+        df = self.embeddings_df_without_token_data
         n_vectors = min(n_vectors, df.shape[1])
 
         # Calculate Pearson correlation coefficients
