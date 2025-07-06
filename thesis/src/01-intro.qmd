@@ -132,6 +132,7 @@ on.
 : Language models with their respective tokenization strategy for numbers.
 {#tbl-tokenization}
 
+
 ## Reification as computed embeddings - xVal
 
 There have been other, more comprehensive approaches to the improvement of the
@@ -161,6 +162,42 @@ The approach is shown to improve performance over a series of other techniques,
 mostly using a standard notation to represent numbers. This work has been
 inspired by the xVal paper, with one of its initial goals being to find good
 representations for computed numerical embeddings.
+
+## State of the Art
+
+There are several different approaches to improving math performance in LLMs that
+doesn't necessarily come through sheer resizing of the training data.
+
+...
+
+
+
+## Background
+
+
+### Embeddings Structural Approaches <title reviseable, meaning "trying to work with embeddings to improve math performance">
+
+mcleish abacus embeddings
+xval
+
+
+### Dimensionality reduction
+
+PCA, SVD, t-SNE, UMAP
+
+### Cognitive science
+
+murray
+
+### Research on Model Convergence
+
+platonic representation hypothesis
+
+During the process of literature review for this thesis, and after the main
+experimantation, we also found <language models use trigonometry to do addition>,
+which confirmed some of the visual findings of the work as well as giving ulterior ideas
+on which to continue the analysis, especially in reference to the fitting of spirals and
+the connection with Fibonacci numbers.
 
 ## The search for better suited representation
 
@@ -390,4 +427,5 @@ can be imitated in explicitly reifing the representation (through the xVal appro
 what the rest of the analysis hinges on is whether LLMs develop such structures on their
 own, by looking at their embeddings, as this could hypothethycally inform us on how to
 build these structures ourselves in a more direct way than training.
+
 

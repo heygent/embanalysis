@@ -101,7 +101,7 @@ class EmbeddingsAnalyzer:
         """Get just the data columns (exclude token_id and token)."""
         return self.embeddings_df.drop(["token_id", "token"], axis=1)
 
-    def feature_to_sequence_analysis_df(self) -> pd.DataFrame:
+    def feature_to_sequence_analysis_df(self, compute_mutual_info=False) -> pd.DataFrame:
         """
         Create a dataframe showing correlations and mutual information between each 
         embedding dimension and various numerical sequences.
@@ -131,23 +131,24 @@ class EmbeddingsAnalyzer:
             for (sequence_name, encoding), prop_values in sequences.items():
                 # Calculate Pearson correlation
                 correlation, p_value = pearsonr(dimension_values, prop_values)
-                
-                # Calculate mutual information
-                # Reshape for sklearn (expects 2D array for X)
-                X = dimension_values.reshape(-1, 1)
-                y = prop_values
-                mutual_info = mutual_info_regression(X, y, random_state=42)[0]
-                
-                correlation_data.append(
-                    {
-                        "Dimension": dimension_idx,
-                        "Property": sequence_name,
-                        "Encoding": encoding,
-                        "Correlation": correlation,
-                        "P_Value": p_value,
-                        "Mutual_Info": mutual_info,
-                    }
-                )
+
+                row = {
+                    "Dimension": dimension_idx,
+                    "Property": sequence_name,
+                    "Encoding": encoding,
+                    "Correlation": correlation,
+                    "P_Value": p_value,
+                    # "Mutual_Info": mutual_info,
+                }
+
+                if compute_mutual_info:
+                    # Reshape for sklearn (expects 2D array for X)
+                    X = dimension_values.reshape(-1, 1)
+                    y = prop_values
+                    mutual_info = mutual_info_regression(X, y, random_state=42)[0]
+                    row["Mutual_Info"] = mutual_info
+
+                correlation_data.append(row)
 
         df = pd.DataFrame(correlation_data)
 
