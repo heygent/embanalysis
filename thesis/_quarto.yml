@@ -8,6 +8,7 @@ book:
   chapters:
     - index.qmd
     - src/01-intro.qmd
+    - src/02-implementation.qmd
     - src/99-bibliography.qmd
   downloads: [pdf]
   
@@ -31,6 +32,8 @@ format:
       - top=2.5cm
       - bottom=3cm
     mainfont: Palatino
+    monofont: hacknerdfontmonoregular
+    titlepage: false
     pdf-engine: lualatex
     toc: true
     number-sections: true
