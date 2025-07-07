@@ -178,6 +178,74 @@ class EmbeddingsAnalyzer:
         )
 
         return filtered_df[["Dimension", "Property", "Correlation", "P_Value", "Mutual_Info"]]
+    
+    @cached_property
+    def fourier_df(self) -> pd.DataFrame:
+        """
+        Perform FFT analysis on each embedding dimension and return a linear DataFrame.
+        
+        Returns:
+            DataFrame with columns:
+            - dimension: embedding dimension index
+            - frequency_index: index of the frequency component
+            - frequency: FFT frequencies
+            - magnitude: FFT magnitude
+            - phase: FFT phase
+        """
+        # Get embedding columns
+        embedding_cols = [
+            col for col in self.embeddings_df.columns if col.startswith("embeddings_")
+        ]
+        
+        fft_data = []
+        
+        for dim_col in embedding_cols:
+            dimension_values = self.embeddings_df[dim_col].values
+            dimension_idx = int(dim_col.split("_")[1])  # Extract dimension index
+            
+            # Perform FFT
+            fft_result = np.fft.fft(dimension_values)
+            frequencies = np.fft.fftfreq(len(dimension_values))
+            
+            # Create DataFrame for this dimension
+            for freq_idx, (freq, fft_val) in enumerate(zip(frequencies, fft_result)):
+                fft_data.append({
+                    'dimension': dimension_idx,
+                    'frequency_index': freq_idx,
+                    'frequency': freq,
+                    'magnitude': np.abs(fft_val),
+                    'phase': np.angle(fft_val)
+                })
+        
+        # Create DataFrame with linear structure
+        df = pd.DataFrame(fft_data)
+        
+        return df
+    
+    def fourier_dimension_df(self, dimension_idx: int) -> pd.DataFrame:
+        """
+        Get FFT analysis for a specific embedding dimension.
+        
+        Args:
+            dimension_idx: The index of the embedding dimension to analyze
+            
+        Returns:
+            DataFrame with columns:
+            - frequency: FFT frequencies
+            - magnitude: FFT magnitude  
+            - phase: FFT phase
+        """
+        # Filter fourier_df for the specific dimension
+        dimension_data = self.fourier_df[self.fourier_df['dimension'] == dimension_idx].copy()
+        
+        # Create DataFrame with the requested structure
+        result_df = pd.DataFrame({
+            'frequency': dimension_data['frequency'].values,
+            'magnitude': dimension_data['magnitude'].values,
+            'phase': dimension_data['phase'].values
+        })
+        
+        return result_df
 
     def top_correlations_df(
         self, n_vectors: int = 20, min_correlation=0.01

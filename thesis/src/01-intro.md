@@ -51,21 +51,25 @@ analysis.
 
 ## The inductive bias of Tokenization
 
-Modern LLMs are built on the Transformer architecture [@vaswani2023], which operates by
+Modern LLMs are mostly autoregressive models built on the Transformer architecture
+[@vaswani2023]. Transformers are a deep learning architecture based on attention, a
+mechanism that relates words in different positions in a sentence by computing weighted
+relationships between all input tokens, allowing the model to capture long-range
+dependencies and contextual relationships that sequential models like RNNs struggle
+with. The first step in most Transformer models is tokenization, which operates by
 converting input text into sequences of discrete tokens that are then mapped to
-high-dimensional vector representations. This initial tokenization step creates an
-inductive bias that shapes how the model processes information [@ali2024; @singh2024],
-with significant implications for the application of numerical data to arithmetical
-tasks.
+high-dimensional vector representations. This initial step creates an inductive bias
+that shapes how the model processes information [@ali2024; @singh2024], with significant
+implications for the application of numerical data to arithmetical tasks.
 
-The most used algorithm for tokenization is currently Byte-Pair Encoding, which, given a
-fixed vocabulary size, starts with individual characters and iteratively merges the most
-frequently occurring pairs of adjacent tokens until the vocabulary limit is reached.
-This process naturally creates longer tokens for common substrings that appear
-frequently in the training data. For numbers, this means that frequently occurring
-numerical patterns like "100", "2020", or "999" might become single tokens, while less
-common numbers get broken into smaller pieces. The result is an idiosyncratic and
-unpredictable tokenization scheme where similar numbers can be tokenized completely
+The most used algorithm for tokenization is currently Byte-Pair Encoding [@radford2019],
+which, given a fixed vocabulary size, starts with individual characters and iteratively
+merges the most frequently occurring pairs of adjacent tokens until the vocabulary limit
+is reached. This process naturally creates longer tokens for common substrings that
+appear frequently in the training data. For numbers, this means that frequently
+occurring numerical patterns like "100", "2020", or "999" might become single tokens,
+while less common numbers get broken into smaller pieces. The result is an idiosyncratic
+and unpredictable tokenization scheme where similar numbers can be tokenized completely
 differently based purely on their frequency in the training corpus. While GPT-2 used to
 have a purely BPE tokenizer, the successive iteration of GPT and generally more recent
 models either tokenize digits separately (so as $'1234' \rightarrow [1, 2, 3, 4]$), or
@@ -130,7 +134,7 @@ represented by a single embedding vector associated with the `[NUM]` special tok
 
 This fits very well with the idea of reification, which will be described
 later[@murray2010]: the embedding, beyond its qualities as representational object,
-becomes an entity with characteristics that actively aid in the calculation process.
+becomes an entity with features that actively aid in the calculation process.
 
 The model uses two separate heads for number and token predictions. If the token head
 predicts a `[NUM]` token as the successor, the number head gets activated and outputs a
@@ -159,13 +163,6 @@ analysis hinges on is whether LLMs develop such structures on their own, by look
 their embeddings, as this could hypothetically inform us on how to build these
 structures ourselves in a more direct way than training.
 
-During the process of literature review for this thesis, and after the main
-experimentation, recent research was also found demonstrating that LLMs use trigonometry
-to do addition <?> [@kantamneni2025], representing numbers as a generalized helix which
-is strongly causally implicated for addition and subtraction tasks. This provides
-evidence that language models do indeed develop structured geometric representations for
-numerical reasoning, supporting the hypothesis that analyzing these naturally emergent
-structures could inform better representation design.
 
 ## Cognitive science - Savant syndrome and spatial representations
 
@@ -253,3 +250,30 @@ evident. For this reason, we employ the following dimensionality reduction techn
   across different scales - both local clusters of similar numbers and global
   relationships between distant numerical regions.
 
+## How current representational issues can help us better understand LLMs
+
+Tokenization as a process is highly idiosyncratic, and the last "mechanical" step in the
+LLM pipeline. This situation has been already identified as a problem by some authors
+[@bitter-lesson-tokenization], and it's a passage that, while necessary to get LLM
+performance to the point where it is today, given it allows the network to operate on a
+token level instead of character, would probably be better replaced by learnable
+approaches rather than being constrained by fixed pre-trained vocabularies that limit
+the model capability to have a representation of the input adapted to the task at hand.
+There are already alternative approaches being proposed [@pagnoni2024; @islam2022],
+which manage to have better efficiency while addressing some of the problems rigid
+training-time tokenization causes (like the strawberry problem). However, what the state
+of the art offers now gives the opportunity for the exploration of representational
+structures that have direct and easy associations with tokens, which we can catalogue in
+sequences and analyze in a systematic way.
+
+During the process of literature review for this thesis, and after the main
+experimentation, an article was found touching on similar themes, in particular using
+mechanistic techniques to get to the way LLMs perform addition, and in the process
+
+
+recent research was also found demonstrating that LLMs use trigonometry
+to do addition <?> [@kantamneni2025], representing numbers as a generalized helix which
+is strongly causally implicated for addition and subtraction tasks. This provides
+evidence that language models do indeed develop structured geometric representations for
+numerical reasoning, supporting the hypothesis that analyzing these naturally emergent
+structures could inform better representation design.

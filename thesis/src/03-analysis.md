@@ -1,6 +1,6 @@
 # Embeddings Analysis
 
-The analytic part of this work consists in the search for structure in LLM
+The analytic part of this work consists in the search for structures in LLM
 numerical embeddings.
 
 As stated previously, recent open source models mostly employ an L2R
@@ -8,13 +8,6 @@ tokenization scheme. There are no large scale open source models using R2L
 tokenization as of the time of writing, but the improvement in performance
 observed when using R2L tokenization in L2R-trained models could be a hint that
 L2R embedding representations still have similar properties to the R2L ones.
-
-We're looking for clues of mathematical properties being encoded in the
-embeddings. As the results show, we find strong correlations between embedding
-dimensions and mathematical properties, the strongest one being magnitude (data)
-and a very interesting one being the distance between the number and their
-closest Fibonacci number, with the catch that further study is needed to see if
-this strong connection comes from confounding factors.
 
 ## Methodology
 

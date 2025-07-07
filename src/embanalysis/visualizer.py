@@ -8,7 +8,7 @@ from embanalysis.analyzer import EmbeddingsAnalyzer
 from embanalysis.feature_analysis import make_encoded_sequences, make_sequences
 
 default_props = {
-    "width": 600,
+    # "width": 600,
 }
 
 @dataclass
@@ -198,6 +198,9 @@ class EmbeddingsVisualizer:
             case "digit_length":
                 return self.digit_length(x_component, y_component)
     
+    def components_3d(self, x_component: int = 0, y_component: int = 1, z_component: int = 2) -> alt.Chart:
+        pass
+    
     def feature(self, component: int = 0) -> alt.Chart:
         """Create a chart showing the values of a single component."""
         embedding_col = f"embeddings_{component}"
@@ -227,6 +230,26 @@ class EmbeddingsVisualizer:
             chart += alt.Chart(all_sequences_df).mark_rule(strokeDash=[5, 5]).encode(x='index', y=f'{sequence}/binary:Q')
         
         return chart
+    
+    def fourier_magnitude(self, component: int = 0, max_y: float = 20.0) -> alt.Chart:
+        """Create a chart showing the Fourier magnitude of a specific component."""
+
+        fourier_df = self.analyzer.fourier_dimension_df(component).reset_index()
+
+        return (
+            alt.Chart(fourier_df)
+            .mark_line()
+            .encode(
+                x=alt.X('index'),
+                y=alt.Y(f"magnitude:Q", title=f"Magnitude of Component {component}", scale=alt.Scale(domain=[0, max_y])),
+                tooltip=["frequency:Q", f"magnitude:Q"],
+            )
+            .properties(
+                title=f"Fourier Magnitude of Component {component}",
+                **default_props,
+            )
+            .interactive(bind_x=False)
+        )
         
 
     def consecutive_distances(self) -> alt.Chart:

@@ -20,7 +20,6 @@ def _():
     from sklearn.decomposition import PCA, TruncatedSVD
     from sklearn.manifold import TSNE
     from umap import UMAP
-
     return (
         DB_PATH,
         DuckDBLoader,
@@ -139,6 +138,12 @@ def _(integers_pca, pca_ui, plot_components_with_ui):
 
 
 @app.cell
+def _(integers_pca):
+    integers_pca.plot.fourier_magnitude(0)
+    return
+
+
+@app.cell
 def _(integers_svd, plot_components_with_ui, svd_ui):
     plot_components_with_ui(integers_svd, svd_ui)
     return
@@ -158,12 +163,11 @@ def _(integers_svd):
 
 @app.cell
 def _(integers_pca, mo):
-    mo.hstack(
+    mo.vstack(
         [
             mo.ui.altair_chart(integers_pca.plot.explained_variance()),
             mo.ui.altair_chart(integers_pca.plot.cumulative_variance()),
         ],
-        widths="equal",
     )
     return
 
