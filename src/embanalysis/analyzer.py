@@ -101,7 +101,7 @@ class EmbeddingsAnalyzer:
         """Get just the data columns (exclude token_id and token)."""
         return self.embeddings_df.drop(["token_id", "token"], axis=1)
 
-    def feature_to_sequence_analysis_df(self, compute_mutual_info=False) -> pd.DataFrame:
+    def feature_to_sequence_analysis_df(self, fourier_encoding=False, compute_mutual_info=False) -> pd.DataFrame:
         """
         Create a dataframe showing correlations and mutual information between each 
         embedding dimension and various numerical sequences.
@@ -138,7 +138,6 @@ class EmbeddingsAnalyzer:
                     "Encoding": encoding,
                     "Correlation": correlation,
                     "P_Value": p_value,
-                    # "Mutual_Info": mutual_info,
                 }
 
                 if compute_mutual_info:
