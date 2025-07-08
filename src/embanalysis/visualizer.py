@@ -3,6 +3,8 @@ from typing import Literal, Tuple
 import altair as alt
 import numpy as np
 import pandas as pd
+import plotly.graph_objects as go
+import plotly.express as px
 
 from embanalysis.analyzer import EmbeddingsAnalyzer
 from embanalysis.feature_analysis import make_encoded_sequences, make_sequences
@@ -97,11 +99,12 @@ class EmbeddingsVisualizer:
             (dim_corr_df["Correlation"].abs() > 0.20) & (dim_corr_df["P_Value"] < 0.05)
         ].copy()
 
-        counts_per_property = strong_corrs_df["Property"].value_counts().reset_index()
-        counts_per_property.columns = ["Property", "Count"]
+        # Count unique dimensions per property (avoid double counting across encodings)
+        unique_dim_counts = strong_corrs_df.groupby("Property")["Dimension"].nunique().reset_index()
+        unique_dim_counts.columns = ["Property", "Count"]
 
         bar = (
-            alt.Chart(counts_per_property)
+            alt.Chart(unique_dim_counts)
             .mark_bar()
             .encode(
                 x=alt.X("Property:N", title="Property", sort="-y"),
@@ -112,9 +115,9 @@ class EmbeddingsVisualizer:
         )
 
         text = (
-            alt.Chart(counts_per_property)
+            alt.Chart(unique_dim_counts)
             .mark_text(
-                align="center", baseline="bottom", dy=-2, fontSize=14, fontWeight="bold"
+                align="center", baseline="bottom", dy=-2, fontSize=14
             )
             .encode(
                 x=alt.X("Property:N", sort="-y"),
@@ -124,7 +127,7 @@ class EmbeddingsVisualizer:
         )
 
         return (bar + text).properties(
-            title="Number of Strongly Correlated Dimensions (>0.20, p<0.05) per Property",
+            title="Strongly Correlated Sequences (>0.20, p<0.05)",
             width=400,
         )
 
@@ -198,8 +201,55 @@ class EmbeddingsVisualizer:
             case "digit_length":
                 return self.digit_length(x_component, y_component)
     
-    def components_3d(self, x_component: int = 0, y_component: int = 1, z_component: int = 2) -> alt.Chart:
-        pass
+    def components_3d(self, x_component: int = 0, y_component: int = 1, z_component: int = 2) -> go.Figure:
+        """Create a 3D scatter plot of three embedding components."""
+        x_col = f"embeddings_{x_component}"
+        y_col = f"embeddings_{y_component}"
+        z_col = f"embeddings_{z_component}"
+        
+        fig = go.Figure()
+        
+        # Color by token value (gradient)
+        fig.add_trace(go.Scatter3d(
+            x=self.analyzer.embeddings_df[x_col],
+            y=self.analyzer.embeddings_df[y_col],
+            z=self.analyzer.embeddings_df[z_col],
+            mode='markers',
+            marker=dict(
+                size=5,
+                color=pd.to_numeric(self.analyzer.embeddings_df["token"], errors='coerce'),
+                colorscale='Viridis',
+                opacity=0.7,
+                colorbar=dict(title="Token Value")
+            ),
+            text=[f"Token: {token}" for token in self.analyzer.embeddings_df["token"]],
+            hovertemplate="<b>Token:</b> %{text}<br>" +
+                         f"<b>Component {x_component + 1}:</b> %{{x:.5f}}<br>" +
+                         f"<b>Component {y_component + 1}:</b> %{{y:.5f}}<br>" +
+                         f"<b>Component {z_component + 1}:</b> %{{z:.5f}}<br>" +
+                         "<extra></extra>",
+            name="Embeddings"
+        ))
+        
+        # Update layout
+        title_text = f"3D Visualization of Components {x_component + 1}, {y_component + 1}, {z_component + 1}"
+        if self.add_default_title:
+            title_text = f"{self.analyzer.meta.model_id}<br><sub>{self.analyzer.meta.label()}</sub><br>{title_text}"
+        
+        fig.update_layout(
+            title=title_text,
+            scene=dict(
+                xaxis_title=f"Component {x_component + 1}",
+                yaxis_title=f"Component {y_component + 1}",
+                zaxis_title=f"Component {z_component + 1}",
+                camera=dict(eye=dict(x=1.2, y=1.2, z=1.2))
+            ),
+            width=800,
+            height=600,
+            margin=dict(l=0, r=0, b=0, t=50)
+        )
+        
+        return fig
     
     def feature(self, component: int = 0) -> alt.Chart:
         """Create a chart showing the values of a single component."""

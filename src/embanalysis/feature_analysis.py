@@ -59,7 +59,7 @@ def direct_encoded_base_sequences(max_token: int = 1000):
         "numbers": np.arange(max_token),
         "sin": np.sin(np.arange(max_token)),
         "cos": np.cos(np.arange(max_token)),
-        "even": np.arange(0, max_token * 2, 2),
+        # "even": np.arange(0, max_token * 2, 2),
         "log": np.log10(np.arange(max_token) + 1),
     }
 
@@ -123,7 +123,6 @@ def make_sequences(max_token: int):
     )
 
 
-@functools.cache
 def make_encoded_sequences(
     max_token: int,
     sigma: float = 2.0,

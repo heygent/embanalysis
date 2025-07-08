@@ -23,6 +23,26 @@ For each of these, dimensionality reduction is applied through PCA, SVD, t-SNE a
 and the results are used to produce 2D and 3D visualization meant to show the geometric
 structure that the representation assume in the space.
 
+Then, an analysis of correlation with mathematical sequences is done: for each
+dimension, we encode mathematical interesting sequences the embedding features might be
+detecting for and look for correlations. We adopt the following encoding for sequences:
+
+- direct, meaning we test the correlation directly with the sequence. We do this with
+  plain integers in sequence (0, 1, 2, 3) and their logarithm (log(1), log(2), ...)
+
+- one hot encoded, for the sequences where the growth would be too fast to have
+  meaningful detection through direct encoding. We tried this for Fibonacci, triangular,
+  and prime numbers
+
+- Gaussian-smoothed one-hot encoded, same as last point but allowing a more gradual
+  climb around the positions corresponding to the numbers by applying a Gaussian
+  smoothing filter to the one-hot encoded vector.
+
+- Fourier encoding, as $\sin\left(2 \pi  \cdot \frac{n_i}T\right)$ and $\cos\left(2 \pi
+  \cdot \frac{n_i}T\right)$ where $n_i$ is the element of the sequence to be encoded and
+  $T \in \{1, 2, 5, 10, 100\}$ is a collection of possible periods of encoding, as suggested
+  in [@kantamneni2025] as a possible way for features to encode numeric characteristics.
+
 ## OLMo-2-1124-7B
 
 ### Linear analysis
@@ -48,6 +68,8 @@ showing that the encoding of information likely happens in absolute distances ra
 than just with relative positioning between data points. This will also inform the
 strategies we use for reconstructing the datapoints with UMAP, as we'll do projections
 that make use of Euclidean distance as well as cosine similarity as a metric.
+
+![OLMo-2-1124-7B 3D visualization of SVD components .](plots/olmo-svd-3d.png){#fig:olmo-svd-3d width=50%}
 
 ![SVD coloring done by digit length and hundreds digit, highlighting the
 clustering properties of the
@@ -122,56 +144,56 @@ dispersion for numbers close to zero. The spiral-like conformation is also notab
 
 ### Correlation with mathematical properties
 
-By taking all the components and their correlations with the properties we're
-testing for, we're able to find the most correlative component-property pairs.
-Most of the components that exhibit a strong correlation does so in terms of
-their magnitude (measured as the correlation with the $log_{10}$ of the number
-considered).
+
+| dimension | property  | encoding          | correlation          | P\_value                |
+| --------- | --------- | ----------------- | --------------------:| -----------------------:|
+| 514       | log       | direct            | -0.6728704322049941  | 8.446593249981852e-133  |
+| 3085      | even      | direct            | -0.6099014911112753  | 6.384089936863827e-103  |
+| 3085      | numbers   | direct            | -0.6099014911112753  | 6.384089936863827e-103  |
+| 3085      | log       | direct            | -0.6065335539115024  | 1.6467293892949673e-101 |
+| 514       | fibonacci | gauss             | 0.3743022442573753   | 1.304359393219689e-34   |
+| 2538      | fibonacci | gauss             | 0.35111562249158407  | 2.1919842097713776e-30  |
+| 514       | primes    | gauss             | 0.2635789635453773   | 2.3511422135536455e-17  |
+| 695       | primes    | fourier\_cos\_T10 | -0.2206894374229878  | 1.698004543337325e-12   |
+| 2538      | fibonacci | fourier\_cos\_T5  | -0.18335840673977102 | 5.200214605563535e-09   |
 
 
-| **Dimension** | **Property**         | **Correlation** | **P-Value** |
-| ------------: | :------------------- | --------------: | ----------: |
-|           514 | magnitude            |          -0.673 |   8.45e-133 |
-|          3085 | magnitude            |          -0.607 |   1.65e-101 |
-|          2538 | magnitude            |          -0.567 |    3.02e-86 |
-|           665 | magnitude            |          -0.500 |    1.89e-64 |
-|           514 | digit\_count         |          -0.485 |    5.30e-60 |
-|          1012 | magnitude            |          -0.475 |    1.65e-57 |
-|          1012 | digit\_count         |          -0.463 |    3.35e-54 |
-|          2538 | digit\_count         |          -0.454 |    4.12e-52 |
-|          3085 | digit\_count         |          -0.452 |    1.77e-51 |
-|          3879 | magnitude            |           0.447 |    3.06e-50 |
-|           110 | magnitude            |           0.445 |    8.36e-50 |
-|          1820 | magnitude            |           0.431 |    1.99e-46 |
-|          1107 | magnitude            |          -0.428 |    8.06e-46 |
-|          3502 | magnitude            |           0.426 |    2.46e-45 |
-|           421 | magnitude            |          -0.424 |    7.87e-45 |
-|            90 | magnitude            |           0.420 |    6.49e-44 |
-|          3548 | magnitude            |           0.411 |    3.99e-42 |
-|          1554 | magnitude            |          -0.410 |    8.08e-42 |
-|          3085 | fibonacci\_proximity |           0.410 |    8.57e-42 |
+: Feature-sequence correlations in OLMo-2. {#tbl:olmo-correlations}
+
+A lot of features ([@tbl:olmo-correlations; @fig:olmo-properties]) correlate very
+significatively with magnitude, giving confirmation of the semantic connection between
+the embedding value and the number represented. We find:
+
+- Dimension 514 has a high correlation (0.37) with Fibonacci numbers using Gauss one-hot
+  encoding, and with prime numbers with Gauss one-hot encoding (0.26).
+- There are other dimensions are also correlated with Fibonacci and Primes, to a lesser
+  extent, and Fourier encoding seems to show weaker ties than one-hot Gaussian encoding.
+
+Although while these can be useful clues about the relation between the features and the
+numerical properties they're correlated with, they do not explain by themselves how and
+why the features are tied to those properties. The correlation with Fibonacci numbers in
+particular is high enough to not resemble a pure coincidence, especially in such a
+high-dimensional space. We can speculatively make some hypotheses:
+
+- Features in the embedding might work as hierarchical detectors, with some of them
+  being broad-scope, general detectors of numbers of interest (dimension 514), and
+  others being more specific to certain properties (2538 to Fibonacci numbers).
+- The correlation with the features is tied with the geometry of the embedding space.
+  The Fibonacci numbers have ties to spiral structures (in particular golden spirals),
+  which may have a relation to the self-similar structures observed.
+
+Further study would be needed to untangle the relationship between mathematical
+sequences and features, although having a dimension (514) with such a strong correlation
+with Fibonacci numbers and such a low p-value doesn't seem dismissible over random
+chance.
+
+![Helical construction of embeddings used to do addition
+[@kantamneni2025].](res/helical_structure.png){#fig:fibo-spiralB width=30%}
 
 
-: Feature-sequence correlations in OLMo-2.
-{#tbl-olmo-correlations}
 
-Magnitude and digit count would be expected to be widely encoded, and they seem
-in fact the dominant factor (also, they would be correlated with each other).
-The most interesting property shown here is definitely Fibonacci_proximity,
-representing the distance between the number and the closest Fibonacci number.
-Having a correlation index of 0.409 with a very small p-value would be a strong
-indicator that this is an important factor in the encoding of the embeddings.
-However, after further consideration it was noticed that can be explained by the
-strong correlation between the Fibonacci proximity and magnitude itself
-($\approx 0.547$, p-value $< 1e-79$). This confounding factor might make the
-correlation by itself inconclusive, and further research would be needed to
-establish the connection between the two quantities. There are also two strong
-correlation with both the is_fibonacci and the is_prime property, which shows
-the embeddings are likely encoding some information about the primality of the
-number considered and their relationship to the Fibonacci series.
-
-![Mathematical properties with the number of associated strongly correlated
-dimensions](plots/OLMo-2-1124-7B_13_strong_property_correlations_v1.svg){#fig:olmo-properties}
+![Mathematical sequences against the number of associated strongly correlated embedding
+dimensions.](plots/OLMo-2-1124-7B_strong_property_correlations_v1.svg){#fig:olmo-properties}
 
 ## Llama-3.2-1B-Instruct
 
@@ -179,6 +201,12 @@ dimensions](plots/OLMo-2-1124-7B_13_strong_property_correlations_v1.svg){#fig:ol
 
 ![PCA visualization of Llama
 embeddings.](plots/Llama-3.2-1B-Instruct_00_pca_components_gradient_v1.svg){#fig:llama-pca}
+
+Differently from OLMo, in LLaMa PCA and SVD lead to very similar representations, which
+might mean that LLaMa learned number embeddings are much closer to having a 0 mean.
+
+The self-similar, recursive structure based on digit count is immediately visible
+in the PCA plot.
 
 The PCA projection shows a continuous, arc-shaped curved manifold, with smoother
 transitions between numbers and a distinct separation with numbers close to 0.

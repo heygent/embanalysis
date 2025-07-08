@@ -13,5 +13,5 @@ FLAGS += --table-caption-position=below
 FLAGS += -F pandoc-crossref --citeproc
 
 $(OUTDIR)/$(FILENAME).pdf $(OUTDIR)/$(FILENAME).tex: $(SRC) $(HEADER) $(TITLEPAGE) $(METADATA)
-	pandoc $(FLAGS) -H $(HEADER) -B $(TITLEPAGE) $(METADATA) $(SRC) -o $@ --csl apa.csl
+	pandoc $(FLAGS) -B $(TITLEPAGE) $(METADATA) $(SRC) -o $@ --csl apa.csl
 

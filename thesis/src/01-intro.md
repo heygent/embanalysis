@@ -233,13 +233,14 @@ evident. For this reason, we employ the following dimensionality reduction techn
   maximum variance in the data. The singular values in $\Sigma$ are directly related to
   the eigenvalues of the covariance matrix.
 
-- **t-SNE (t-Distributed Stochastic Neighbor Embedding)** converts similarities between
-  data points in high-dimensional space into probabilities, then uses gradient descent
-  to minimize the divergence between these probabilities and those of points in a
-  low-dimensional embedding. It excels at preserving local neighborhood structure,
-  making clusters very distinct in the visualization. However, t-SNE can distort global
-  structure and distances between distant clusters become less meaningful, making it
-  primarily useful for identifying local groupings in numerical embeddings.
+- **t-SNE (t-Distributed Stochastic Neighbor Embedding)** [@maaten2008] converts
+  similarities between data points in high-dimensional space into probabilities, then
+  uses gradient descent to minimize the divergence between these probabilities and those
+  of points in a low-dimensional embedding. It excels at preserving local neighborhood
+  structure, making clusters very distinct in the visualization. However, t-SNE can
+  distort global structure and distances between distant clusters become less
+  meaningful, making it primarily useful for identifying local groupings in numerical
+  embeddings.
 
 - **UMAP (Uniform Manifold Approximation and Projection)** [@mcinnes2020] also preserves
   local structure like t-SNE, but additionally maintains more of the global structure

@@ -7,4 +7,25 @@ geometry: a4paper, left=3.5cm, right=3cm, top=2.5cm, bottom=3cm
 lang: en
 link-citations: true
 codeBlockCaptions: true
+subfigGrid: true
+header-includes:
+  - |
+    ```{=latex}
+    \usepackage{amsmath,amssymb}
+    \usepackage{amsthm}
+    \usepackage{amsfonts}
+    \usepackage{float}
+
+    \usepackage{makeidx}
+
+    \usepackage[absolute]{textpos}
+
+    %Pagination stuff.
+    \setlength{\topmargin}{-.3 in}
+    \setlength{\oddsidemargin}{0in}
+    \setlength{\evensidemargin}{0in}
+    \setlength{\textheight}{9.in}
+    \setlength{\textwidth}{6.5in}
+    \pagestyle{empty}
+    ```
 ---

@@ -138,14 +138,14 @@ def _(integers_pca, pca_ui, plot_components_with_ui):
 
 
 @app.cell
-def _(integers_pca):
-    integers_pca.plot.fourier_magnitude(0)
+def _(integers_svd, plot_components_with_ui, svd_ui):
+    plot_components_with_ui(integers_svd, svd_ui)
     return
 
 
 @app.cell
-def _(integers_svd, plot_components_with_ui, svd_ui):
-    plot_components_with_ui(integers_svd, svd_ui)
+def _(integers_pca, mo):
+    mo.ui.plotly(integers_pca.plot.components_3d())
     return
 
 
@@ -181,7 +181,7 @@ def _(mo):
 @app.cell
 def _(TSNE, component_plot_ui, integers_analyzer):
     tsne_kwargs = dict(
-        n_components=2,
+        n_components=3,
         perplexity=75,
         learning_rate=50,
         early_exaggeration=20,
@@ -201,9 +201,15 @@ def _(integers_tsne, plot_components_with_ui, tsne_ui):
 
 
 @app.cell
+def _(integers_tsne):
+    integers_tsne.plot.components_3d()
+    return
+
+
+@app.cell
 def _(UMAP, component_plot_ui, integers_analyzer, tsne_kwargs):
     umap_kwargs = dict(
-        n_components=2,
+        n_components=3,
         # Increase from default 15 to preserve more global structure
         n_neighbors=50,
         # Decrease from default 0.1 for tighter local clusters
@@ -264,23 +270,34 @@ def _(mo):
 
 
 @app.cell
-def _(integers_pca):
-    c1 = integers_pca.meta.estimator.components_[0]
-    c1
+def _(mo):
+    current_analyzer_ui = mo.ui.dropdown()
     return
 
 
 @app.cell
-def _(integers_pca):
-    c2 = integers_pca.embeddings_df["embeddings_1"]
-    c2
+def _(integers_pca, mo):
+    dim_corr_df = integers_pca.feature_to_sequence_analysis_df()
+    dim_corr_table = mo.ui.table(dim_corr_df.reset_index(drop=True))
+    dim_corr_table
     return
 
 
 @app.cell
-def _(integers_analyzer, mo):
-    dim_corr_df = integers_analyzer.dimension_property_correlations_df()
-    mo.ui.table(dim_corr_df.reset_index(drop=True))
+def _(mo, pca_components):
+    pca_fourier_magnitude_ui = mo.ui.number(start=0, stop=pca_components, label="Component:")
+    pca_fourier_magnitude_ui
+    return (pca_fourier_magnitude_ui,)
+
+
+@app.cell
+def _(integers_pca, mo, pca_fourier_magnitude_ui):
+    mo.vstack([
+        mo.ui.altair_chart(
+            integers_pca.plot.fourier_magnitude(pca_fourier_magnitude_ui.value)
+        ),
+        pca_fourier_magnitude_ui
+    ], align='stretch')
     return
 
 
