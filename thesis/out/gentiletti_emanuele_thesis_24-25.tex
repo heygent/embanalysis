@@ -40,44 +40,6 @@ bottom=3cm]{geometry}
 }{% if KOMA class
   \KOMAoptions{parskip=half}}
 \makeatother
-\usepackage{color}
-\usepackage{fancyvrb}
-\newcommand{\VerbBar}{|}
-\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
-\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
-% Add ',fontsize=\small' for more characters per line
-\newenvironment{Shaded}{}{}
-\newcommand{\AlertTok}[1]{\textcolor[rgb]{1.00,0.00,0.00}{\textbf{#1}}}
-\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{#1}}}}
-\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.49,0.56,0.16}{#1}}
-\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.25,0.63,0.44}{#1}}
-\newcommand{\BuiltInTok}[1]{\textcolor[rgb]{0.00,0.50,0.00}{#1}}
-\newcommand{\CharTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{#1}}
-\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textit{#1}}}
-\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{#1}}}}
-\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.53,0.00,0.00}{#1}}
-\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{\textbf{#1}}}
-\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.56,0.13,0.00}{#1}}
-\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.25,0.63,0.44}{#1}}
-\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.73,0.13,0.13}{\textit{#1}}}
-\newcommand{\ErrorTok}[1]{\textcolor[rgb]{1.00,0.00,0.00}{\textbf{#1}}}
-\newcommand{\ExtensionTok}[1]{#1}
-\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.25,0.63,0.44}{#1}}
-\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.02,0.16,0.49}{#1}}
-\newcommand{\ImportTok}[1]{\textcolor[rgb]{0.00,0.50,0.00}{\textbf{#1}}}
-\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{#1}}}}
-\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{\textbf{#1}}}
-\newcommand{\NormalTok}[1]{#1}
-\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.40,0.40,0.40}{#1}}
-\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{#1}}
-\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.74,0.48,0.00}{#1}}
-\newcommand{\RegionMarkerTok}[1]{#1}
-\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{#1}}
-\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.73,0.40,0.53}{#1}}
-\newcommand{\StringTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{#1}}
-\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.10,0.09,0.49}{#1}}
-\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{#1}}
-\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{#1}}}}
 \usepackage{longtable,booktabs,array}
 \usepackage{calc} % for calculating minipage widths
 % Correct order of tables after \paragraph or \subparagraph
@@ -156,21 +118,12 @@ bottom=3cm]{geometry}
 \setlength{\emergencystretch}{3em} % prevent overfull lines
 \providecommand{\tightlist}{%
   \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
-\usepackage{times}
-
 \usepackage{amsmath,amssymb}
 \usepackage{amsthm}
 \usepackage{amsfonts}
 \usepackage{float}
 
 \usepackage{makeidx}
-
-\usepackage{fontspec}
-\newfontfamily\TahomaFont[
-Scale=1,Ligatures={TeX},
-BoldFont={Tahoma Bold},
-ItalicFont={Verdana Italic},
-]{Tahoma}
 
 \usepackage[absolute]{textpos}
 
@@ -347,50 +300,59 @@ relations between the two using mathematical methods of analysis.
 \section{The inductive bias of
 Tokenization}\label{the-inductive-bias-of-tokenization}
 
-Modern LLMs are built on the Transformer architecture
-(\citeproc{ref-vaswani2023}{Vaswani et al., 2023}), which operates by
-converting input text into sequences of discrete tokens that are then
-mapped to high-dimensional vector representations. This initial
-tokenization step creates an inductive bias that shapes how the model
-processes information (\citeproc{ref-ali2024}{Ali et al., 2024};
+Modern LLMs are mostly autoregressive models built on the Transformer
+architecture (\citeproc{ref-vaswani2023}{Vaswani et al., 2023}).
+Transformers are a deep learning architecture based on attention, a
+mechanism that relates words in different positions in a sentence by
+computing weighted relationships between all input tokens, allowing the
+model to capture long-range dependencies and contextual relationships
+that sequential models like RNNs struggle with. The first step in most
+Transformer models is tokenization, which operates by converting input
+text into sequences of discrete tokens that are then mapped to
+high-dimensional vector representations. This initial step creates an
+inductive bias that shapes how the model processes information
+(\citeproc{ref-ali2024}{Ali et al., 2024};
 \citeproc{ref-singh2024}{Singh \& Strouse, 2024}), with significant
 implications for the application of numerical data to arithmetical
 tasks.
 
-The most used algorithm for tokenization is currently Byte-Pair
-Encoding, which, given a fixed vocabulary size, starts with individual
-characters and iteratively merges the most frequently occurring pairs of
-adjacent tokens until the vocabulary limit is reached. This process
-naturally creates longer tokens for common substrings that appear
-frequently in the training data. For numbers, this means that frequently
-occurring numerical patterns like ``100'', ``2020'', or ``999'' might
-become single tokens, while less common numbers get broken into smaller
-pieces. The result is an idiosyncratic and unpredictable tokenization
-scheme where similar numbers can be tokenized completely differently
-based purely on their frequency in the training corpus. While GPT-2 used
-to have a purely BPE tokenizer, the successive iteration of GPT and
-generally more recent models either tokenize digits separately (so as
+The most used algorithm for tokenization is currently Byte-Pair Encoding
+(\citeproc{ref-radford2019}{Radford et al., 2019}), which, given a fixed
+vocabulary size, starts with individual characters and iteratively
+merges the most frequently occurring pairs of adjacent tokens until the
+vocabulary limit is reached. This process naturally creates longer
+tokens for common substrings that appear frequently in the training
+data. For numbers, this means that frequently occurring numerical
+patterns like ``100'', ``2020'', or ``999'' might become single tokens,
+while less common numbers get broken into smaller pieces. The result is
+an idiosyncratic and unpredictable tokenization scheme where similar
+numbers can be tokenized completely differently based purely on their
+frequency in the training corpus. While GPT-2 used to have a purely BPE
+tokenizer, the successive iteration of GPT and generally more recent
+models either tokenize digits separately (so as
 \('1234' \rightarrow [1, 2, 3, 4]\)), or tokenize clusters of 3 digits,
 encompassing the integers in the range 0-999.
 
-Most of the tokenizers right now do L2R (left-to-right) clustering,
-meaning that a number such as \(12345\) would be divided in two tokens,
-\(123\) and \(45\). It has been shown (\citeproc{ref-singh2024}{Singh \&
-Strouse, 2024}) that this kind of clustering leads to worse arithmetic
-performance, as this brings misalignment in digit positions and, as a
-consequence, in positional significance.
+Most of the tokenizers right now do L2R (left-to-right) clustering
+(\citeproc{ref-millidge2023}{Millidge, 2023}), meaning that a number
+such as \(12345\) would be divided in two tokens, \(123\) and \(45\). It
+has been shown (\citeproc{ref-singh2024}{Singh \& Strouse, 2024}) that
+this kind of clustering leads to worse arithmetic performance, as this
+brings misalignment in digit positions and, as a consequence, in
+positional significance.
 
 An even more surprising development is that forcing the R2L token
 clustering of numbers in models already trained with L2R clustering
 through the use of commas in the input (ex. \(12,345\)) leads to big
-improvements in arithmetic performance (\citeproc{ref-singh2024}{Singh
-\& Strouse, 2024}). Despite the model learning representations adapted
-to work with a L2R token clustering strategy, forcing a R2L clustering
-at inference time shows substantial improvements in arithmetic tasks,
-which means that despite being learned through an unfavorable
-tokenization approach, the numeric representations retain the properties
-that allow for the performance to improve when the digit clustering
-scheme is corrected.
+improvements in arithmetic performance
+(\citeproc{ref-millidge2024}{Millidge, 2024};
+\citeproc{ref-singh2024}{Singh \& Strouse, 2024}). Despite the model
+learning representations adapted to work with a L2R token clustering
+strategy, forcing a R2L clustering at inference time shows substantial
+improvements in arithmetic tasks, which means that despite being learned
+through an unfavorable tokenization approach, the numeric
+representations retain the properties that allow for the performance to
+improve when the digit clustering scheme is corrected.
 
 \begin{figure}
 \centering
@@ -418,17 +380,14 @@ compared to others, given the resilience in preferring a certain
 tokenization scheme over the one the model is trained on.
 
 \begin{longtable}[]{@{}ll@{}}
-\caption{Language models with their respective tokenization strategy for
-numbers.}\tabularnewline
-\toprule\noalign{}
-\textbf{Model} & \textbf{Strategy} \\
-\midrule\noalign{}
-\endfirsthead
 \toprule\noalign{}
 \textbf{Model} & \textbf{Strategy} \\
 \midrule\noalign{}
 \endhead
 \bottomrule\noalign{}
+\tabularnewline
+\caption{Language models with their respective tokenization strategy for
+numbers.}
 \endlastfoot
 LLaMA 1 \& 2 & Single digit \\
 LLaMA 3 & L2R chunks of 3 digits \\
@@ -451,21 +410,23 @@ The idea is maximizing the inductive bias in the representation by
 having embeddings that are computed based on the number to be
 represented (\citeproc{ref-golkar2023}{Golkar et al., 2023}). Numerical
 values represented by a single embedding vector associated with the
-\texttt{{[}NUM{]}} special token.
+\passthrough{\lstinline![NUM]!} special token.
 
-This fits very well with the idea of reification: the embedding is no
-longer just a representation, but it contains and has properties of the
-object it represents.
+This fits very well with the idea of reification, which will be
+described later(\citeproc{ref-murray2010}{Murray, 2010}): the embedding,
+beyond its qualities as representational object, becomes an entity with
+features that actively aid in the calculation process.
 
 The model uses two separate heads for number and token predictions. If
-the token head predicts a \texttt{{[}NUM{]}} token as the successor, the
-number head gets activated and outputs a scalar. The rest of the weights
-in the transformer blocks are shared, allowing the learning of
-representations that are useful for both discrete text prediction and
-continuous numerical prediction. This means the model develops
-number-aware internal representations throughout all its layers, not
-just at the output. The shared weights force the model to learn features
-that work for both linguistic and mathematical reasoning simultaneously.
+the token head predicts a \passthrough{\lstinline![NUM]!} token as the
+successor, the number head gets activated and outputs a scalar. The rest
+of the weights in the transformer blocks are shared, allowing the
+learning of representations that are useful for both discrete text
+prediction and continuous numerical prediction. This means the model
+develops number-aware internal representations throughout all its
+layers, not just at the output. The shared weights force the model to
+learn features that work for both linguistic and mathematical reasoning
+simultaneously.
 
 The approach is shown to improve performance over a series of other
 techniques, mostly using a standard notation to represent numbers
@@ -488,17 +449,7 @@ develop such structures on their own, by looking at their embeddings, as
 this could hypothetically inform us on how to build these structures
 ourselves in a more direct way than training.
 
-During the process of literature review for this thesis, and after the
-main experimentation, recent research was also found demonstrating that
-LLMs use trigonometry to do addition \textless?\textgreater,
-representing numbers as a generalized helix which is strongly causally
-implicated for addition and subtraction tasks. This provides evidence
-that language models do indeed develop structured geometric
-representations for numerical reasoning, supporting the hypothesis that
-analyzing these naturally emergent structures could inform better
-representation design.
-
-\subsection{Cognitive science - Savant syndrome and spatial
+\section{Cognitive science - Savant syndrome and spatial
 representations}\label{cognitive-science---savant-syndrome-and-spatial-representations}
 
 A case study of savant patient DT (\citeproc{ref-murray2010}{Murray,
@@ -565,7 +516,8 @@ information-theory basis that make its use as a learning geometry more
 likely, in particular, its self-similarity can be an error-correcting
 property.
 
-\subsection{Dimensionality reduction}\label{dimensionality-reduction}
+\section{Dimensionality reduction and Embedding
+Visualization}\label{dimensionality-reduction-and-embedding-visualization}
 
 To visualize and analyze the high-dimensional embedding spaces that LLMs
 use for numerical representations, we need techniques that make the
@@ -613,8 +565,43 @@ dimensionality reduction techniques:
   regions.
 \end{itemize}
 
-\section{The search for better suited
-representation}\label{the-search-for-better-suited-representation}
+\section{How current representational issues can help us better
+understand
+LLMs}\label{how-current-representational-issues-can-help-us-better-understand-llms}
+
+Tokenization as a process is highly idiosyncratic, and the last
+``mechanical'' step in the LLM pipeline. This situation has been already
+identified as a problem by some authors
+(\citeproc{ref-bitter-lesson-tokenization}{lucalp, 2025}), and it's a
+passage that, while necessary to get LLM performance to the point where
+it is today, given it allows the network to operate on a token level
+instead of character, would probably be better replaced by learnable
+approaches rather than being constrained by fixed pre-trained
+vocabularies that limit the model capability to have a representation of
+the input adapted to the task at hand. There are already alternative
+approaches being proposed (\citeproc{ref-islam2022}{Islam et al., 2022};
+\citeproc{ref-pagnoni2024}{Pagnoni et al., 2024}), which manage to have
+better efficiency while addressing some of the problems rigid
+training-time tokenization causes (like the strawberry problem).
+However, what the state of the art offers now gives the opportunity for
+the exploration of representational structures that have direct and easy
+associations with tokens, which we can catalogue in sequences and
+analyze in a systematic way.
+
+During the process of literature review for this thesis, and after the
+main experimentation, an article was found touching on similar themes,
+in particular using mechanistic techniques to get to the way LLMs
+perform addition, and in the process
+
+recent research was also found demonstrating that LLMs use trigonometry
+to do addition \textless?\textgreater{}
+(\citeproc{ref-kantamneni2025}{Kantamneni \& Tegmark, 2025}),
+representing numbers as a generalized helix which is strongly causally
+implicated for addition and subtraction tasks. This provides evidence
+that language models do indeed develop structured geometric
+representations for numerical reasoning, supporting the hypothesis that
+analyzing these naturally emergent structures could inform better
+representation design.
 
 \chapter{Implementation}\label{implementation}
 
@@ -655,38 +642,37 @@ work with the data in manageable way, as loading the whole model was
 very often impractically slow and a lot of the work had to be done in a
 resource-constrained environment.
 
-The sample data was stored in instances of the \texttt{EmbeddingsSample}
-class, along with metadata reporting the source model ID and, for random
-samples, the seed used for replicability purposes.
+The sample data was stored in instances of the
+\passthrough{\lstinline!EmbeddingsSample!} class, along with metadata
+reporting the source model ID and, for random samples, the seed used for
+replicability purposes.
 
-\begin{Shaded}
-\begin{Highlighting}[]
+\begin{lstlisting}[language=Python]
 
-\AttributeTok{@dataclass}
-\KeywordTok{class}\NormalTok{ IntegerSampleMeta:}
-\NormalTok{    model\_id: }\BuiltInTok{str}
-\NormalTok{    tag: Literal[}\StringTok{"integers"}\NormalTok{] }\OperatorTok{=} \StringTok{"integers"}
+@dataclass
+class IntegerSampleMeta:
+    model_id: str
+    tag: Literal["integers"] = "integers"
 
-\AttributeTok{@dataclass}
-\KeywordTok{class}\NormalTok{ RandomSampleMeta:}
-\NormalTok{model\_id: }\BuiltInTok{str}
-\NormalTok{    sample\_size: }\BuiltInTok{int}
-\NormalTok{    seed: }\BuiltInTok{int}
-\NormalTok{    tag: Literal[}\StringTok{"random"}\NormalTok{] }\OperatorTok{=} \StringTok{"random"}
+@dataclass
+class RandomSampleMeta:
+model_id: str
+    sample_size: int
+    seed: int
+    tag: Literal["random"] = "random"
 
-\AttributeTok{@dataclass}
-\KeywordTok{class}\NormalTok{ ReducedSampleMeta:}
-\NormalTok{    original: EmbeddingsSampleMeta}
-\NormalTok{    estimator: BaseEstimator}
-\NormalTok{    tag: Literal[}\StringTok{"reduced"}\NormalTok{] }\OperatorTok{=} \StringTok{"reduced"}
+@dataclass
+class ReducedSampleMeta:
+    original: EmbeddingsSampleMeta
+    estimator: BaseEstimator
+    tag: Literal["reduced"] = "reduced"
 
-\AttributeTok{@dataclass}
-\KeywordTok{class}\NormalTok{ EmbeddingsSample[M: EmbeddingsSampleMeta]:}
-\NormalTok{    sample\_id: }\BuiltInTok{int}
-\NormalTok{    meta: M}
-\NormalTok{    embeddings\_df: pd.DataFrame }\OperatorTok{=}\NormalTok{ field(}\BuiltInTok{repr}\OperatorTok{=}\VariableTok{False}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
+@dataclass
+class EmbeddingsSample[M: EmbeddingsSampleMeta]:
+    sample_id: int
+    meta: M
+    embeddings_df: pd.DataFrame = field(repr=False)
+\end{lstlisting}
 
 Initially, the storage of each sample was done in a dedicated Parquet
 file, an efficient file format that would have provided easy
@@ -705,32 +691,30 @@ facilities to work directly on dataframes using SQL queries, and
 exchanging data between dataframes and the database in this way, which
 revealed very useful for loading purposes.
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\KeywordTok{CREATE} \KeywordTok{OR} \KeywordTok{REPLACE} \KeywordTok{TABLE}\NormalTok{ embeddings (}
-\NormalTok{    model\_id }\DataTypeTok{VARCHAR} \KeywordTok{NOT} \KeywordTok{NULL}\NormalTok{,}
-\NormalTok{    token\_id }\DataTypeTok{INTEGER} \KeywordTok{NOT} \KeywordTok{NULL}\NormalTok{,}
-\NormalTok{    token }\DataTypeTok{VARCHAR} \KeywordTok{NOT} \KeywordTok{NULL}\NormalTok{,}
-\NormalTok{    embeddings }\DataTypeTok{FLOAT}\NormalTok{[] }\KeywordTok{NOT} \KeywordTok{NULL}\NormalTok{,}
-    \KeywordTok{PRIMARY} \KeywordTok{KEY}\NormalTok{ (model\_id, token\_id),}
-\NormalTok{);}
+\begin{lstlisting}[language=SQL]
+CREATE OR REPLACE TABLE embeddings (
+    model_id VARCHAR NOT NULL,
+    token_id INTEGER NOT NULL,
+    token VARCHAR NOT NULL,
+    embeddings FLOAT[] NOT NULL,
+    PRIMARY KEY (model_id, token_id),
+);
 
-\KeywordTok{CREATE} \KeywordTok{OR} \KeywordTok{REPLACE} \KeywordTok{SEQUENCE}\NormalTok{ embedding\_id\_seq;}
-\KeywordTok{CREATE} \KeywordTok{OR} \KeywordTok{REPLACE} \KeywordTok{TABLE}\NormalTok{ samples (}
-\NormalTok{    sample\_id }\DataTypeTok{INTEGER} \KeywordTok{DEFAULT}\NormalTok{ NEXTVAL(}\StringTok{\textquotesingle{}embedding\_id\_seq\textquotesingle{}}\NormalTok{) }\KeywordTok{PRIMARY} \KeywordTok{KEY}\NormalTok{,}
-\NormalTok{    model\_id }\DataTypeTok{VARCHAR} \KeywordTok{NOT} \KeywordTok{NULL}\NormalTok{,}
-\NormalTok{    meta JSON,}
-\NormalTok{    created\_at }\DataTypeTok{TIMESTAMP} \KeywordTok{DEFAULT} \FunctionTok{CURRENT\_TIMESTAMP}\NormalTok{,}
-\NormalTok{);}
+CREATE OR REPLACE SEQUENCE embedding_id_seq;
+CREATE OR REPLACE TABLE samples (
+    sample_id INTEGER DEFAULT NEXTVAL('embedding_id_seq') PRIMARY KEY,
+    model_id VARCHAR NOT NULL,
+    meta JSON,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+);
 
-\KeywordTok{CREATE} \KeywordTok{OR} \KeywordTok{REPLACE} \KeywordTok{TABLE}\NormalTok{ embedding\_to\_sample (}
-\NormalTok{    model\_id }\DataTypeTok{VARCHAR} \KeywordTok{NOT} \KeywordTok{NULL}\NormalTok{,}
-\NormalTok{    token\_id }\DataTypeTok{INTEGER} \KeywordTok{NOT} \KeywordTok{NULL}\NormalTok{,}
-\NormalTok{    sample\_id }\DataTypeTok{INTEGER} \KeywordTok{NOT} \KeywordTok{NULL}\NormalTok{,}
-    \KeywordTok{PRIMARY} \KeywordTok{KEY}\NormalTok{ (model\_id, token\_id, sample\_id),}
-\NormalTok{);}
-\end{Highlighting}
-\end{Shaded}
+CREATE OR REPLACE TABLE embedding_to_sample (
+    model_id VARCHAR NOT NULL,
+    token_id INTEGER NOT NULL,
+    sample_id INTEGER NOT NULL,
+    PRIMARY KEY (model_id, token_id, sample_id),
+);
+\end{lstlisting}
 
 \section{Extracting and Sampling}\label{extracting-and-sampling}
 
@@ -738,27 +722,25 @@ Extraction is performed by downloading models using HuggingFace's
 Transformers library, which provides simple download and deployment of
 popular open source models.
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\KeywordTok{class}\NormalTok{ HFEmbeddingsExtractor:}
-    \CommentTok{"""Extracts embeddings from a Hugging Face model."""}
+\begin{lstlisting}[language=Python]
+class HFEmbeddingsExtractor:
+    """Extracts embeddings from a Hugging Face model."""
 
-    \KeywordTok{def} \FunctionTok{\_\_init\_\_}\NormalTok{(}\VariableTok{self}\NormalTok{, name\_or\_path: }\BuiltInTok{str}\NormalTok{):}
-        \VariableTok{self}\NormalTok{.name\_or\_path }\OperatorTok{=}\NormalTok{ name\_or\_path}
+    def __init__(self, name_or_path: str):
+        self.name_or_path = name_or_path
 
-    \AttributeTok{@cached\_property}
-    \KeywordTok{def}\NormalTok{ embeddings(}\VariableTok{self}\NormalTok{):}
-\NormalTok{        model }\OperatorTok{=}\NormalTok{ AutoModel.from\_pretrained(}\VariableTok{self}\NormalTok{.name\_or\_path)}
-\NormalTok{        model.}\BuiltInTok{eval}\NormalTok{()}
-\NormalTok{        embeddings }\OperatorTok{=}\NormalTok{ model.embed\_tokens}
-        \ControlFlowTok{return}\NormalTok{ embeddings}
+    @cached_property
+    def embeddings(self):
+        model = AutoModel.from_pretrained(self.name_or_path)
+        model.eval()
+        embeddings = model.embed_tokens
+        return embeddings
 
-    \KeywordTok{def}\NormalTok{ extract(}\VariableTok{self}\NormalTok{, token\_ids):}
-        \ControlFlowTok{with}\NormalTok{ torch.no\_grad():}
-\NormalTok{            token\_ids }\OperatorTok{=}\NormalTok{ torch.tensor(token\_ids)}
-            \ControlFlowTok{return} \VariableTok{self}\NormalTok{.embeddings.forward(token\_ids).squeeze().numpy()}
-\end{Highlighting}
-\end{Shaded}
+    def extract(self, token_ids):
+        with torch.no_grad():
+            token_ids = torch.tensor(token_ids)
+            return self.embeddings.forward(token_ids).squeeze().numpy()
+\end{lstlisting}
 
 LLMs that make use of a tokenization step receive their sentences in
 input as a list of token IDs, where each token ID corresponds to an
@@ -767,40 +749,40 @@ sentences, split them at the appropriate token boundary, adding special
 tokens where necessary, and convert them into token IDs for the LLM
 processing.
 
-The logic to do this is split between the \texttt{HFTokenizerWrapper}
-and \texttt{HFEmbeddingsSampler} classes. \texttt{HFTokenizerWrapper}
-invokes the tokenizer to get the token IDs that correspond to the
-embeddings of interest (avoiding special tokens, like
-\texttt{\textless{}Beginning\ of\ Sentence\textgreater{}} and such),
-while \texttt{HFEmbeddingsSampler} has the logic for integer and random
-selection.
+The logic to do this is split between the
+\passthrough{\lstinline!HFTokenizerWrapper!} and
+\passthrough{\lstinline!HFEmbeddingsSampler!} classes.
+\passthrough{\lstinline!HFTokenizerWrapper!} invokes the tokenizer to
+get the token IDs that correspond to the embeddings of interest
+(avoiding special tokens, like
+\passthrough{\lstinline!<Beginning of Sentence>!} and such), while
+\passthrough{\lstinline!HFEmbeddingsSampler!} has the logic for integer
+and random selection.
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\KeywordTok{class}\NormalTok{ HFTokenizerWrapper:}
-    \CommentTok{"""Wrapper for Hugging Face tokenizers."""}
+\begin{lstlisting}[language=Python]
+class HFTokenizerWrapper:
+    """Wrapper for Hugging Face tokenizers."""
 
-    \KeywordTok{def} \FunctionTok{\_\_init\_\_}\NormalTok{(}\VariableTok{self}\NormalTok{, tokenizer):}
-        \VariableTok{self}\NormalTok{.tokenizer }\OperatorTok{=}\NormalTok{ tokenizer}
+    def __init__(self, tokenizer):
+        self.tokenizer = tokenizer
 
-    \KeywordTok{def}\NormalTok{ tokenize(}\VariableTok{self}\NormalTok{, tokens) }\OperatorTok{{-}\textgreater{}}\NormalTok{ torch.Tensor:}
-        \ControlFlowTok{return} \VariableTok{self}\NormalTok{.tokenizer(}
-\NormalTok{            tokens,}
-\NormalTok{            add\_special\_tokens}\OperatorTok{=}\VariableTok{False}\NormalTok{,}
-\NormalTok{            return\_attention\_mask}\OperatorTok{=}\VariableTok{False}\NormalTok{,}
-\NormalTok{            return\_tensors}\OperatorTok{=}\StringTok{"pt"}\NormalTok{,}
-\NormalTok{        )[}\StringTok{"input\_ids"}\NormalTok{]}
+    def tokenize(self, tokens) -> torch.Tensor:
+        return self.tokenizer(
+            tokens,
+            add_special_tokens=False,
+            return_attention_mask=False,
+            return_tensors="pt",
+        )["input_ids"]
 
-    \AttributeTok{@classmethod}
-    \KeywordTok{def}\NormalTok{ from\_pretrained(cls, model\_id):}
-\NormalTok{        tokenizer }\OperatorTok{=}\NormalTok{ AutoTokenizer.from\_pretrained(model\_id)}
-        \ControlFlowTok{return}\NormalTok{ cls(tokenizer)}
+    @classmethod
+    def from_pretrained(cls, model_id):
+        tokenizer = AutoTokenizer.from_pretrained(model_id)
+        return cls(tokenizer)
 
-    \KeywordTok{def}\NormalTok{ token\_ids\_to\_tokens(}\VariableTok{self}\NormalTok{, token\_ids):}
-\NormalTok{        tokens }\OperatorTok{=} \VariableTok{self}\NormalTok{.tokenizer.convert\_ids\_to\_tokens(token\_ids)}
-        \ControlFlowTok{return}\NormalTok{ [token }\ControlFlowTok{if}\NormalTok{ token }\KeywordTok{is} \KeywordTok{not} \VariableTok{None} \ControlFlowTok{else} \StringTok{"\textless{}unk\textgreater{}"} \ControlFlowTok{for}\NormalTok{ token }\KeywordTok{in}\NormalTok{ tokens]}
-\end{Highlighting}
-\end{Shaded}
+    def token_ids_to_tokens(self, token_ids):
+        tokens = self.tokenizer.convert_ids_to_tokens(token_ids)
+        return [token if token is not None else "<unk>" for token in tokens]
+\end{lstlisting}
 
 The sampling happens by first picking the tokens of interest. For
 numbers, we first verify that the model uses a tokenization scheme
@@ -814,86 +796,83 @@ models available as of today.
 After the sampling process is completed, the results are returned as a
 dataframe, along with the corresponding provenance metadata.
 
-\begin{Shaded}
-\begin{Highlighting}[]
+\begin{lstlisting}[language=Python]
 
-\KeywordTok{class}\NormalTok{ HFEmbeddingsSampler:}
-    \KeywordTok{def}\NormalTok{ \_single\_token\_integer\_ids(}\VariableTok{self}\NormalTok{, max\_value}\OperatorTok{=}\DecValTok{10\_000}\NormalTok{) }\OperatorTok{{-}\textgreater{}}\NormalTok{ Iterable[}\BuiltInTok{int}\NormalTok{]:}
-        \ControlFlowTok{for}\NormalTok{ num }\KeywordTok{in} \BuiltInTok{range}\NormalTok{(max\_value):}
-\NormalTok{            token\_ids }\OperatorTok{=} \VariableTok{self}\NormalTok{.tokenizer.tokenize(}\BuiltInTok{str}\NormalTok{(num)).squeeze()}
-            \ControlFlowTok{if}\NormalTok{ token\_ids.ndim }\OperatorTok{==} \DecValTok{0}\NormalTok{:}
-                \ControlFlowTok{yield}\NormalTok{ token\_ids.item()}
-            \ControlFlowTok{else}\NormalTok{:}
-                \ControlFlowTok{return}
-\NormalTok{        warnings.warn(}
-            \SpecialStringTok{f"All integers from 0 to max\_value=}\SpecialCharTok{\{}\NormalTok{max\_value}\SpecialCharTok{\}}\SpecialStringTok{ are single token. "}
-            \StringTok{"There may be more single{-}token integers."}
-\NormalTok{        )}
+class HFEmbeddingsSampler:
+    def _single_token_integer_ids(self, max_value=10_000) -> Iterable[int]:
+        for num in range(max_value):
+            token_ids = self.tokenizer.tokenize(str(num)).squeeze()
+            if token_ids.ndim == 0:
+                yield token_ids.item()
+            else:
+                return
+        warnings.warn(
+            f"All integers from 0 to max_value={max_value} are single token. "
+            "There may be more single-token integers."
+        )
 
-    \KeywordTok{def}\NormalTok{ single\_token\_integers(}\VariableTok{self}\NormalTok{) }\OperatorTok{{-}\textgreater{}} \BuiltInTok{tuple}\NormalTok{[pd.DataFrame, IntegerSampleMeta]:}
-\NormalTok{        token\_ids }\OperatorTok{=}\NormalTok{ np.fromiter(}\VariableTok{self}\NormalTok{.\_single\_token\_integer\_ids(), }\BuiltInTok{int}\NormalTok{)}
-\NormalTok{        tokens }\OperatorTok{=} \BuiltInTok{range}\NormalTok{(}\BuiltInTok{len}\NormalTok{(token\_ids))}
-\NormalTok{        embeddings }\OperatorTok{=} \VariableTok{self}\NormalTok{.extractor.extract(token\_ids)}
+    def single_token_integers(self) -> tuple[pd.DataFrame, IntegerSampleMeta]:
+        token_ids = np.fromiter(self._single_token_integer_ids(), int)
+        tokens = range(len(token_ids))
+        embeddings = self.extractor.extract(token_ids)
 
-\NormalTok{        df }\OperatorTok{=}\NormalTok{ make\_embeddings\_df(token\_ids, tokens, embeddings)}
-\NormalTok{        meta }\OperatorTok{=}\NormalTok{ IntegerSampleMeta(model\_id}\OperatorTok{=}\VariableTok{self}\NormalTok{.model\_id)}
+        df = make_embeddings_df(token_ids, tokens, embeddings)
+        meta = IntegerSampleMeta(model_id=self.model_id)
 
-        \ControlFlowTok{return}\NormalTok{ df, meta}
-\end{Highlighting}
-\end{Shaded}
+        return df, meta
+\end{lstlisting}
 
 For the random sampling of embeddings, token ids are picked by doing a
 random extraction of numbers between 0 and the vocabulary size of the
 model, and then proceeding in a similar way as described before
 \textless?\textgreater.
 
-\begin{Shaded}
-\begin{Highlighting}[]
-    \KeywordTok{def}\NormalTok{ \_random\_token\_ids(}\VariableTok{self}\NormalTok{, sample\_size, seed):}
-\NormalTok{        rng }\OperatorTok{=}\NormalTok{ np.random.default\_rng(seed)}
-        \ControlFlowTok{return}\NormalTok{ rng.choice(}\VariableTok{self}\NormalTok{.tokenizer.vocab\_size, size}\OperatorTok{=}\NormalTok{sample\_size, replace}\OperatorTok{=}\VariableTok{False}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
+\begin{lstlisting}[language=Python]
+    def _random_token_ids(self, sample_size, seed):
+        rng = np.random.default_rng(seed)
+        return rng.choice(self.tokenizer.vocab_size, size=sample_size, replace=False)
+\end{lstlisting}
 
 \section{Analysis}\label{analysis}
 
-Most of the analysis in done in the \texttt{EmbeddingsAnalyzer} class,
-which reorganizes data and provides it in a format suitable for
-consultation and visualization.
+Most of the analysis in done in the
+\passthrough{\lstinline!EmbeddingsAnalyzer!} class, which reorganizes
+data and provides it in a format suitable for consultation and
+visualization.
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\AttributeTok{@dataclass}
-\KeywordTok{class}\NormalTok{ EmbeddingsAnalyzer:}
-\NormalTok{    embeddings\_df: pd.DataFrame}
-\NormalTok{    meta: EmbeddingsSampleMeta}
+\begin{lstlisting}[language=Python]
+@dataclass
+class EmbeddingsAnalyzer:
+    embeddings_df: pd.DataFrame
+    meta: EmbeddingsSampleMeta
 
-    \AttributeTok{@classmethod}
-    \KeywordTok{def}\NormalTok{ from\_sample(cls, sample: EmbeddingsSample):}
-        \CommentTok{"""Initialize from an EmbeddingsSample."""}
-        \ControlFlowTok{return}\NormalTok{ cls(}
-\NormalTok{            embeddings\_df}\OperatorTok{=}\NormalTok{wide\_embeddings\_df(sample.embeddings\_df),}
-\NormalTok{            meta}\OperatorTok{=}\NormalTok{sample.meta,}
-\NormalTok{        )}
-\end{Highlighting}
-\end{Shaded}
+    @classmethod
+    def from_sample(cls, sample: EmbeddingsSample):
+        """Initialize from an EmbeddingsSample."""
+        return cls(
+            embeddings_df=wide_embeddings_df(sample.embeddings_df),
+            meta=sample.meta,
+        )
+\end{lstlisting}
 
 The format used for the embeddings here is a dataframe with the columns
-\texttt{token}, \texttt{token\_id} and the embeddings spread out in
-columns named \texttt{embeddings\_\{dimension\ index\}}. Even though
+\passthrough{\lstinline!token!}, \passthrough{\lstinline!token\_id!} and
+the embeddings spread out in columns named
+\passthrough{\lstinline!embeddings\_\{dimension index\}!}. Even though
 it's a little unwieldy, this allows for compatibility with most of the
 libraries operating with dataframe that assume mono-dimensional column
 indices with string column names. This class also provides the facility
-for dimensional reduction through the \texttt{run\_estimator} method,
-which takes an estimator as input and returns a new
-\texttt{EmbeddingsAnalyzer} instance with the embeddings being fit
-through the estimator.
+for dimensional reduction through the
+\passthrough{\lstinline!run\_estimator!} method, which takes an
+estimator as input and returns a new
+\passthrough{\lstinline!EmbeddingsAnalyzer!} instance with the
+embeddings being fit through the estimator.
 
 A notable feature implemented here is the analysis of the correlations
 between embedding features and mathematical sequences, done in the
-\texttt{feature\_to\_sequence\_analysis\_df} method. This is done by
-generating various mathematical sequences and then encoding them using
-either:
+\passthrough{\lstinline!feature\_to\_sequence\_analysis\_df!} method.
+This is done by generating various mathematical sequences and then
+encoding them using either:
 
 \begin{itemize}
 \tightlist
@@ -918,11 +897,11 @@ about features and their respective correlations.
 \section{User interface}\label{user-interface}
 
 The end user can make use of the tools by loading a model through the
-CLI, which was programmed using the \texttt{typer} library. It can be
-used to load model numerical and random samples into the database
-through the command
-\texttt{embcli\ load\ \textless{}hf\_model\_id\textgreater{}}, which can
-then be listed and consulted through the Marimo dashboard.
+CLI, which was programmed using the \passthrough{\lstinline!typer!}
+library. It can be used to load model numerical and random samples into
+the database through the command
+\passthrough{\lstinline!embcli load <hf\_model\_id>!}, which can then be
+listed and consulted through the Marimo dashboard.
 
 \begin{figure}
 \centering
@@ -932,7 +911,7 @@ then be listed and consulted through the Marimo dashboard.
 
 \chapter{Embeddings Analysis}\label{embeddings-analysis}
 
-The analytic part of this work consists in the search for structure in
+The analytic part of this work consists in the search for structures in
 LLM numerical embeddings.
 
 As stated previously, recent open source models mostly employ an L2R
@@ -942,65 +921,9 @@ performance observed when using R2L tokenization in L2R-trained models
 could be a hint that L2R embedding representations still have similar
 properties to the R2L ones.
 
-We're looking for clues of mathematical properties being encoded in the
-embeddings. As the results show, we find strong correlations between
-embedding dimensions and mathematical properties, the strongest one
-being magnitude (data) and a very interesting one being the distance
-between the number and their closest Fibonacci number, with the catch
-that further study is needed to see if this strong connection comes from
-confounding factors.
-
 \section{Methodology}\label{methodology}
 
-For each model, we extracted the embeddings corresponding to integer
-numbers representable by a single token. The embeddings were then
-analyzed using dimensionality reduction techniques (PCA, SVD, t-SNE and
-UMAP) to garner statistics and produce visualizations that could
-potentially highlight structures in the data. As a final stage, the
-embeddings were directly tested for correlations with mathematical
-properties of the number:
-
-\begin{itemize}
-\tightlist
-\item
-  magnitude
-\item
-  primality
-\item
-  evenness
-\item
-  being a perfect square
-\item
-  being a Fibonacci number
-\end{itemize}
-
-For binary properties, the correlation was measured with vectors with
-value 1 for the indexes corresponding to numbers where the property is
-true and 0 elsewhere. To account for the continuous nature of the
-embeddings, smoother functions that might relate to the same properties
-were also taken into account:
-
-\begin{itemize}
-\tightlist
-\item
-  ``squareness'': an approximate measure of closeness of the number to a
-  perfect square
-\end{itemize}
-
-\[ \text{squareness}(n) =\begin{cases} 0 & \text{if } n \leq 0 \\ 1 - 2 \cdot
-\min\left( \sqrt{n} - \lfloor \sqrt{n} \rfloor,\; \lceil \sqrt{n} \rceil -
-\sqrt{n} \right) & \text{if } n > 0 \end{cases} \] \{\#eq-squareness\}
-
-\begin{itemize}
-\item
-  prime proximity: distance between the number and the nearest perfect
-  prime, measured in integers between the two.
-\item
-  Fibonacci proximity: distance between the number and the nearest
-  Fibonacci number, measured in integers between the two.
-\end{itemize}
-
-We took two models in consideration:
+Two models are taken in consideration:
 
 \begin{itemize}
 \item
@@ -1012,6 +935,11 @@ We took two models in consideration:
   analysis with on limited hardware
 \end{itemize}
 
+For each of these, dimensionality reduction is applied through PCA, SVD,
+t-SNE and UMAP, and the results are used to produce 2D and 3D
+visualization meant to show the geometric structure that the
+representation assume in the space.
+
 \section{OLMo-2-1124-7B}\label{olmo-2-1124-7b}
 
 \subsection{Linear analysis}\label{linear-analysis}
@@ -1020,13 +948,13 @@ We took two models in consideration:
 \centering
 \pandocbounded{\includesvg[keepaspectratio]{plots/OLMo-2-1124-7B_00_pca_components_gradient_v1.svg}}
 \caption{Principal components 1 and 2 of the OLMo model. Random
-embeddings sample for comparison.}\label{fig-olmo-pca}
+embeddings sample for comparison.}\label{fig:olmo_pca}
 \end{figure}
 
-Projecting the numerical token embeddings onto the first two principal
-components reveals a U-shaped curve. This structure constitutes a
-one-dimensional manifold embedded within the two-dimensional principal
-component space.
+In fig.~\ref{fig:olmo_pca}, projecting the numerical token embeddings
+onto the first two principal components reveals a U-shaped curve. This
+structure constitutes a one-dimensional manifold embedded within the
+two-dimensional principal component space.
 
 The manifold structure is particularly significant because it
 demonstrates that numerical tokens do not occupy the embedding space
@@ -1046,9 +974,7 @@ embeddings sample for comparison}\label{fig-olmo-svd}
 The SVD visualization, lacking the data centering done in the PCA, shows
 a much more consistent geometric structure, suggesting that the encoding
 of information might be done in absolute distances rather than just with
-relative positioning between data points. There is also a very notable
-recursive, fractal structure, repeating itself for numbers with one, two
-and three digits.
+relative positioning between data points.
 
 \begin{figure}
 \centering
@@ -1057,6 +983,9 @@ and three digits.
 highlighting the clustering properties of the
 embeddings.}\label{fig-olmo-svd-digits}
 \end{figure}
+
+There is also a very notable recursive, fractal structure, repeating
+itself for numbers with one, two and three digits.
 
 \subsubsection{Explained variance}\label{explained-variance}
 
@@ -1088,17 +1017,14 @@ the variance.
 \end{figure}
 
 \begin{longtable}[]{@{}ll@{}}
-\caption{t-SNE hyperparameters for the presented plots.
-\{\#tbl-tsne-params\}}\tabularnewline
-\toprule\noalign{}
-\textbf{Parameter} & \textbf{Value} \\
-\midrule\noalign{}
-\endfirsthead
 \toprule\noalign{}
 \textbf{Parameter} & \textbf{Value} \\
 \midrule\noalign{}
 \endhead
 \bottomrule\noalign{}
+\tabularnewline
+\caption{t-SNE hyperparameters for the presented plots.
+\{\#tbl-tsne-params\}}
 \endlastfoot
 perplexity & 75 \\
 max\_iter & 3000 \\
@@ -1151,19 +1077,15 @@ correlation does so in terms of their magnitude (measured as the
 correlation with the \(log_{10}\) of the number considered).
 
 \begin{longtable}[]{@{}rlrr@{}}
-\caption{Feature-sequence correlations in OLMo-2.
-\{\#tbl-olmo-correlations\}}\tabularnewline
-\toprule\noalign{}
-\textbf{Dimension} & \textbf{Property} & \textbf{Correlation} &
-\textbf{P-Value} \\
-\midrule\noalign{}
-\endfirsthead
 \toprule\noalign{}
 \textbf{Dimension} & \textbf{Property} & \textbf{Correlation} &
 \textbf{P-Value} \\
 \midrule\noalign{}
 \endhead
 \bottomrule\noalign{}
+\tabularnewline
+\caption{Feature-sequence correlations in OLMo-2.
+\{\#tbl-olmo-correlations\}}
 \endlastfoot
 514 & magnitude & -0.673 & 8.45e-133 \\
 3085 & magnitude & -0.607 & 1.65e-101 \\
@@ -1399,6 +1321,9 @@ data. While modest in scope, these results provide a foundation for
 further investigation into the relationship between representational
 structure and mathematical reasoning capabilities in artificial systems.
 
+\chapter*{Bibliography}\label{bibliography}
+\addcontentsline{toc}{chapter}{Bibliography}
+
 \phantomsection\label{refs}
 \begin{CSLReferences}{1}{0}
 \bibitem[\citeproctext]{ref-ali2024}
@@ -1421,6 +1346,22 @@ Huh, M., Cheung, B., Wang, T., \& Isola, P. (2024, May 13). \emph{The
 {Platonic Representation Hypothesis}}.
 \url{https://doi.org/10.48550/arXiv.2405.07987}
 
+\bibitem[\citeproctext]{ref-islam2022}
+Islam, M. M., Aguilar, G., Ponnusamy, P., Mathialagan, C. S., Ma, C., \&
+Guo, C. (2022, April 22). \emph{A {Vocabulary-Free Multilingual Neural
+Tokenizer} for {End-to-End Task Learning}}.
+\url{https://doi.org/10.48550/arXiv.2204.10815}
+
+\bibitem[\citeproctext]{ref-kantamneni2025}
+Kantamneni, S., \& Tegmark, M. (2025, February 2). \emph{Language
+{Models Use Trigonometry} to {Do Addition}}.
+\url{https://doi.org/10.48550/arXiv.2502.00873}
+
+\bibitem[\citeproctext]{ref-bitter-lesson-tokenization}
+lucalp. (2025, June 24). \emph{The {Bitter Lesson} is coming for
+{Tokenization} \textbar{} ⛰️ lucalp}.
+\url{https://lucalp.dev/bitter-lesson-tokenization-and-blt/}
+
 \bibitem[\citeproctext]{ref-mcinnes2020}
 McInnes, L., Healy, J., \& Melville, J. (2020, September 18).
 \emph{{UMAP}: {Uniform Manifold Approximation} and {Projection} for
@@ -1433,11 +1374,32 @@ Schwarzschild, A., \& Goldstein, T. (2024, December 23).
 \emph{Transformers {Can Do Arithmetic} with the {Right Embeddings}}.
 \url{https://doi.org/10.48550/arXiv.2405.17399}
 
+\bibitem[\citeproctext]{ref-millidge2023}
+Millidge, B. (2023, February 4). \emph{Integer tokenization is insane}.
+\url{http://www.beren.io/2023-02-04-Integer-tokenization-is-insane/}
+
+\bibitem[\citeproctext]{ref-millidge2024}
+Millidge, B. (2024, July 7). \emph{Right to {Left} ({R2L}) {Integer
+Tokenization}}.
+\url{http://www.beren.io/2024-07-07-Right-to-Left-Integer-Tokenization/}
+
 \bibitem[\citeproctext]{ref-murray2010}
 Murray, A. L. (2010). Can the existence of highly accessible concrete
 representations explain savant skills? {Some} insights from
 synaesthesia. \emph{Medical Hypotheses}, \emph{74}(6), 1006--1012.
 \url{https://doi.org/10.1016/j.mehy.2010.01.014}
+
+\bibitem[\citeproctext]{ref-pagnoni2024}
+Pagnoni, A., Pasunuru, R., Rodriguez, P., Nguyen, J., Muller, B., Li,
+M., Zhou, C., Yu, L., Weston, J., Zettlemoyer, L., Ghosh, G., Lewis, M.,
+Holtzman, A., \& Iyer, S. (2024, December 13). \emph{Byte {Latent
+Transformer}: {Patches Scale Better Than Tokens}}.
+\url{https://doi.org/10.48550/arXiv.2412.09871}
+
+\bibitem[\citeproctext]{ref-radford2019}
+Radford, A., Wu, J., Child, R., Luan, D., Amodei, D., \& Sutskever, I.
+(2019). \emph{Language {Models} are {Unsupervised Multitask Learners}}.
+\url{https://www.semanticscholar.org/paper/Language-Models-are-Unsupervised-Multitask-Learners-Radford-Wu/9405cc0d6169988371b2755e573cc28650d14dfe}
 
 \bibitem[\citeproctext]{ref-singh2024}
 Singh, A. K., \& Strouse, D. J. (2024, February 22). \emph{Tokenization

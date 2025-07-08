@@ -11,98 +11,79 @@ L2R embedding representations still have similar properties to the R2L ones.
 
 ## Methodology
 
-For each model, we extracted the embeddings corresponding to integer numbers
-representable by a single token. The embeddings were then analyzed using
-dimensionality reduction techniques (PCA, SVD, t-SNE and UMAP) to garner
-statistics and produce visualizations that could potentially highlight
-structures in the data. As a final stage, the embeddings were directly tested
-for correlations with mathematical properties of the number:
-
-- magnitude
-- primality
-- evenness
-- being a perfect square
-- being a Fibonacci number
-
-For binary properties, the correlation was measured with vectors with value 1
-for the indexes corresponding to numbers where the property is true and 0
-elsewhere.  To account for the continuous nature of the embeddings, smoother
-functions that might relate to the same properties were also taken into account:
-
-- "squareness": an approximate measure of closeness of the number to a perfect
-square
-
-$$ \text{squareness}(n) =\begin{cases} 0 & \text{if } n \leq 0 \\ 1 - 2 \cdot
-\min\left( \sqrt{n} - \lfloor \sqrt{n} \rfloor,\; \lceil \sqrt{n} \rceil -
-\sqrt{n} \right) & \text{if } n > 0 \end{cases} $$ {#eq-squareness}
-
-- prime proximity: distance between the number and the nearest perfect prime,
-measured in integers between the two.
-
-- Fibonacci proximity: distance between the number and the nearest Fibonacci
-number, measured in integers between the two.
-
-We took two models in consideration:
+Two models are taken in consideration:
 
 - OLMo-2-1124-7B is a model by AllenAI, which is favorable to research uses
-thanks to the full disclosure of training data, code, logs and checkpoints 
+thanks to the full disclosure of training data, code, logs and checkpoints
 
 - Llama-3.2-1B-Instruct, due to being a small and manageable model to do analysis
 with on limited hardware
+
+For each of these, dimensionality reduction is applied through PCA, SVD, t-SNE and UMAP,
+and the results are used to produce 2D and 3D visualization meant to show the geometric
+structure that the representation assume in the space.
 
 ## OLMo-2-1124-7B
 
 ### Linear analysis
 
 ![Principal components 1 and 2 of the OLMo model. Random embeddings sample for
-comparison.](plots/OLMo-2-1124-7B_00_pca_components_gradient_v1.svg){#fig-olmo-pca}
+comparison.](plots/OLMo-2-1124-7B_00_pca_components_gradient_v1.svg){#fig:olmo-pca}
 
-Projecting the numerical token embeddings onto the first two principal
-components reveals a U-shaped curve. This structure constitutes a
-one-dimensional manifold embedded within the two-dimensional principal component
-space.
-
-The manifold structure is particularly significant because it demonstrates that
-numerical tokens do not occupy the embedding space randomly. Instead, they
-follow a constrained path that preserves numerical relationships, suggesting
-that the model has learned to encode ordering properties of the numbers within
-its representation. The gradient is particularly smooth, suggesting that similar
-numbers maintain spatial proximity in the reduced space.
+In [@fig:olmo-pca], we plot the first two principal component of the numerical
+embeddings, color-grading them on the basis of their numerical value.  The result shows
+that numerical tokens do not occupy the embedding space randomly: they follow a
+constrained path that preserves numerical relationships, suggesting that the model has
+learned to encode ordering properties of the numbers within its representation. The
+gradient is particularly smooth, suggesting that similar numbers maintain spatial
+proximity in the reduced space.
 
 ![SVD for the two main components of the OLMo model, with random embeddings
 sample for
-comparison](plots/OLMo-2-1124-7B_02_svd_components_gradient_v1.svg){#fig-olmo-svd}
+comparison](plots/OLMo-2-1124-7B_02_svd_components_gradient_v1.svg){#fig:olmo-svd}
 
-The SVD visualization, lacking the data centering done in the PCA, shows a much
-more consistent geometric structure, suggesting that the encoding of information
-might be done in absolute distances rather than just with relative positioning
-between data points. There is also a very notable recursive, fractal structure,
-repeating itself for numbers with one, two and three digits.
+The relationship and similarities are even more clear in [@fig:olmo-svd], which, lacking
+the data centering done in the PCA, shows a much more consistent geometric structure,
+showing that the encoding of information likely happens in absolute distances rather
+than just with relative positioning between data points. This will also inform the
+strategies we use for reconstructing the datapoints with UMAP, as we'll do projections
+that make use of Euclidean distance as well as cosine similarity as a metric.
 
 ![SVD coloring done by digit length and hundreds digit, highlighting the
 clustering properties of the
-embeddings.](plots/OLMo-2-1124-7B_03_svd_digit_visualizations_v1.svg){#fig-olmo-svd-digits}
+embeddings.](plots/OLMo-2-1124-7B_03_svd_digit_visualizations_v1.svg){#fig:olmo-svd-digits}
+
+Looking at [@fig:olmo-svd-digits], the fractal structure is strinking, and the
+structure repeating within numbers of different digit lengths becomes really clear.
+Models like Qwen-2.5 do away with tokenizing numbers outside the single digits from 0 to
+9, and this picture can offer a compelling explanation on why that can be justified. In
+fact, it seems like the encoding of higher digit quantities brings along a lot of
+redundancy. On the other hand, as discussed for [@kantamneni2025], this same redundancy
+could be used by the models an error correcting mechanism when it has to apply
+numerical operations, leading to possibly better performance.
+
 
 #### Explained variance
 
 ![OLMo PCA - explained variance
-overview](plots/OLMo-2-1124-7B_01_pca_variance_overview_v1.svg){#fig-olmo-variance}
+overview](plots/OLMo-2-1124-7B_01_pca_variance_overview_v1.svg){#fig:olmo-variance}
 
-The explained variance by component plot (left) shows a sharp drop within the
-first few components, meaning that the first principal components capture
-dramatically more variance than subsequent ones. The cumulative explained
-variance shows that approximatively 600 principal components are needed to reach
-90% of explained variance.
+The explained variance by component plot ([@fig:olmo-variance], left) shows a sharp drop
+within the first few components, meaning that the first principal components capture
+dramatically more variance than subsequent ones. The cumulative explained variance
+(right) shows that approximatively 600 principal components are needed to reach 90% of
+explained variance.
 
 By this we can conclude that the embeddings have a much lower intrinsic
 dimensionality than their full 4096 dimensions, and that they lie on a
 low-dimensional manifold in the full representation space. Only one-fifth of the
-total embedding space is necessary to capture 90% of the variance.
+total embedding space is necessary to capture 90% of the variance, and, as described
+earlier, the structures already encoded provide already a lot of redundancy.
 
 ### Non-linear analysis
 
 ![t-SNE visualization for OLMo
-embeddings.](plots/OLMo-2-1124-7B_07_tsne_components_gradient_v1.svg){#fig-olmo-tsne}
+embeddings.](plots/OLMo-2-1124-7B_07_tsne_components_gradient_v1.svg){#fig:olmo-tsne}
 
 
 | **Parameter**       | **Value** |
@@ -115,29 +96,29 @@ embeddings.](plots/OLMo-2-1124-7B_07_tsne_components_gradient_v1.svg){#fig-olmo-
 
 : t-SNE hyperparameters for the presented plots. {#tbl-tsne-params}
 
-The t-SNE visualization shows a distinctive branching pattern emanating from a
-central region, with low numbers at the center and higher ones radiating
-outward. The color progression follows these branches, indicating that numerical
-sequences are preserved along each arm. The gradient seems also to transition
+The t-SNE visualization in [@fig:olmo-tsne] shows a distinctive branching pattern
+emanating from a central region, with low numbers at the center and higher ones
+radiating outward. The color progression follows these branches, indicating that
+numerical sequences are preserved along each arm. The gradient seems also to transition
 circularly; branches with gradually increasing numbers turn around the center
 before abruptly getting back to the start. When interpreting the colors as
-indicators of depth, it can look like a spiral from a top-down perspective.
+indicators of depth, it can look like a spiral from a top-down perspective, giving a
+visual confirmation of what has been said about helical structures in [@kantamneni2025].
 
 ![UMAP visualization with cosine
-distance](plots/OLMo-2-1124-7B_09_umap_cosine_components_gradient_v1.svg){#fig-olmo-umap-cosine}
+distance](plots/OLMo-2-1124-7B_09_umap_cosine_components_gradient_v1.svg){#fig:olmo-umap-cosine}
 
 ![UMAP visualization with Euclidean
-distance](plots/OLMo-2-1124-7B_11_umap_euclidean_components_gradient_v1.svg){#fig-olmo-umap-euclidean}
+distance](plots/OLMo-2-1124-7B_11_umap_euclidean_components_gradient_v1.svg){#fig:olmo-umap-euclidean}
 
-UMAP has been run using both Euclidean and cosine distances, since the SVD
-visualization has shown that absolute distances can matter in this model. In the
-UMAP case we can observe a loss of shape similar to what happened in the PCA and
-SVD case. While the structure is congruent when using Euclidean distances,
-segregated clusters form when representing cosine similarity, with their
-predominant criterion of division being the hundreds' digit. Using Euclidean
-distances gives a picture similar to t-SNE, but projected and stretched and with
-more dispersion for numbers close to zero. The spiral-like conformation is also
-notable here.
+UMAP has been run using both Euclidean ([@fig:olmo-umap-euclidean]) and cosine distances
+([@fig:olmo-umap-cosine]), since the SVD visualization has shown that absolute distances
+can matter in this model. In the UMAP case we can observe a loss of shape similar to
+what happened in the PCA and SVD case. While the structure is congruent when using
+Euclidean distances, segregated clusters form when representing cosine similarity, with
+their predominant criterion of division being the hundreds' digit. Using Euclidean
+distances gives a picture similar to t-SNE, but projected and stretched and with more
+dispersion for numbers close to zero. The spiral-like conformation is also notable here.
 
 ### Correlation with mathematical properties
 
@@ -190,14 +171,14 @@ the embeddings are likely encoding some information about the primality of the
 number considered and their relationship to the Fibonacci series.
 
 ![Mathematical properties with the number of associated strongly correlated
-dimensions](plots/OLMo-2-1124-7B_13_strong_property_correlations_v1.svg){#fig-olmo-properties}
+dimensions](plots/OLMo-2-1124-7B_13_strong_property_correlations_v1.svg){#fig:olmo-properties}
 
 ## Llama-3.2-1B-Instruct
 
 ### Linear analysis
 
 ![PCA visualization of Llama
-embeddings.](plots/Llama-3.2-1B-Instruct_00_pca_components_gradient_v1.svg){#fig-llama-pca}
+embeddings.](plots/Llama-3.2-1B-Instruct_00_pca_components_gradient_v1.svg){#fig:llama-pca}
 
 The PCA projection shows a continuous, arc-shaped curved manifold, with smoother
 transitions between numbers and a distinct separation with numbers close to 0.
@@ -206,7 +187,7 @@ destroying geometric relationships that are better preserved in the SVD
 visualizations.
 
 ![SVD visualization of Llama
-embeddings](plots/Llama-3.2-1B-Instruct_02_svd_components_gradient_v1.svg){#fig-llama-svd}
+embeddings](plots/Llama-3.2-1B-Instruct_02_svd_components_gradient_v1.svg){#fig:llama-svd}
 
 The SVD plot shows a remarkably linear arrangement - numbers form an almost
 straight diagonal line from small (yellow) to large (purple) values. This linear
@@ -214,7 +195,7 @@ structure is much more pronounced than OLMo-2's curved SVD patterns, and it is a
 unique shape rather than a recursive, recurring pattern.
 
 ![Llama SVD visualization by
-digit](plots/Llama-3.2-1B-Instruct_03_svd_digit_visualizations_v1.svg){#fig-llama-svd-digits}
+digit](plots/Llama-3.2-1B-Instruct_03_svd_digit_visualizations_v1.svg){#fig:llama-svd-digits}
 
 The digit-based coloring reveals clear but subtle clustering by mathematical
 properties. Unlike OLMo-2's distinct spatial territories, Llama-3.2 shows
@@ -224,7 +205,7 @@ organization patterns.
 #### Explained variance
 
 ![Llama PCA explained
-variance.](plots/Llama-3.2-1B-Instruct_01_pca_variance_overview_v1.svg){#fig-llama-variance}
+variance.](plots/Llama-3.2-1B-Instruct_01_pca_variance_overview_v1.svg){#fig:llama-variance}
 
 The explained variance plot reveals slightly higher information concentration
 than OLMo-2.  Llama-3.2 reaches 90% explained variance with approximately 500
@@ -237,7 +218,7 @@ These nonlinear projections reveal dramatically different organizational
 patterns from both the linear methods and from OLMo-2's structures.
 
 ![t-SNE structure in
-Llama](plots/Llama-3.2-1B-Instruct_07_tsne_components_gradient_v1.svg){#fig-llama-tsne}
+Llama](plots/Llama-3.2-1B-Instruct_07_tsne_components_gradient_v1.svg){#fig:llama-tsne}
 
 The t-SNE visualization is very unusual, and show continuous, winding structures
 that might look like they had been uncoiled or unwound from a higher-dimensional
@@ -246,13 +227,13 @@ smoothly. This can be informative, as for their particularly keen encoding of
 the Fibonacci sequence, as will be shown successively.
 
 ![UMAP with cosine similarity in
-Llama](plots/Llama-3.2-1B-Instruct_09_umap_cosine_components_gradient_v1.svg){#fig-llama-umap-cosine}
+Llama](plots/Llama-3.2-1B-Instruct_09_umap_cosine_components_gradient_v1.svg){#fig:llama-umap-cosine}
 
 ![Clustering in UMAP with cosine
-similarity](plots/Llama-3.2-1B-Instruct_10_umap_cosine_digit_visualizations_v1.svg){#fig-llama-umap-cosine-digits}
+similarity](plots/Llama-3.2-1B-Instruct_10_umap_cosine_digit_visualizations_v1.svg){#fig:llama-umap-cosine-digits}
 
 ![UMAP with Euclidean distance in
-Llama](plots/Llama-3.2-1B-Instruct_11_umap_euclidean_components_gradient_v1.svg){#fig-llama-umap-euclidean}
+Llama](plots/Llama-3.2-1B-Instruct_11_umap_euclidean_components_gradient_v1.svg){#fig:llama-umap-euclidean}
 
 The UMAP visualization is resembling the OLMo's one. It's also interesting to
 see that changing the distance function to Euclidean doesn't have particular
@@ -261,7 +242,7 @@ effects, unlike the previous OLMo visualization.
 ### Correlation with mathematical properties
 
 ![Dimensions strongly correlated with properties in Llama
-3.2](plots/Llama-3.2-1B-Instruct_13_strong_property_correlations_v1.svg){#fig-llama-properties}
+3.2](plots/Llama-3.2-1B-Instruct_13_strong_property_correlations_v1.svg){#fig:llama-properties}
 
 In this case we see a lot more components directly encoding for digit_count, as
 well as for parity. There are 12 strongly correlated components with primality
