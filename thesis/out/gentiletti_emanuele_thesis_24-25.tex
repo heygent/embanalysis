@@ -40,6 +40,44 @@ bottom=3cm]{geometry}
 }{% if KOMA class
   \KOMAoptions{parskip=half}}
 \makeatother
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\newenvironment{Shaded}{}{}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{1.00,0.00,0.00}{\textbf{#1}}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.49,0.56,0.16}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.25,0.63,0.44}{#1}}
+\newcommand{\BuiltInTok}[1]{\textcolor[rgb]{0.00,0.50,0.00}{#1}}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.53,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.56,0.13,0.00}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.25,0.63,0.44}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.73,0.13,0.13}{\textit{#1}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{1.00,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.25,0.63,0.44}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.02,0.16,0.49}{#1}}
+\newcommand{\ImportTok}[1]{\textcolor[rgb]{0.00,0.50,0.00}{\textbf{#1}}}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.40,0.40,0.40}{#1}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.74,0.48,0.00}{#1}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.73,0.40,0.53}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.10,0.09,0.49}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{#1}}}}
 \usepackage{longtable,booktabs,array}
 \usepackage{calc} % for calculating minipage widths
 % Correct order of tables after \paragraph or \subparagraph
@@ -134,6 +172,40 @@ bottom=3cm]{geometry}
 \setlength{\textheight}{9.in}
 \setlength{\textwidth}{6.5in}
 \pagestyle{empty}
+\makeatletter
+\@ifpackageloaded{subfig}{}{\usepackage{subfig}}
+\@ifpackageloaded{caption}{}{\usepackage{caption}}
+\captionsetup[subfloat]{margin=0.5em}
+\AtBeginDocument{%
+\renewcommand*\figurename{Figure}
+\renewcommand*\tablename{Table}
+}
+\AtBeginDocument{%
+\renewcommand*\listfigurename{List of Figures}
+\renewcommand*\listtablename{List of Tables}
+}
+\newcounter{pandoccrossref@subfigures@footnote@counter}
+\newenvironment{pandoccrossrefsubfigures}{%
+\setcounter{pandoccrossref@subfigures@footnote@counter}{0}
+\begin{figure}\centering%
+\gdef\global@pandoccrossref@subfigures@footnotes{}%
+\DeclareRobustCommand{\footnote}[1]{\footnotemark%
+\stepcounter{pandoccrossref@subfigures@footnote@counter}%
+\ifx\global@pandoccrossref@subfigures@footnotes\empty%
+\gdef\global@pandoccrossref@subfigures@footnotes{{##1}}%
+\else%
+\g@addto@macro\global@pandoccrossref@subfigures@footnotes{, {##1}}%
+\fi}}%
+{\end{figure}%
+\addtocounter{footnote}{-\value{pandoccrossref@subfigures@footnote@counter}}
+\@for\f:=\global@pandoccrossref@subfigures@footnotes\do{\stepcounter{footnote}\footnotetext{\f}}%
+\gdef\global@pandoccrossref@subfigures@footnotes{}}
+\@ifpackageloaded{float}{}{\usepackage{float}}
+\floatstyle{ruled}
+\@ifundefined{c@chapter}{\newfloat{codelisting}{h}{lop}}{\newfloat{codelisting}{h}{lop}[chapter]}
+\floatname{codelisting}{Listing}
+\newcommand*\listoflistings{\listof{codelisting}{List of Listings}}
+\makeatother
 \usepackage{bookmark}
 \IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
 \urlstyle{same}
@@ -268,18 +340,6 @@ verify they go beyond memorization (\citeproc{ref-skalse2023}{Skalse,
 version of this tool to the actors that are able to get access to the
 most amount of data.
 
-If ``Scale is all you Need'' and LLM improvement is purely a game of
-resource accumulation, we would be in a situation that could exacerbate
-the inequalities we're living under at the present time, leading
-effectively to a crystallization of the power structures that, as of
-today, have the biggest capacity for data collection. As the state of
-the art gets better, the barriers of entry rise in terms of performance,
-training data and hardware required to have a model that performs
-competitively. As such, it is of primary importance to find strategies
-to break through the massive resource requirements needed for AI
-training and performance, and find alternatives that allow for a less
-resource-intensive development of the field.
-
 What is investigated here are some possible improvements that don't come
 directly from training, but from a better understanding of how, through
 learning, the model weights that allow LLMs to function come to be. This
@@ -410,7 +470,7 @@ The idea is maximizing the inductive bias in the representation by
 having embeddings that are computed based on the number to be
 represented (\citeproc{ref-golkar2023}{Golkar et al., 2023}). Numerical
 values represented by a single embedding vector associated with the
-\passthrough{\lstinline![NUM]!} special token.
+\texttt{{[}NUM{]}} special token.
 
 This fits very well with the idea of reification, which will be
 described later(\citeproc{ref-murray2010}{Murray, 2010}): the embedding,
@@ -418,15 +478,14 @@ beyond its qualities as representational object, becomes an entity with
 features that actively aid in the calculation process.
 
 The model uses two separate heads for number and token predictions. If
-the token head predicts a \passthrough{\lstinline![NUM]!} token as the
-successor, the number head gets activated and outputs a scalar. The rest
-of the weights in the transformer blocks are shared, allowing the
-learning of representations that are useful for both discrete text
-prediction and continuous numerical prediction. This means the model
-develops number-aware internal representations throughout all its
-layers, not just at the output. The shared weights force the model to
-learn features that work for both linguistic and mathematical reasoning
-simultaneously.
+the token head predicts a \texttt{{[}NUM{]}} token as the successor, the
+number head gets activated and outputs a scalar. The rest of the weights
+in the transformer blocks are shared, allowing the learning of
+representations that are useful for both discrete text prediction and
+continuous numerical prediction. This means the model develops
+number-aware internal representations throughout all its layers, not
+just at the output. The shared weights force the model to learn features
+that work for both linguistic and mathematical reasoning simultaneously.
 
 The approach is shown to improve performance over a series of other
 techniques, mostly using a standard notation to represent numbers
@@ -449,8 +508,8 @@ develop such structures on their own, by looking at their embeddings, as
 this could hypothetically inform us on how to build these structures
 ourselves in a more direct way than training.
 
-\section{Cognitive science - Savant syndrome and spatial
-representations}\label{cognitive-science---savant-syndrome-and-spatial-representations}
+\section{Savant syndrome and spatial
+representations}\label{savant-syndrome-and-spatial-representations}
 
 A case study of savant patient DT (\citeproc{ref-murray2010}{Murray,
 2010}) reveals a mathematical cognitive architecture with the following
@@ -542,7 +601,8 @@ dimensionality reduction techniques:
   variance in the data. The singular values in \(\Sigma\) are directly
   related to the eigenvalues of the covariance matrix.
 \item
-  \textbf{t-SNE (t-Distributed Stochastic Neighbor Embedding)} converts
+  \textbf{t-SNE (t-Distributed Stochastic Neighbor Embedding)}
+  (\citeproc{ref-maaten2008}{Maaten \& Hinton, 2008}) converts
   similarities between data points in high-dimensional space into
   probabilities, then uses gradient descent to minimize the divergence
   between these probabilities and those of points in a low-dimensional
@@ -635,6 +695,14 @@ parts:
   visualization and to provide interactive data analysis features.
 \end{itemize}
 
+\begin{figure}
+\centering
+\includegraphics[width=0.7\linewidth,height=\textheight,keepaspectratio]{res/marimo_dashboard.png}
+\caption{Plotting component for the Marimo dashboard.}
+\end{figure}
+
+\clearpage
+
 \section{Storage layer}\label{storage-layer}
 
 The necessity of a storage layer came out of a necessity to be able to
@@ -642,37 +710,46 @@ work with the data in manageable way, as loading the whole model was
 very often impractically slow and a lot of the work had to be done in a
 resource-constrained environment.
 
-The sample data was stored in instances of the
-\passthrough{\lstinline!EmbeddingsSample!} class, along with metadata
-reporting the source model ID and, for random samples, the seed used for
-replicability purposes.
+The sample data was stored in instances of the \texttt{EmbeddingsSample}
+class lst.~\ref{lst:embeddingsample}, along with metadata reporting the
+source model ID and, for random samples, the seed used for replicability
+purposes.
 
-\begin{lstlisting}[language=Python]
+\begin{codelisting}
 
-@dataclass
-class IntegerSampleMeta:
-    model_id: str
-    tag: Literal["integers"] = "integers"
+\caption{Container classes for embeddings samples and their
+metadata.}\label{lst:embeddingsample}
 
-@dataclass
-class RandomSampleMeta:
-model_id: str
-    sample_size: int
-    seed: int
-    tag: Literal["random"] = "random"
+\begin{Shaded}
+\begin{Highlighting}[]
 
-@dataclass
-class ReducedSampleMeta:
-    original: EmbeddingsSampleMeta
-    estimator: BaseEstimator
-    tag: Literal["reduced"] = "reduced"
+\AttributeTok{@dataclass}
+\KeywordTok{class}\NormalTok{ IntegerSampleMeta:}
+\NormalTok{    model\_id: }\BuiltInTok{str}
+\NormalTok{    tag: Literal[}\StringTok{"integers"}\NormalTok{] }\OperatorTok{=} \StringTok{"integers"}
 
-@dataclass
-class EmbeddingsSample[M: EmbeddingsSampleMeta]:
-    sample_id: int
-    meta: M
-    embeddings_df: pd.DataFrame = field(repr=False)
-\end{lstlisting}
+\AttributeTok{@dataclass}
+\KeywordTok{class}\NormalTok{ RandomSampleMeta:}
+\NormalTok{model\_id: }\BuiltInTok{str}
+\NormalTok{    sample\_size: }\BuiltInTok{int}
+\NormalTok{    seed: }\BuiltInTok{int}
+\NormalTok{    tag: Literal[}\StringTok{"random"}\NormalTok{] }\OperatorTok{=} \StringTok{"random"}
+
+\AttributeTok{@dataclass}
+\KeywordTok{class}\NormalTok{ ReducedSampleMeta:}
+\NormalTok{    original: EmbeddingsSampleMeta}
+\NormalTok{    estimator: BaseEstimator}
+\NormalTok{    tag: Literal[}\StringTok{"reduced"}\NormalTok{] }\OperatorTok{=} \StringTok{"reduced"}
+
+\AttributeTok{@dataclass}
+\KeywordTok{class}\NormalTok{ EmbeddingsSample[M: EmbeddingsSampleMeta]:}
+\NormalTok{    sample\_id: }\BuiltInTok{int}
+\NormalTok{    meta: M}
+\NormalTok{    embeddings\_df: pd.DataFrame }\OperatorTok{=}\NormalTok{ field(}\BuiltInTok{repr}\OperatorTok{=}\VariableTok{False}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\end{codelisting}
 
 Initially, the storage of each sample was done in a dedicated Parquet
 file, an efficient file format that would have provided easy
@@ -691,56 +768,74 @@ facilities to work directly on dataframes using SQL queries, and
 exchanging data between dataframes and the database in this way, which
 revealed very useful for loading purposes.
 
-\begin{lstlisting}[language=SQL]
-CREATE OR REPLACE TABLE embeddings (
-    model_id VARCHAR NOT NULL,
-    token_id INTEGER NOT NULL,
-    token VARCHAR NOT NULL,
-    embeddings FLOAT[] NOT NULL,
-    PRIMARY KEY (model_id, token_id),
-);
+\begin{codelisting}
 
-CREATE OR REPLACE SEQUENCE embedding_id_seq;
-CREATE OR REPLACE TABLE samples (
-    sample_id INTEGER DEFAULT NEXTVAL('embedding_id_seq') PRIMARY KEY,
-    model_id VARCHAR NOT NULL,
-    meta JSON,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-);
+\caption{SQL schema for the storage layer.}\label{lst:sqlschema}
 
-CREATE OR REPLACE TABLE embedding_to_sample (
-    model_id VARCHAR NOT NULL,
-    token_id INTEGER NOT NULL,
-    sample_id INTEGER NOT NULL,
-    PRIMARY KEY (model_id, token_id, sample_id),
-);
-\end{lstlisting}
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{CREATE} \KeywordTok{OR} \KeywordTok{REPLACE} \KeywordTok{TABLE}\NormalTok{ embeddings (}
+\NormalTok{    model\_id }\DataTypeTok{VARCHAR} \KeywordTok{NOT} \KeywordTok{NULL}\NormalTok{,}
+\NormalTok{    token\_id }\DataTypeTok{INTEGER} \KeywordTok{NOT} \KeywordTok{NULL}\NormalTok{,}
+\NormalTok{    token }\DataTypeTok{VARCHAR} \KeywordTok{NOT} \KeywordTok{NULL}\NormalTok{,}
+\NormalTok{    embeddings }\DataTypeTok{FLOAT}\NormalTok{[] }\KeywordTok{NOT} \KeywordTok{NULL}\NormalTok{,}
+    \KeywordTok{PRIMARY} \KeywordTok{KEY}\NormalTok{ (model\_id, token\_id),}
+\NormalTok{);}
+
+\KeywordTok{CREATE} \KeywordTok{OR} \KeywordTok{REPLACE} \KeywordTok{SEQUENCE}\NormalTok{ embedding\_id\_seq;}
+\KeywordTok{CREATE} \KeywordTok{OR} \KeywordTok{REPLACE} \KeywordTok{TABLE}\NormalTok{ samples (}
+\NormalTok{    sample\_id }\DataTypeTok{INTEGER} \KeywordTok{DEFAULT}\NormalTok{ NEXTVAL(}\StringTok{\textquotesingle{}embedding\_id\_seq\textquotesingle{}}\NormalTok{) }\KeywordTok{PRIMARY} \KeywordTok{KEY}\NormalTok{,}
+\NormalTok{    model\_id }\DataTypeTok{VARCHAR} \KeywordTok{NOT} \KeywordTok{NULL}\NormalTok{,}
+\NormalTok{    meta JSON,}
+\NormalTok{    created\_at }\DataTypeTok{TIMESTAMP} \KeywordTok{DEFAULT} \FunctionTok{CURRENT\_TIMESTAMP}\NormalTok{,}
+\NormalTok{);}
+
+\KeywordTok{CREATE} \KeywordTok{OR} \KeywordTok{REPLACE} \KeywordTok{TABLE}\NormalTok{ embedding\_to\_sample (}
+\NormalTok{    model\_id }\DataTypeTok{VARCHAR} \KeywordTok{NOT} \KeywordTok{NULL}\NormalTok{,}
+\NormalTok{    token\_id }\DataTypeTok{INTEGER} \KeywordTok{NOT} \KeywordTok{NULL}\NormalTok{,}
+\NormalTok{    sample\_id }\DataTypeTok{INTEGER} \KeywordTok{NOT} \KeywordTok{NULL}\NormalTok{,}
+    \KeywordTok{PRIMARY} \KeywordTok{KEY}\NormalTok{ (model\_id, token\_id, sample\_id),}
+\NormalTok{);}
+\end{Highlighting}
+\end{Shaded}
+
+\end{codelisting}
+
+\clearpage
 
 \section{Extracting and Sampling}\label{extracting-and-sampling}
 
 Extraction is performed by downloading models using HuggingFace's
-Transformers library, which provides simple download and deployment of
+Transformers library, which allows for download and deployment of
 popular open source models.
 
-\begin{lstlisting}[language=Python]
-class HFEmbeddingsExtractor:
-    """Extracts embeddings from a Hugging Face model."""
+\begin{codelisting}
 
-    def __init__(self, name_or_path: str):
-        self.name_or_path = name_or_path
+\caption{Extraction class for embeddings}\label{lst:extractor}
 
-    @cached_property
-    def embeddings(self):
-        model = AutoModel.from_pretrained(self.name_or_path)
-        model.eval()
-        embeddings = model.embed_tokens
-        return embeddings
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{class}\NormalTok{ HFEmbeddingsExtractor:}
+    \CommentTok{"""Extracts embeddings from a Hugging Face model."""}
 
-    def extract(self, token_ids):
-        with torch.no_grad():
-            token_ids = torch.tensor(token_ids)
-            return self.embeddings.forward(token_ids).squeeze().numpy()
-\end{lstlisting}
+    \KeywordTok{def} \FunctionTok{\_\_init\_\_}\NormalTok{(}\VariableTok{self}\NormalTok{, name\_or\_path: }\BuiltInTok{str}\NormalTok{):}
+        \VariableTok{self}\NormalTok{.name\_or\_path }\OperatorTok{=}\NormalTok{ name\_or\_path}
+
+    \AttributeTok{@cached\_property}
+    \KeywordTok{def}\NormalTok{ embeddings(}\VariableTok{self}\NormalTok{):}
+\NormalTok{        model }\OperatorTok{=}\NormalTok{ AutoModel.from\_pretrained(}\VariableTok{self}\NormalTok{.name\_or\_path)}
+\NormalTok{        model.}\BuiltInTok{eval}\NormalTok{()}
+\NormalTok{        embeddings }\OperatorTok{=}\NormalTok{ model.embed\_tokens}
+        \ControlFlowTok{return}\NormalTok{ embeddings}
+
+    \KeywordTok{def}\NormalTok{ extract(}\VariableTok{self}\NormalTok{, token\_ids):}
+        \ControlFlowTok{with}\NormalTok{ torch.no\_grad():}
+\NormalTok{            token\_ids }\OperatorTok{=}\NormalTok{ torch.tensor(token\_ids)}
+            \ControlFlowTok{return} \VariableTok{self}\NormalTok{.embeddings.forward(token\_ids).squeeze().numpy()}
+\end{Highlighting}
+\end{Shaded}
+
+\end{codelisting}
 
 LLMs that make use of a tokenization step receive their sentences in
 input as a list of token IDs, where each token ID corresponds to an
@@ -749,40 +844,47 @@ sentences, split them at the appropriate token boundary, adding special
 tokens where necessary, and convert them into token IDs for the LLM
 processing.
 
-The logic to do this is split between the
-\passthrough{\lstinline!HFTokenizerWrapper!} and
-\passthrough{\lstinline!HFEmbeddingsSampler!} classes.
-\passthrough{\lstinline!HFTokenizerWrapper!} invokes the tokenizer to
-get the token IDs that correspond to the embeddings of interest
-(avoiding special tokens, like
-\passthrough{\lstinline!<Beginning of Sentence>!} and such), while
-\passthrough{\lstinline!HFEmbeddingsSampler!} has the logic for integer
-and random selection.
+The logic to do this is split between the \texttt{HFTokenizerWrapper}
+and \texttt{HFEmbeddingsSampler} classes. \texttt{HFTokenizerWrapper}
+invokes the tokenizer to get the token IDs that correspond to the
+embeddings of interest (avoiding special tokens, like
+\texttt{\textless{}Beginning\ of\ Sentence\textgreater{}} and such),
+while \texttt{HFEmbeddingsSampler} has the logic for integer and random
+selection.
 
-\begin{lstlisting}[language=Python]
-class HFTokenizerWrapper:
-    """Wrapper for Hugging Face tokenizers."""
+\begin{codelisting}
 
-    def __init__(self, tokenizer):
-        self.tokenizer = tokenizer
+\caption{HFTokenizerWrapper class, providing utility functions for
+tokenization.}\label{lst:tokenizer}
 
-    def tokenize(self, tokens) -> torch.Tensor:
-        return self.tokenizer(
-            tokens,
-            add_special_tokens=False,
-            return_attention_mask=False,
-            return_tensors="pt",
-        )["input_ids"]
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{class}\NormalTok{ HFTokenizerWrapper:}
+    \CommentTok{"""Wrapper for Hugging Face tokenizers."""}
 
-    @classmethod
-    def from_pretrained(cls, model_id):
-        tokenizer = AutoTokenizer.from_pretrained(model_id)
-        return cls(tokenizer)
+    \KeywordTok{def} \FunctionTok{\_\_init\_\_}\NormalTok{(}\VariableTok{self}\NormalTok{, tokenizer):}
+        \VariableTok{self}\NormalTok{.tokenizer }\OperatorTok{=}\NormalTok{ tokenizer}
 
-    def token_ids_to_tokens(self, token_ids):
-        tokens = self.tokenizer.convert_ids_to_tokens(token_ids)
-        return [token if token is not None else "<unk>" for token in tokens]
-\end{lstlisting}
+    \KeywordTok{def}\NormalTok{ tokenize(}\VariableTok{self}\NormalTok{, tokens) }\OperatorTok{{-}\textgreater{}}\NormalTok{ torch.Tensor:}
+        \ControlFlowTok{return} \VariableTok{self}\NormalTok{.tokenizer(}
+\NormalTok{            tokens,}
+\NormalTok{            add\_special\_tokens}\OperatorTok{=}\VariableTok{False}\NormalTok{,}
+\NormalTok{            return\_attention\_mask}\OperatorTok{=}\VariableTok{False}\NormalTok{,}
+\NormalTok{            return\_tensors}\OperatorTok{=}\StringTok{"pt"}\NormalTok{,}
+\NormalTok{        )[}\StringTok{"input\_ids"}\NormalTok{]}
+
+    \AttributeTok{@classmethod}
+    \KeywordTok{def}\NormalTok{ from\_pretrained(cls, model\_id):}
+\NormalTok{        tokenizer }\OperatorTok{=}\NormalTok{ AutoTokenizer.from\_pretrained(model\_id)}
+        \ControlFlowTok{return}\NormalTok{ cls(tokenizer)}
+
+    \KeywordTok{def}\NormalTok{ token\_ids\_to\_tokens(}\VariableTok{self}\NormalTok{, token\_ids):}
+\NormalTok{        tokens }\OperatorTok{=} \VariableTok{self}\NormalTok{.tokenizer.convert\_ids\_to\_tokens(token\_ids)}
+        \ControlFlowTok{return}\NormalTok{ [token }\ControlFlowTok{if}\NormalTok{ token }\KeywordTok{is} \KeywordTok{not} \VariableTok{None} \ControlFlowTok{else} \StringTok{"\textless{}unk\textgreater{}"} \ControlFlowTok{for}\NormalTok{ token }\KeywordTok{in}\NormalTok{ tokens]}
+\end{Highlighting}
+\end{Shaded}
+
+\end{codelisting}
 
 The sampling happens by first picking the tokens of interest. For
 numbers, we first verify that the model uses a tokenization scheme
@@ -796,83 +898,99 @@ models available as of today.
 After the sampling process is completed, the results are returned as a
 dataframe, along with the corresponding provenance metadata.
 
-\begin{lstlisting}[language=Python]
+\begin{codelisting}
 
-class HFEmbeddingsSampler:
-    def _single_token_integer_ids(self, max_value=10_000) -> Iterable[int]:
-        for num in range(max_value):
-            token_ids = self.tokenizer.tokenize(str(num)).squeeze()
-            if token_ids.ndim == 0:
-                yield token_ids.item()
-            else:
-                return
-        warnings.warn(
-            f"All integers from 0 to max_value={max_value} are single token. "
-            "There may be more single-token integers."
-        )
+\caption{Code for \texttt{HFEmbeddingSampler}}\label{lst:sampler}
 
-    def single_token_integers(self) -> tuple[pd.DataFrame, IntegerSampleMeta]:
-        token_ids = np.fromiter(self._single_token_integer_ids(), int)
-        tokens = range(len(token_ids))
-        embeddings = self.extractor.extract(token_ids)
+\begin{Shaded}
+\begin{Highlighting}[]
 
-        df = make_embeddings_df(token_ids, tokens, embeddings)
-        meta = IntegerSampleMeta(model_id=self.model_id)
+\KeywordTok{class}\NormalTok{ HFEmbeddingsSampler:}
+    \KeywordTok{def}\NormalTok{ \_single\_token\_integer\_ids(}\VariableTok{self}\NormalTok{, max\_value}\OperatorTok{=}\DecValTok{10\_000}\NormalTok{) }\OperatorTok{{-}\textgreater{}}\NormalTok{ Iterable[}\BuiltInTok{int}\NormalTok{]:}
+        \ControlFlowTok{for}\NormalTok{ num }\KeywordTok{in} \BuiltInTok{range}\NormalTok{(max\_value):}
+\NormalTok{            token\_ids }\OperatorTok{=} \VariableTok{self}\NormalTok{.tokenizer.tokenize(}\BuiltInTok{str}\NormalTok{(num)).squeeze()}
+            \ControlFlowTok{if}\NormalTok{ token\_ids.ndim }\OperatorTok{==} \DecValTok{0}\NormalTok{:}
+                \ControlFlowTok{yield}\NormalTok{ token\_ids.item()}
+            \ControlFlowTok{else}\NormalTok{:}
+                \ControlFlowTok{return}
+\NormalTok{        warnings.warn(}
+            \SpecialStringTok{f"All integers from 0 to max\_value=}\SpecialCharTok{\{}\NormalTok{max\_value}\SpecialCharTok{\}}\SpecialStringTok{ are single token. "}
+            \StringTok{"There may be more single{-}token integers."}
+\NormalTok{        )}
 
-        return df, meta
-\end{lstlisting}
+    \KeywordTok{def}\NormalTok{ single\_token\_integers(}\VariableTok{self}\NormalTok{) }\OperatorTok{{-}\textgreater{}} \BuiltInTok{tuple}\NormalTok{[pd.DataFrame, IntegerSampleMeta]:}
+\NormalTok{        token\_ids }\OperatorTok{=}\NormalTok{ np.fromiter(}\VariableTok{self}\NormalTok{.\_single\_token\_integer\_ids(), }\BuiltInTok{int}\NormalTok{)}
+\NormalTok{        tokens }\OperatorTok{=} \BuiltInTok{range}\NormalTok{(}\BuiltInTok{len}\NormalTok{(token\_ids))}
+\NormalTok{        embeddings }\OperatorTok{=} \VariableTok{self}\NormalTok{.extractor.extract(token\_ids)}
+
+\NormalTok{        df }\OperatorTok{=}\NormalTok{ make\_embeddings\_df(token\_ids, tokens, embeddings)}
+\NormalTok{        meta }\OperatorTok{=}\NormalTok{ IntegerSampleMeta(model\_id}\OperatorTok{=}\VariableTok{self}\NormalTok{.model\_id)}
+
+        \ControlFlowTok{return}\NormalTok{ df, meta}
+
+\NormalTok{    ...}
+    \KeywordTok{def}\NormalTok{ \_random\_token\_ids(}\VariableTok{self}\NormalTok{, sample\_size, seed):}
+\NormalTok{        rng }\OperatorTok{=}\NormalTok{ np.random.default\_rng(seed)}
+        \ControlFlowTok{return}\NormalTok{ rng.choice(}\VariableTok{self}\NormalTok{.tokenizer.vocab\_size, size}\OperatorTok{=}\NormalTok{sample\_size, replace}\OperatorTok{=}\VariableTok{False}\NormalTok{)}
+\NormalTok{    ...}
+\end{Highlighting}
+\end{Shaded}
+
+\end{codelisting}
 
 For the random sampling of embeddings, token ids are picked by doing a
 random extraction of numbers between 0 and the vocabulary size of the
 model, and then proceeding in a similar way as described before
 \textless?\textgreater.
 
-\begin{lstlisting}[language=Python]
-    def _random_token_ids(self, sample_size, seed):
-        rng = np.random.default_rng(seed)
-        return rng.choice(self.tokenizer.vocab_size, size=sample_size, replace=False)
-\end{lstlisting}
+\clearpage
 
 \section{Analysis}\label{analysis}
 
-Most of the analysis in done in the
-\passthrough{\lstinline!EmbeddingsAnalyzer!} class, which reorganizes
-data and provides it in a format suitable for consultation and
-visualization.
+Most of the analysis in done in the \texttt{EmbeddingsAnalyzer} class,
+which reorganizes data and provides it in a format suitable for
+consultation and visualization.
 
-\begin{lstlisting}[language=Python]
-@dataclass
-class EmbeddingsAnalyzer:
-    embeddings_df: pd.DataFrame
-    meta: EmbeddingsSampleMeta
+\begin{codelisting}
 
-    @classmethod
-    def from_sample(cls, sample: EmbeddingsSample):
-        """Initialize from an EmbeddingsSample."""
-        return cls(
-            embeddings_df=wide_embeddings_df(sample.embeddings_df),
-            meta=sample.meta,
-        )
-\end{lstlisting}
+\caption{Initializing code for
+\texttt{EmbeddingsAnalyzer}}\label{lst:embeddingsanalyzer}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\AttributeTok{@dataclass}
+\KeywordTok{class}\NormalTok{ EmbeddingsAnalyzer:}
+\NormalTok{    embeddings\_df: pd.DataFrame}
+\NormalTok{    meta: EmbeddingsSampleMeta}
+
+    \AttributeTok{@classmethod}
+    \KeywordTok{def}\NormalTok{ from\_sample(cls, sample: EmbeddingsSample):}
+        \CommentTok{"""Initialize from an EmbeddingsSample."""}
+        \ControlFlowTok{return}\NormalTok{ cls(}
+\NormalTok{            embeddings\_df}\OperatorTok{=}\NormalTok{wide\_embeddings\_df(sample.embeddings\_df),}
+\NormalTok{            meta}\OperatorTok{=}\NormalTok{sample.meta,}
+\NormalTok{        )}
+\end{Highlighting}
+\end{Shaded}
+
+\end{codelisting}
 
 The format used for the embeddings here is a dataframe with the columns
-\passthrough{\lstinline!token!}, \passthrough{\lstinline!token\_id!} and
-the embeddings spread out in columns named
-\passthrough{\lstinline!embeddings\_\{dimension index\}!}. Even though
+\texttt{token}, \texttt{token\_id} and the embeddings spread out in
+columns named \texttt{embeddings\_\{dimension\ index\}}. Even though
 it's a little unwieldy, this allows for compatibility with most of the
 libraries operating with dataframe that assume mono-dimensional column
 indices with string column names. This class also provides the facility
-for dimensional reduction through the
-\passthrough{\lstinline!run\_estimator!} method, which takes an
-estimator as input and returns a new
-\passthrough{\lstinline!EmbeddingsAnalyzer!} instance with the
-embeddings being fit through the estimator.
+for dimensional reduction through the \texttt{run\_estimator} method,
+which takes an estimator as input and returns a new
+\texttt{EmbeddingsAnalyzer} instance with the embeddings being fit
+through the estimator.
 
 A notable feature implemented here is the analysis of the correlations
 between embedding features and mathematical sequences, done in the
-\passthrough{\lstinline!feature\_to\_sequence\_analysis\_df!} method.
-This is done by generating various mathematical sequences and then
-encoding them using either:
+\texttt{feature\_to\_sequence\_analysis\_df} method. This is done by
+generating various mathematical sequences and then encoding them using
+either:
 
 \begin{itemize}
 \tightlist
@@ -894,51 +1012,111 @@ encoding them using either:
 As a result of the analysis, a dataframe is produced that provides data
 about features and their respective correlations.
 
+\begin{codelisting}
+
+\caption{Code for mathematical sequence
+encoding.}\label{lst:mathencoding}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{def}\NormalTok{ one\_hot\_encode(sequence, size):}
+    \ControlFlowTok{return}\NormalTok{ np.isin(np.arange(size), sequence).astype(}\BuiltInTok{int}\NormalTok{)}
+
+\KeywordTok{def}\NormalTok{ one\_hot\_gaussian\_smooth(binary, sigma}\OperatorTok{=}\FloatTok{2.0}\NormalTok{):}
+    \ControlFlowTok{return}\NormalTok{ gaussian\_filter1d(binary.astype(}\BuiltInTok{float}\NormalTok{), sigma}\OperatorTok{=}\NormalTok{sigma)}
+
+\KeywordTok{def}\NormalTok{ make\_encoded\_sequences(max\_token: }\BuiltInTok{int}\NormalTok{, sigma: }\BuiltInTok{float} \OperatorTok{=} \FloatTok{2.0}\NormalTok{):}
+\NormalTok{    encoded\_sequences }\OperatorTok{=}\NormalTok{ \{\}}
+
+\NormalTok{    direct\_sequences }\OperatorTok{=}\NormalTok{ direct\_encoded\_base\_sequences(max\_token)}
+    \ControlFlowTok{for}\NormalTok{ name, seq }\KeywordTok{in}\NormalTok{ direct\_sequences.items():}
+\NormalTok{        encoded\_sequences[name, }\StringTok{"direct"}\NormalTok{] }\OperatorTok{=}\NormalTok{ seq}
+
+\NormalTok{    binary\_sequences }\OperatorTok{=}\NormalTok{ binary\_encoded\_base\_sequences(max\_token)}
+    \ControlFlowTok{for}\NormalTok{ name, seq }\KeywordTok{in}\NormalTok{ binary\_sequences.items():}
+\NormalTok{        one\_hot }\OperatorTok{=}\NormalTok{ one\_hot\_encode(seq, max\_token)}
+\NormalTok{        encoded\_sequences[name, }\StringTok{"binary"}\NormalTok{] }\OperatorTok{=}\NormalTok{ one\_hot}
+\NormalTok{        encoded\_sequences[name, }\StringTok{"gauss"}\NormalTok{] }\OperatorTok{=}\NormalTok{ one\_hot\_gaussian\_smooth(one\_hot, sigma}\OperatorTok{=}\NormalTok{sigma)}
+
+    \ControlFlowTok{return}\NormalTok{ encoded\_sequences}
+\end{Highlighting}
+\end{Shaded}
+
+\end{codelisting}
+
 \section{User interface}\label{user-interface}
 
 The end user can make use of the tools by loading a model through the
-CLI, which was programmed using the \passthrough{\lstinline!typer!}
-library. It can be used to load model numerical and random samples into
-the database through the command
-\passthrough{\lstinline!embcli load <hf\_model\_id>!}, which can then be
-listed and consulted through the Marimo dashboard.
-
-\begin{figure}
-\centering
-\pandocbounded{\includegraphics[keepaspectratio]{res/marimo_dashboard.png}}
-\caption{Plotting component for the Marimo dashboard.}
-\end{figure}
+CLI, which was programmed using the \texttt{typer} library. It can be
+used to load model numerical and random samples into the database
+through the command
+\texttt{embcli\ load\ \textless{}hf\_model\_id\textgreater{}}, which can
+then be listed and consulted through the Marimo dashboard.
 
 \chapter{Embeddings Analysis}\label{embeddings-analysis}
 
-The analytic part of this work consists in the search for structures in
-LLM numerical embeddings.
-
-As stated previously, recent open source models mostly employ an L2R
-tokenization scheme. There are no large scale open source models using
-R2L tokenization as of the time of writing, but the improvement in
-performance observed when using R2L tokenization in L2R-trained models
-could be a hint that L2R embedding representations still have similar
-properties to the R2L ones.
-
 \section{Methodology}\label{methodology}
 
-Two models are taken in consideration:
+The analytic part of this work consists in the search for structures in
+LLM numerical embeddings. Two models are taken in consideration:
 
 \begin{itemize}
 \item
-  OLMo-2-1124-7B is a model by AllenAI, which is favorable to research
-  uses thanks to the full disclosure of training data, code, logs and
-  checkpoints
+  OLMo-2-1124-7B (\citeproc{ref-olmo2025}{OLMo et al., 2025}) is a model
+  by AllenAI, which is favorable to research uses thanks to the full
+  disclosure of training data, code, logs and checkpoints. This model
+  was trained on 4.05T tokens using a two-stage curriculum: initial
+  pretraining on 3.90T tokens of web-based data, followed by a
+  specialized mid-training phase on 150B high-quality tokens including
+  10.7B synthetic mathematical data specifically designed to enhance
+  numerical reasoning capabilities.
 \item
-  Llama-3.2-1B-Instruct, due to being a small and manageable model to do
-  analysis with on limited hardware
+  Llama-3.2-1B-Instruct (\citeproc{ref-grattafiori2024}{Grattafiori et
+  al., 2024}), due to being a small and manageable model to do analysis
+  with on limited hardware. This model derives from the Llama 3 family,
+  which was trained on approximately 15T multilingual tokens with
+  dynamic data mixing throughout training, including mathematical
+  content integrated continuously rather than in separate phases.
 \end{itemize}
+
+Both models underwent single-pass training without data repetition,
+meaning their numerical representations developed through one-time
+exposure to mathematical content.
 
 For each of these, dimensionality reduction is applied through PCA, SVD,
 t-SNE and UMAP, and the results are used to produce 2D and 3D
 visualization meant to show the geometric structure that the
 representation assume in the space.
+
+Then, an analysis of correlation with mathematical sequences is done:
+for each dimension, we encode mathematical interesting sequences the
+embedding features might be detecting for and look for correlations. We
+adopt the following encoding for sequences:
+
+\begin{itemize}
+\item
+  direct, meaning we test the correlation directly with the sequence. We
+  do this with plain integers in sequence (0, 1, 2, 3) and their
+  logarithm (log(1), log(2), \ldots)
+\item
+  one hot encoded, for the sequences where the growth would be too fast
+  to have meaningful detection through direct encoding. We tried this
+  for Fibonacci, triangular, and prime numbers
+\item
+  Gaussian-smoothed one-hot encoded, same as last point but allowing a
+  more gradual climb around the positions corresponding to the numbers
+  by applying a Gaussian smoothing filter to the one-hot encoded vector.
+\item
+  Fourier encoding, as \(\sin\left(2 \pi  \cdot \frac{n_i}T\right)\) and
+  \(\cos\left(2 \pi
+  \cdot \frac{n_i}T\right)\) where \(n_i\) is the element of the
+  sequence to be encoded and \(T \in \{1, 2, 5, 10, 100\}\) is a
+  collection of possible periods of encoding, as suggested in
+  (\citeproc{ref-kantamneni2025}{Kantamneni \& Tegmark, 2025}) as a
+  possible way for features to encode numeric characteristics.
+\end{itemize}
+
+\clearpage
 
 \section{OLMo-2-1124-7B}\label{olmo-2-1124-7b}
 
@@ -948,44 +1126,63 @@ representation assume in the space.
 \centering
 \pandocbounded{\includesvg[keepaspectratio]{plots/OLMo-2-1124-7B_00_pca_components_gradient_v1.svg}}
 \caption{Principal components 1 and 2 of the OLMo model. Random
-embeddings sample for comparison.}\label{fig:olmo_pca}
+embeddings sample for comparison.}\label{fig:olmo-pca}
 \end{figure}
 
-In fig.~\ref{fig:olmo_pca}, projecting the numerical token embeddings
-onto the first two principal components reveals a U-shaped curve. This
-structure constitutes a one-dimensional manifold embedded within the
-two-dimensional principal component space.
-
-The manifold structure is particularly significant because it
-demonstrates that numerical tokens do not occupy the embedding space
-randomly. Instead, they follow a constrained path that preserves
-numerical relationships, suggesting that the model has learned to encode
-ordering properties of the numbers within its representation. The
-gradient is particularly smooth, suggesting that similar numbers
-maintain spatial proximity in the reduced space.
+In fig.~\ref{fig:olmo-pca}, we plot the first two principal component of
+the numerical embeddings, color-grading them on the basis of their
+numerical value. The result shows that numerical tokens do not occupy
+the embedding space randomly: they follow a constrained path that
+preserves numerical relationships, suggesting that the model has learned
+to encode ordering properties of the numbers within its representation.
+The gradient is particularly smooth, suggesting that similar numbers
+maintain spatial proximity in the reduced space. It's also notable that
+in the top right of the curve, there seems to be a smaller curve
+forming; it's better visible through the SVD visualizations, but that
+part corresponds to single and double-digit integers replicating the
+bigger overall structure of the lower curve.
 
 \begin{figure}
 \centering
 \pandocbounded{\includesvg[keepaspectratio]{plots/OLMo-2-1124-7B_02_svd_components_gradient_v1.svg}}
 \caption{SVD for the two main components of the OLMo model, with random
-embeddings sample for comparison}\label{fig-olmo-svd}
+embeddings sample for comparison}\label{fig:olmo-svd}
 \end{figure}
 
-The SVD visualization, lacking the data centering done in the PCA, shows
-a much more consistent geometric structure, suggesting that the encoding
-of information might be done in absolute distances rather than just with
-relative positioning between data points.
+The relationship and similarities are even more clear in
+fig.~\ref{fig:olmo-svd}, which, lacking the data centering done in the
+PCA, shows a much more consistent geometric structure, showing that the
+encoding of information likely happens in absolute distances rather than
+just with relative positioning between data points. This will also
+inform the strategies we use for reconstructing the datapoints with
+UMAP, as we'll do projections that make use of Euclidean distance as
+well as cosine similarity as a metric.
+
+\begin{figure}
+\centering
+\includegraphics[width=0.5\linewidth,height=\textheight,keepaspectratio]{plots/olmo-svd-3d.png}
+\caption{OLMo-2-1124-7B 3D visualization of SVD components
+.}\label{fig:olmo-svd-3d}
+\end{figure}
 
 \begin{figure}
 \centering
 \pandocbounded{\includesvg[keepaspectratio]{plots/OLMo-2-1124-7B_03_svd_digit_visualizations_v1.svg}}
 \caption{SVD coloring done by digit length and hundreds digit,
 highlighting the clustering properties of the
-embeddings.}\label{fig-olmo-svd-digits}
+embeddings.}\label{fig:olmo-svd-digits}
 \end{figure}
 
-There is also a very notable recursive, fractal structure, repeating
-itself for numbers with one, two and three digits.
+Looking at fig.~\ref{fig:olmo-svd-digits}, the self-similar structure
+repeating through different integer lengths is strinking. Models like
+Qwen-2.5 do away with tokenizing numbers outside the single digits from
+0 to 9, and this picture can offer a compelling explanation on why that
+can be justified. In fact, it seems like the encoding of higher digit
+quantities brings along a lot of redundancy. On the other hand, as
+discussed for (\citeproc{ref-kantamneni2025}{Kantamneni \& Tegmark,
+2025}), this same redundancy could be used by the models an error
+correcting mechanism when it has to apply numerical operations, leading
+to possibly better performance.
 
 \subsubsection{Explained variance}\label{explained-variance}
 
@@ -993,27 +1190,29 @@ itself for numbers with one, two and three digits.
 \centering
 \pandocbounded{\includesvg[keepaspectratio]{plots/OLMo-2-1124-7B_01_pca_variance_overview_v1.svg}}
 \caption{OLMo PCA - explained variance
-overview}\label{fig-olmo-variance}
+overview}\label{fig:olmo-variance}
 \end{figure}
 
-The explained variance by component plot (left) shows a sharp drop
-within the first few components, meaning that the first principal
-components capture dramatically more variance than subsequent ones. The
-cumulative explained variance shows that approximatively 600 principal
-components are needed to reach 90\% of explained variance.
+The explained variance by component plot (fig.~\ref{fig:olmo-variance},
+left) shows a sharp drop within the first few components, meaning that
+the first principal components capture dramatically more variance than
+subsequent ones. The cumulative explained variance (right) shows that
+approximatively 600 principal components are needed to reach 90\% of
+explained variance.
 
 By this we can conclude that the embeddings have a much lower intrinsic
 dimensionality than their full 4096 dimensions, and that they lie on a
 low-dimensional manifold in the full representation space. Only
 one-fifth of the total embedding space is necessary to capture 90\% of
-the variance.
+the variance, and, as described earlier, the structures already encoded
+provide already a lot of redundancy.
 
 \subsection{Non-linear analysis}\label{non-linear-analysis}
 
 \begin{figure}
 \centering
 \pandocbounded{\includesvg[keepaspectratio]{plots/OLMo-2-1124-7B_07_tsne_components_gradient_v1.svg}}
-\caption{t-SNE visualization for OLMo embeddings.}\label{fig-olmo-tsne}
+\caption{t-SNE visualization for OLMo embeddings.}\label{fig:olmo-tsne}
 \end{figure}
 
 \begin{longtable}[]{@{}ll@{}}
@@ -1023,8 +1222,8 @@ the variance.
 \endhead
 \bottomrule\noalign{}
 \tabularnewline
-\caption{t-SNE hyperparameters for the presented plots.
-\{\#tbl-tsne-params\}}
+\caption{\label{tbl:tsne-params}t-SNE hyperparameters for the presented
+plots.}
 \endlastfoot
 perplexity & 75 \\
 max\_iter & 3000 \\
@@ -1033,104 +1232,134 @@ early\_exaggeration & 20 \\
 random\_state & 42 \\
 \end{longtable}
 
-The t-SNE visualization shows a distinctive branching pattern emanating
-from a central region, with low numbers at the center and higher ones
-radiating outward. The color progression follows these branches,
-indicating that numerical sequences are preserved along each arm. The
-gradient seems also to transition circularly; branches with gradually
-increasing numbers turn around the center before abruptly getting back
-to the start. When interpreting the colors as indicators of depth, it
-can look like a spiral from a top-down perspective.
+The t-SNE visualization in fig.~\ref{fig:olmo-tsne} shows a distinctive
+branching pattern emanating from a central region, with low numbers at
+the center and higher ones radiating outward. The color progression
+follows these branches, indicating that numerical sequences are
+preserved along each arm. The gradient seems also to transition
+circularly; branches with gradually increasing numbers turn around the
+center before abruptly getting back to the start. When interpreting the
+colors as indicators of depth, it can look like a spiral from a top-down
+perspective, giving a visual confirmation of what has been said about
+helical structures in (\citeproc{ref-kantamneni2025}{Kantamneni \&
+Tegmark, 2025}).
 
 \begin{figure}
 \centering
 \pandocbounded{\includesvg[keepaspectratio]{plots/OLMo-2-1124-7B_09_umap_cosine_components_gradient_v1.svg}}
 \caption{UMAP visualization with cosine
-distance}\label{fig-olmo-umap-cosine}
+distance}\label{fig:olmo-umap-cosine}
 \end{figure}
 
 \begin{figure}
 \centering
 \pandocbounded{\includesvg[keepaspectratio]{plots/OLMo-2-1124-7B_11_umap_euclidean_components_gradient_v1.svg}}
 \caption{UMAP visualization with Euclidean
-distance}\label{fig-olmo-umap-euclidean}
+distance}\label{fig:olmo-umap-euclidean}
 \end{figure}
 
-UMAP has been run using both Euclidean and cosine distances, since the
-SVD visualization has shown that absolute distances can matter in this
-model. In the UMAP case we can observe a loss of shape similar to what
-happened in the PCA and SVD case. While the structure is congruent when
-using Euclidean distances, segregated clusters form when representing
-cosine similarity, with their predominant criterion of division being
-the hundreds' digit. Using Euclidean distances gives a picture similar
-to t-SNE, but projected and stretched and with more dispersion for
-numbers close to zero. The spiral-like conformation is also notable
-here.
+UMAP has been run using both Euclidean
+(fig.~\ref{fig:olmo-umap-euclidean}) and cosine distances
+(fig.~\ref{fig:olmo-umap-cosine}), since the SVD visualization has shown
+that absolute distances can matter in this model. In the UMAP case we
+can observe a loss of shape similar to what happened in the PCA and SVD
+case. While the structure is congruent when using Euclidean distances,
+segregated clusters form when representing cosine similarity, with their
+predominant criterion of division being the hundreds' digit. Using
+Euclidean distances gives a picture similar to t-SNE, but projected and
+stretched and with more dispersion for numbers close to zero. The
+spiral-like conformation is also notable here.
 
 \subsection{Correlation with mathematical
 properties}\label{correlation-with-mathematical-properties}
 
-By taking all the components and their correlations with the properties
-we're testing for, we're able to find the most correlative
-component-property pairs. Most of the components that exhibit a strong
-correlation does so in terms of their magnitude (measured as the
-correlation with the \(log_{10}\) of the number considered).
-
-\begin{longtable}[]{@{}rlrr@{}}
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.1579}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.1579}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.2982}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.1930}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.1930}}@{}}
 \toprule\noalign{}
-\textbf{Dimension} & \textbf{Property} & \textbf{Correlation} &
-\textbf{P-Value} \\
+\begin{minipage}[b]{\linewidth}\raggedright
+dimension
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+property
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+encoding
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+correlation
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+p\_value
+\end{minipage} \\
 \midrule\noalign{}
 \endhead
 \bottomrule\noalign{}
 \tabularnewline
-\caption{Feature-sequence correlations in OLMo-2.
-\{\#tbl-olmo-correlations\}}
+\caption{\label{tbl:olmo-correlations}Feature-sequence correlations in
+OLMo-2.}
 \endlastfoot
-514 & magnitude & -0.673 & 8.45e-133 \\
-3085 & magnitude & -0.607 & 1.65e-101 \\
-2538 & magnitude & -0.567 & 3.02e-86 \\
-665 & magnitude & -0.500 & 1.89e-64 \\
-514 & digit\_count & -0.485 & 5.30e-60 \\
-1012 & magnitude & -0.475 & 1.65e-57 \\
-1012 & digit\_count & -0.463 & 3.35e-54 \\
-2538 & digit\_count & -0.454 & 4.12e-52 \\
-3085 & digit\_count & -0.452 & 1.77e-51 \\
-3879 & magnitude & 0.447 & 3.06e-50 \\
-110 & magnitude & 0.445 & 8.36e-50 \\
-1820 & magnitude & 0.431 & 1.99e-46 \\
-1107 & magnitude & -0.428 & 8.06e-46 \\
-3502 & magnitude & 0.426 & 2.46e-45 \\
-421 & magnitude & -0.424 & 7.87e-45 \\
-90 & magnitude & 0.420 & 6.49e-44 \\
-3548 & magnitude & 0.411 & 3.99e-42 \\
-1554 & magnitude & -0.410 & 8.08e-42 \\
-3085 & fibonacci\_proximity & 0.410 & 8.57e-42 \\
+514 & log & direct & -0.67287 & 8.4465e-133 \\
+3085 & even & direct & -0.60990 & 6.3840e-103 \\
+3085 & numbers & direct & -0.60990 & 6.3840e-103 \\
+3085 & log & direct & -0.60653 & 1.6467e-101 \\
+514 & fibonacci & gauss & 0.37430 & 1.3043e-34 \\
+2538 & fibonacci & gauss & 0.35112 & 2.1919e-30 \\
+514 & primes & gauss & 0.26358 & 2.3511e-17 \\
+695 & primes & fourier\_cos\_t10 & -0.22069 & 1.6980e-12 \\
+2538 & fibonacci & fourier\_cos\_t5 & -0.18336 & 5.2002e-09 \\
 \end{longtable}
 
-Magnitude and digit count would be expected to be widely encoded, and
-they seem in fact the dominant factor (also, they would be correlated
-with each other). The most interesting property shown here is definitely
-Fibonacci\_proximity, representing the distance between the number and
-the closest Fibonacci number. Having a correlation index of 0.409 with a
-very small p-value would be a strong indicator that this is an important
-factor in the encoding of the embeddings. However, after further
-consideration it was noticed that can be explained by the strong
-correlation between the Fibonacci proximity and magnitude itself
-(\(\approx 0.547\), p-value \(< 1e-79\)). This confounding factor might
-make the correlation by itself inconclusive, and further research would
-be needed to establish the connection between the two quantities. There
-are also two strong correlation with both the is\_fibonacci and the
-is\_prime property, which shows the embeddings are likely encoding some
-information about the primality of the number considered and their
-relationship to the Fibonacci series.
+A lot of features (tbl.~\ref{tbl:olmo-correlations},
+fig.~\ref{fig:olmo-properties}) correlate very significatively with
+magnitude, giving confirmation of the semantic connection between the
+embedding value and the number represented. We find:
+
+\begin{itemize}
+\tightlist
+\item
+  Dimension 514 has a high correlation (0.37) with Fibonacci numbers
+  using Gauss one-hot encoding, and with prime numbers with Gauss
+  one-hot encoding (0.26).
+\item
+  There are other dimensions are also correlated with Fibonacci and
+  Primes, to a lesser extent, and Fourier encoding seems to show weaker
+  ties than one-hot Gaussian encoding.
+\end{itemize}
+
+Although while these can be useful clues about the relation between the
+features and the numerical properties they're correlated with, they do
+not explain by themselves how and why the features are tied to those
+properties. The correlation with Fibonacci numbers in particular is high
+enough to not resemble a pure coincidence, especially in such a
+high-dimensional space. We can speculatively make some hypotheses:
+
+\begin{itemize}
+\tightlist
+\item
+  Features in the embedding might work as hierarchical detectors, with
+  some of them being broad-scope, general detectors of numbers of
+  interest (dimension 514), and others being more specific to certain
+  properties (2538 to Fibonacci numbers).
+\item
+  The correlation with the features is tied with the geometry of the
+  embedding space. The Fibonacci numbers have ties to spiral structures
+  (in particular golden spirals), which may have a relation to the
+  self-similar structures observed.
+\end{itemize}
+
+Further study would be needed to untangle the relationship between
+mathematical sequences and features, although having a dimension (514)
+with such a strong correlation with Fibonacci numbers and such a low
+p-value doesn't seem dismissible over random chance.
 
 \begin{figure}
 \centering
-\pandocbounded{\includesvg[keepaspectratio]{plots/OLMo-2-1124-7B_13_strong_property_correlations_v1.svg}}
-\caption{Mathematical properties with the number of associated strongly
-correlated dimensions}\label{fig-olmo-properties}
+\includesvg[width=0.7\linewidth,height=\textheight,keepaspectratio]{plots/OLMo-2-1124-7B_strong_property_correlations_v1.svg}
+\caption{Mathematical sequences against the number of associated
+strongly correlated embedding dimensions.}\label{fig:olmo-properties}
 \end{figure}
+
+\clearpage
 
 \section{Llama-3.2-1B-Instruct}\label{llama-3.2-1b-instruct}
 
@@ -1138,51 +1367,67 @@ correlated dimensions}\label{fig-olmo-properties}
 
 \begin{figure}
 \centering
-\pandocbounded{\includesvg[keepaspectratio]{plots/Llama-3.2-1B-Instruct_00_pca_components_gradient_v1.svg}}
-\caption{PCA visualization of Llama embeddings.}\label{fig-llama-pca}
+\pandocbounded{\includesvg[keepaspectratio]{plots/Llama-3.2-1B-Instruct_pca_components_gradient_digit_length_v1.svg}}
+\caption{PCA visualization of Llama embeddings.}\label{fig:llama-pca}
 \end{figure}
 
-The PCA projection shows a continuous, arc-shaped curved manifold, with
-smoother transitions between numbers and a distinct separation with
-numbers close to 0. As with what was seen with OLMo, it looks like the
-PCA centering might end up destroying geometric relationships that are
-better preserved in the SVD visualizations.
+The LLaMa PCA plot (fig.~\ref{fig:llama-pca}) shows a similar picture to
+the OLMo one: a curve with smooth, gradual transitions between numeric
+quantities. The self-similar, recursive structure based on digit count
+is immediately visible in the PCA plot, as there is a much more striking
+division and a separation between numbers of different digit size. It is
+remarkable how the replication of the same structures for different
+digit counts stays present in different models.
 
 \begin{figure}
 \centering
 \pandocbounded{\includesvg[keepaspectratio]{plots/Llama-3.2-1B-Instruct_02_svd_components_gradient_v1.svg}}
-\caption{SVD visualization of Llama embeddings}\label{fig-llama-svd}
+\caption{SVD visualization of Llama embeddings compared to random
+sample.}\label{fig:llama-svd}
 \end{figure}
 
-The SVD plot shows a remarkably linear arrangement - numbers form an
-almost straight diagonal line from small (yellow) to large (purple)
-values. This linear structure is much more pronounced than OLMo-2's
-curved SVD patterns, and it is a unique shape rather than a recursive,
-recurring pattern.
+The SVD plot shows a linear arrangement - numbers form an almost
+straight diagonal line from small to large values. However, this
+apparently linear picture changes drastically once we also take into
+account the third component, showing a much more tridimensional picture,
+looking like the curves observed in PCA after a diagonal rotation. The
+3D projection (fig.~\ref{fig:llama-svd-3d}) really shines here, showing
+how the same structure is repeating at different distances and angles of
+rotation.
 
 \begin{figure}
 \centering
-\pandocbounded{\includesvg[keepaspectratio]{plots/Llama-3.2-1B-Instruct_03_svd_digit_visualizations_v1.svg}}
-\caption{Llama SVD visualization by digit}\label{fig-llama-svd-digits}
+\pandocbounded{\includesvg[keepaspectratio]{plots/Llama-3.2-1B-Instruct_svd_components_gradient_0-2_v1.svg}}
+\caption{Llama SVD visualizations of first and third
+component.}\label{fig:llama-svd-digits}
 \end{figure}
 
-The digit-based coloring reveals clear but subtle clustering by
-mathematical properties. Unlike OLMo-2's distinct spatial territories,
-Llama-3.2 shows gradual transitions along the linear arrangement while
-maintaining digit-based organization patterns.
+\begin{figure}
+\centering
+\pandocbounded{\includegraphics[keepaspectratio]{plots/llama_svd_3d.png}}
+\caption{3D projection of LLaMa 3.2 embeddings after
+SVD}\label{fig:llama-svd-3d}
+\end{figure}
 
 \subsubsection{Explained variance}\label{explained-variance-1}
 
 \begin{figure}
 \centering
 \pandocbounded{\includesvg[keepaspectratio]{plots/Llama-3.2-1B-Instruct_01_pca_variance_overview_v1.svg}}
-\caption{Llama PCA explained variance.}\label{fig-llama-variance}
+\caption{Llama PCA explained variance.}\label{fig:llama-variance}
 \end{figure}
 
 The explained variance plot reveals slightly higher information
 concentration than OLMo-2. Llama-3.2 reaches 90\% explained variance
 with approximately 500 components compared to OLMo-2's 500 components.
-This suggests more efficient numerical encoding in the smaller model.
+This suggests more efficient numerical encoding, despite the smaller
+model size. A possible reason is the bigger training dataset of LLaMa 3
+(\citeproc{ref-grattafiori2024}{Grattafiori et al., 2024}), having 15
+trillion ingested during training against OLMo's 5 trillion
+(\citeproc{ref-olmo2025}{OLMo et al., 2025}) could have lead to
+different convergence patterns.
+
+\clearpage
 
 \subsection{Non-Linear analysis}\label{non-linear-analysis-1}
 
@@ -1191,68 +1436,120 @@ patterns from both the linear methods and from OLMo-2's structures.
 
 \begin{figure}
 \centering
-\pandocbounded{\includesvg[keepaspectratio]{plots/Llama-3.2-1B-Instruct_07_tsne_components_gradient_v1.svg}}
-\caption{t-SNE structure in Llama}\label{fig-llama-tsne}
+\pandocbounded{\includesvg[keepaspectratio]{plots/Llama-3.2-1B-Instruct_tsne_components_gradient_digit_v1.svg}}
+\caption{2D t-SNE structure in Llama}\label{fig:llama-tsne}
 \end{figure}
 
-The t-SNE visualization is very unusual, and show continuous, winding
-structures that might look like they had been uncoiled or unwound from a
-higher-dimensional spiral arrangement. The mathematical progression
-follows these winding paths smoothly. This can be informative, as for
-their particularly keen encoding of the Fibonacci sequence, as will be
-shown successively.
+The t-SNE visualization (fig.~\ref{fig:llama-tsne}) is very unusual, and
+show continuous, winding structures that might look like they had been
+uncoiled or unwound from a higher-dimensional spiral arrangement. The
+mathematical progression follows these winding paths smoothly, and
+switching the coloring to highlight the hundreds digit reveals that each
+filament clusters neatly for its hundreds' group. We can also see
+another interesting phenomenon: some numbers divisible by 100 cluster
+between the teal and green filaments.
 
 \begin{figure}
 \centering
-\pandocbounded{\includesvg[keepaspectratio]{plots/Llama-3.2-1B-Instruct_09_umap_cosine_components_gradient_v1.svg}}
-\caption{UMAP with cosine similarity in
-Llama}\label{fig-llama-umap-cosine}
+\pandocbounded{\includegraphics[keepaspectratio]{plots/llama_tsne_3d.png}}
+\caption{3D t-SNE structure in Llama}\label{fig:llama-tsne-3d}
 \end{figure}
+
+By applying the procedure in 3D, the helical structures become more
+visible. Interactive visualizations are helpful in this context, as they
+give a sense of depth, but still the helices are clearly visible. With
+this visualization we get singular helices clustered by the hundreds'
+digit, also due to setting a low perplexity value to let the structures
+emerge locally.
 
 \begin{figure}
 \centering
 \pandocbounded{\includesvg[keepaspectratio]{plots/Llama-3.2-1B-Instruct_10_umap_cosine_digit_visualizations_v1.svg}}
-\caption{Clustering in UMAP with cosine
-similarity}\label{fig-llama-umap-cosine-digits}
+\caption{UMAP in Llama with cosine
+similarity.}\label{fig:llama-umap-cosine-digits}
 \end{figure}
 
 \begin{figure}
 \centering
 \pandocbounded{\includesvg[keepaspectratio]{plots/Llama-3.2-1B-Instruct_11_umap_euclidean_components_gradient_v1.svg}}
-\caption{UMAP with Euclidean distance in
-Llama}\label{fig-llama-umap-euclidean}
+\caption{UMAP in Llama with Euclidean
+distance.}\label{fig:llama-umap-euclidean}
 \end{figure}
 
-The UMAP visualization is resembling the OLMo's one. It's also
-interesting to see that changing the distance function to Euclidean
-doesn't have particular effects, unlike the previous OLMo visualization.
+The UMAP visualizations
+(figs.~\ref{fig:llama-umap-cosine-digits}, \ref{fig:llama-umap-euclidean})
+resemble OLMo's ones. It's also interesting to see that changing the
+distance function to Euclidean doesn't have particular effects, unlike
+the previous OLMo visualization. This can be an indication that the
+numeric data is more centered towards the mean. Even though the 2D
+visualization is interesting, the 3D one (fig.~\ref{fig:llama-umap-3d})
+complements the picture we started seeing with t-SNE, by giving the idea
+that beyond having dimensions that represent the spiral structure at a
+cluster-local level, there might be a more global geometric phenomenon
+going on, making the whole structure approximate a half-sphere.
+
+\begin{figure}
+\centering
+\pandocbounded{\includegraphics[keepaspectratio]{plots/llama_umap_3d.png}}
+\caption{3D cosine similarity UMAP in Llama.}\label{fig:llama-umap-3d}
+\end{figure}
 
 \subsection{Correlation with mathematical
 properties}\label{correlation-with-mathematical-properties-1}
+
+\begin{longtable}[]{@{}lllrr@{}}
+\toprule\noalign{}
+dimension & property & encoding & correlation & p\_value \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\tabularnewline
+\caption{Correlations between Llama embedding dimensions and
+mathematical sequences.}
+\endlastfoot
+417 & log & direct & -0.70445 & 9.1543e-151 \\
+1929 & log & direct & 0.69842 & 3.7225e-147 \\
+1511 & log & direct & -0.69462 & 6.3413e-145 \\
+1601 & log & direct & 0.68892 & 1.2059e-141 \\
+1511 & numbers & direct & -0.66539 & 7.2717e-129 \\
+1929 & fibonacci & gauss & -0.53600 & 1.8846e-75 \\
+1601 & fibonacci & gauss & -0.48667 & 1.3712e-60 \\
+417 & fibonacci & gauss & 0.46017 & 1.4848e-53 \\
+1447 & fibonacci & gauss & -0.40412 & 1.4218e-40 \\
+90 & 1929 & triangular & -0.43179 & 1.1163e-46 \\
+101 & 1601 & triangular & -0.42298 & 1.1313e-44 \\
+437 & 881 & primes & -0.29401 & 2.1688e-21 \\
+501 & 665 & primes & 0.28418 & 4.9509e-20 \\
+\end{longtable}
 
 \begin{figure}
 \centering
 \pandocbounded{\includesvg[keepaspectratio]{plots/Llama-3.2-1B-Instruct_13_strong_property_correlations_v1.svg}}
 \caption{Dimensions strongly correlated with properties in Llama
-3.2}\label{fig-llama-properties}
+3.2}\label{fig:llama-properties}
 \end{figure}
 
-In this case we see a lot more components directly encoding for
-digit\_count, as well as for parity. There are 12 strongly correlated
-components with primality and 10 with being a Fibonacci number. There is
-still a big number of components strongly correlated with the
-fibonacci\_proximity, which would need further analysis to fully
-establish whether their sensitivity to magnitude dominates over the
-detection of Fibonacci numbers.
+The picture being shown through the correlations is a very surprising
+one, as it reinforces clearly what was observed previously through the
+OLMo model. The most correlated properties are magnitude-related, with
+the logarithm and the plain numbers on top. The maximum absolute
+correlation with Fibonacci numbers has soared to around 0.5, making a
+very strong case for these dimensions to either be feature detectors for
+certain sequences, or to incidentally have connections with the
+sequences due to intrinsic geometric properties. The case for the second
+hypothesis is also reinforced by how strikingly we were able to show a
+very interesting geometric landscape for this model, and how this seemed
+to coincide with examining a model that was trained on a much larger
+scale.
 
 \chapter{Conclusions}\label{conclusions}
 
-This thesis investigated whether Large Language Models develop
-structured numerical representations that might share organizational
-principles with the specialized representations observed in mathematical
-savants. Through analysis of numerical embeddings in OLMo-2-1124-7B and
-Llama-3.2-1B-Instruct, we found evidence of systematic mathematical
-structure within learned representations.
+With visualizations and the data, we were able to paint a picture of
+interesting phenomena coming through the embeddings layers of two
+distinct LLMs, OLMo and Llama. The most important difference between
+these two models that we were able to discuss is the scale, and we have
+shown that with bigger scale come more visible patterns, in both
+correlations with mathematical sequences and geometric structure.
 
 \section{Key Findings}\label{key-findings}
 
@@ -1294,11 +1591,8 @@ mathematical relationships like primality and sequence membership.
 \section{Limitations}\label{limitations}
 
 The analysis was limited to two models and a specific set of
-mathematical properties. The relationship between Fibonacci proximity
-and magnitude highlights the challenge of isolating specific property
-detectors from general ordering mechanisms. Further investigation with
-controlled experiments would be needed to establish causal
-relationships.
+mathematical properties. Further investigation with controlled
+experiments would be needed to establish causal relationships.
 
 Whether these findings extend to larger models, different architectures,
 or other mathematical domains remains to be determined. The observed
@@ -1341,6 +1635,14 @@ B. R.-S., Tesileanu, T., Cho, K., \& Ho, S. (2023, October 4).
 \emph{{xVal}: {A Continuous Number Encoding} for {Large Language
 Models}}. \url{https://doi.org/10.48550/arXiv.2310.02989}
 
+\bibitem[\citeproctext]{ref-grattafiori2024}
+Grattafiori, A., Dubey, A., Jauhri, A., Pandey, A., Kadian, A.,
+Al-Dahle, A., Letman, A., Mathur, A., Schelten, A., Vaughan, A., Yang,
+A., Fan, A., Goyal, A., Hartshorn, A., Yang, A., Mitra, A., Sravankumar,
+A., Korenev, A., Hinsvark, A., \ldots{} Ma, Z. (2024, November 23).
+\emph{The {Llama} 3 {Herd} of {Models}}.
+\url{https://doi.org/10.48550/arXiv.2407.21783}
+
 \bibitem[\citeproctext]{ref-huh2024}
 Huh, M., Cheung, B., Wang, T., \& Isola, P. (2024, May 13). \emph{The
 {Platonic Representation Hypothesis}}.
@@ -1361,6 +1663,11 @@ Kantamneni, S., \& Tegmark, M. (2025, February 2). \emph{Language
 lucalp. (2025, June 24). \emph{The {Bitter Lesson} is coming for
 {Tokenization} \textbar{} ⛰️ lucalp}.
 \url{https://lucalp.dev/bitter-lesson-tokenization-and-blt/}
+
+\bibitem[\citeproctext]{ref-maaten2008}
+Maaten, L. van der, \& Hinton, G. (2008). Visualizing {Data} using
+t-{SNE}. \emph{Journal of Machine Learning Research}, \emph{9}(86),
+2579--2605. \url{http://jmlr.org/papers/v9/vandermaaten08a.html}
 
 \bibitem[\citeproctext]{ref-mcinnes2020}
 McInnes, L., Healy, J., \& Melville, J. (2020, September 18).
@@ -1388,6 +1695,13 @@ Murray, A. L. (2010). Can the existence of highly accessible concrete
 representations explain savant skills? {Some} insights from
 synaesthesia. \emph{Medical Hypotheses}, \emph{74}(6), 1006--1012.
 \url{https://doi.org/10.1016/j.mehy.2010.01.014}
+
+\bibitem[\citeproctext]{ref-olmo2025}
+OLMo, T., Walsh, P., Soldaini, L., Groeneveld, D., Lo, K., Arora, S.,
+Bhagia, A., Gu, Y., Huang, S., Jordan, M., Lambert, N., Schwenk, D.,
+Tafjord, O., Anderson, T., Atkinson, D., Brahman, F., Clark, C., Dasigi,
+P., Dziri, N., \ldots{} Hajishirzi, H. (2025, January 15). \emph{2
+{OLMo} 2 {Furious}}. \url{https://doi.org/10.48550/arXiv.2501.00656}
 
 \bibitem[\citeproctext]{ref-pagnoni2024}
 Pagnoni, A., Pasunuru, R., Rodriguez, P., Nguyen, J., Muller, B., Li,

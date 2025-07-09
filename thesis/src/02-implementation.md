@@ -15,23 +15,37 @@ and visualization of embeddings. To achieve this, we used three parts:
   embeddings from HuggingFace models
 
 - an analyzer, meant to compute base statistics about the embeddings and to extract
-  results from the PCA analysis and <?> give insights on variance by component
+  results from the PCA analysis and give insights on various properties of the
+  embeddings, such as explained variance of the various dimensions (through PCA) and
+  correlation between numerical sequences and features.
 
 - a visualizer, to create plots that give a visual intuition of the structures
   underneath the embedding data.
 
-- a dashboard, provided through a Marimo notebook to show interactive visualization and
-  to provide interactive data analysis features.
+- a dashboard to display interactive visualization and to provide interactive data
+  analysis features.
+
+The following libraries have been employed in the making of this project:
+
+- `typer` for implementing the CLI
+- `transformers` and `torch` for model download and embeddings extraction
+- `numpy`, `pandas`, `sklearn`, `simpy` and `umap` for math and calculation purposes
+- `altair` and `plotly` for 2D and 3D plotting respectively
+- `marimo` for notebook and reactive dashboard functionality
+
+![Plotting component for the Marimo dashboard.](res/marimo_dashboard.png){width=70%}
+
+\clearpage
 
 ## Storage layer
 
-The necessity of a storage layer came out of a necessity to be able to work with the
-data in manageable way, as loading the whole model was very often impractically slow
-and a lot of the work had to be done in a resource-constrained environment.
+The storage layer allows storing embeddings samples from any HuggingFace model without
+loading the whole model, as doing so was very often impractically slow as a lot of the
+work was done in a resource-constrained environment.
 
-The sample data was stored in instances of the `EmbeddingsSample` class, along
-with metadata reporting the source model ID and, for random samples, the seed used
-for replicability purposes.
+The sample data was stored in instances of the `EmbeddingsSample` class
+([@lst:embeddingsample]), along with metadata reporting the source model ID and, for
+random samples, the seed used for replicability purposes.
 
 ```python
 
@@ -60,6 +74,7 @@ class EmbeddingsSample[M: EmbeddingsSampleMeta]:
     embeddings_df: pd.DataFrame = field(repr=False)
 ```
 
+: Container classes for embeddings samples and their metadata. {#lst:embeddingsample}
 
 Initially, the storage of each sample was done in a dedicated Parquet file, an efficient
 file format that would have provided easy serialization of Pandas dataframes,
@@ -69,12 +84,11 @@ metadata storage, and required an ad-hoc cataloguing system based on filesystem
 names to store and retrieve items on the basis of their metadata.
 
 To address this, a choice was made to implement a more proper storage layer. It
-was realized using DuckDB, a database similar to SQLite that uses a single file
-to store data and provides vector functionality for the storage of the
-embeddings. This allowed to store and retrieve the embeddings, and their metadata,
-in a more robust way. DuckDB also offers facilities to work directly on
-dataframes using SQL queries, and exchanging data between dataframes and the
-database in this way, which revealed very useful for loading purposes.
+was realized using DuckDB, a single-file database similar to SQLite that provides vector
+functionality appropriate for the storage of embeddings. DuckDB also offers
+facilities to work directly on dataframes using SQL queries, and exchanging data between
+dataframes and the database in this way, which revealed very useful for loading
+purposes.
 
 ```sql
 CREATE OR REPLACE TABLE embeddings (
@@ -101,12 +115,14 @@ CREATE OR REPLACE TABLE embedding_to_sample (
 );
 ```
 
+: SQL schema for the storage layer. {#lst:sqlschema}
+
+\clearpage
 
 ## Extracting and Sampling
 
 Extraction is performed by downloading models using HuggingFace's Transformers
-library, which provides simple download and deployment of popular open source
-models.
+library, which allows for download and deployment of popular open source models.
 
 ```python
 class HFEmbeddingsExtractor:
@@ -128,16 +144,19 @@ class HFEmbeddingsExtractor:
             return self.embeddings.forward(token_ids).squeeze().numpy()
 ```
 
+: Extraction class for embeddings {#lst:extractor}
+
 LLMs that make use of a tokenization step receive their sentences in input as a
 list of token IDs, where each token ID corresponds to an embedding vector. It is
 the LLM's tokenizer responsibility to take sentences, split them at the
 appropriate token boundary, adding special tokens where necessary, and convert
 them into token IDs for the LLM processing.
 
-The logic to do this is split between the `HFTokenizerWrapper` and `HFEmbeddingsSampler`
-classes. `HFTokenizerWrapper` invokes the tokenizer to get the token IDs that correspond
-to the embeddings of interest (avoiding special tokens, like `<Beginning of Sentence>`
-and such), while `HFEmbeddingsSampler` has the logic for integer and random selection.
+The logic to do this is split between the `HFTokenizerWrapper` ([@lst:tokenizer]) and
+`HFEmbeddingsSampler` ([@lst:sampler]) classes. `HFTokenizerWrapper` invokes the
+tokenizer to get the token IDs that correspond to the embeddings of interest (avoiding
+special tokens, like `<Beginning of Sentence>` and such), while `HFEmbeddingsSampler`
+has the logic for integer and random selection.
 
 ```python
 class HFTokenizerWrapper:
@@ -164,19 +183,23 @@ class HFTokenizerWrapper:
         return [token if token is not None else "<unk>" for token in tokens]
 ```
 
+: HFTokenizerWrapper class, providing utility functions for tokenization.
+{#lst:tokenizer}
+
 The sampling happens by first picking the tokens of interest. For
 numbers, we first verify that the model uses a tokenization scheme useful for
 the numeric analysis intended, by trying to tokenize each integer from 0 onwards,
 up to a maximum ceiling of 10.000, until we find the first integer that gets tokenized
 using more than one token. The analysis is limited in scope to single-token integers in
 the range 0-999, as these parameters correspond to a multitude of open source models
-available as of today.
+available as of today. For random sampling, token IDs are picked by doing a random
+extraction of numbers between 0 and the vocabulary size of the model, and then
+proceeding similarly.
 
 After the sampling process is completed, the results are returned as a dataframe, along
 with the corresponding provenance metadata.
 
 ```python
-
 class HFEmbeddingsSampler:
     def _single_token_integer_ids(self, max_value=10_000) -> Iterable[int]:
         for num in range(max_value):
@@ -199,22 +222,24 @@ class HFEmbeddingsSampler:
         meta = IntegerSampleMeta(model_id=self.model_id)
 
         return df, meta
-```
 
-For the random sampling of embeddings, token ids are picked by doing a random extraction
-of numbers between 0 and the vocabulary size of the model, and then proceeding in a
-similar way as described before <?>.
-
-```python
+    ...
     def _random_token_ids(self, sample_size, seed):
         rng = np.random.default_rng(seed)
         return rng.choice(self.tokenizer.vocab_size, size=sample_size, replace=False)
+    ...
 ```
+
+: Code for `HFEmbeddingSampler` {#lst:sampler}
+
+
+\clearpage
 
 ## Analysis
 
-Most of the analysis in done in the `EmbeddingsAnalyzer` class, which reorganizes data
-and provides it in a format suitable for consultation and visualization.
+Most of the analysis in done in the `EmbeddingsAnalyzer` ([@lst:embeddingsanalyzer])
+class, which reorganizes data and provides it in a format suitable for consultation and
+visualization.
 
 ```python
 @dataclass
@@ -230,6 +255,8 @@ class EmbeddingsAnalyzer:
             meta=sample.meta,
         )
 ```
+
+: Initializing code for `EmbeddingsAnalyzer` {#lst:embeddingsanalyzer}
 
 The format used for the embeddings here is a dataframe with the columns `token`,
 `token_id` and the embeddings spread out in columns named `embeddings_{dimension
@@ -257,13 +284,37 @@ using either:
 As a result of the analysis, a dataframe is produced that provides data about features
 and their respective correlations.
 
-## User interface
+```python
+def one_hot_encode(sequence, size):
+    return np.isin(np.arange(size), sequence).astype(int)
+
+def one_hot_gaussian_smooth(binary, sigma=2.0):
+    return gaussian_filter1d(binary.astype(float), sigma=sigma)
+
+def make_encoded_sequences(max_token: int, sigma: float = 2.0):
+    encoded_sequences = {}
+
+    direct_sequences = direct_encoded_base_sequences(max_token)
+    for name, seq in direct_sequences.items():
+        encoded_sequences[name, "direct"] = seq
+
+    binary_sequences = binary_encoded_base_sequences(max_token)
+    for name, seq in binary_sequences.items():
+        one_hot = one_hot_encode(seq, max_token)
+        encoded_sequences[name, "binary"] = one_hot
+        encoded_sequences[name, "gauss"] = one_hot_gaussian_smooth(one_hot, sigma=sigma)
+
+    return encoded_sequences
+```
+
+: Code for mathematical sequence encoding. {#lst:mathencoding}
+
+## CLI
 
 The end user can make use of the tools by loading a model through the CLI, which was
 programmed using the `typer` library. It can be used to load model numerical and random
 samples into the database through the command `embcli load <hf_model_id>`, which can
 then be listed and consulted through the Marimo dashboard.
 
-![Plotting component for the Marimo dashboard.](res/marimo_dashboard.png)
 
 

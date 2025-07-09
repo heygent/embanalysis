@@ -1,6 +1,9 @@
 # Introduction
 
-This thesis explores LLMs from the perspective of their embeddings, in
+\epigraph{As above, so below. As within, so without. As the universe, so the
+soul.}{\textit{Emerald Tablet, misattributed}}
+
+This thesis takes a look at LLMs from the perspective of their embeddings, in
 particular their numerical ones. There are several reasons why I came to be
 interested in this topic, the first and naive one being that tokenization
 schemes, as naively implemented with the BPE algorithm, would leave a lot of
@@ -20,32 +23,19 @@ increasing model size and training on bigger datasets, and in unlocking the emer
 capabilities that would come along those. While this approach has given results, albeit
 with some inconsistencies hard to reconcile from an epistemological perspective, such as
 the difficulty of actually designing good benchmarks for those abilities that actually
-verify they go beyond memorization [@skalse2023], this road would lead to the
-monopolistic control of the best version of this tool to the actors that are able to get
-access to the most amount of data.
+verify they go beyond memorization [@skalse2023]. What is proposed here is that we might
+be able to see this in more detail by seeing if there are established semantic links
+beyond relative measures through different representations in the same space, by
+checking the representation of numbers and the numbers that constitute that
+representation, and by seeing if there are semantic links that cross this barrier.
 
-If "Scale is all you Need" and LLM improvement is purely a game of resource
-accumulation, we would be in a situation that could exacerbate the inequalities we're
-living under at the present time, leading effectively to a crystallization of the power
-structures that, as of today, have the biggest capacity for data collection. As the
-state of the art gets better, the barriers of entry rise in terms of performance, training
-data and hardware required to have a model that performs competitively. As such, it is
-of primary importance to find strategies to break through the massive resource
-requirements needed for AI training and performance, and find alternatives that
-allow for a less resource-intensive development of the field.
-
-What is investigated here are some possible improvements that don't come
-directly from training, but from a better understanding of how, through learning, the
-model weights that allow LLMs to function come to be. This comes through thought
-experiments about human cognition, and anomalous cases of it (in particular, we'll take
-a look at Savant syndrome and what it can tell us in the context of learning), as well
-as recent research put forward about LLM capabilities in the specific field of math.
-
-In particular, one thing I want to propose is that the representation of numbers can be
-a gateway to better understanding LLM representations in general, as their object of
-representation is the same as the object being represented (in both cases numbers),
-allowing to look for the relations between the two using mathematical methods of
-analysis.
+Along with this, we investigate here is the presence of structures that come to be
+through learning numerical representation. Given that we can naturally arrange numbers
+in a sequence, it comes natural to see what the disposition of those sequences form when
+arranged in the space of LLM representations. By taking inspiration from the Savant mode
+of human cognition, that comes through exploiting spatial arrangements as a means to
+perform calculations, we look for similar arrangements in LLMs, take a look at relevant
+research, and make hypotheses on why they come to be.
 
 # Background
 
@@ -93,12 +83,19 @@ that allow for the performance to improve when the digit clustering scheme is co
 ![GPT-4o tokenization of different numerical quantities, displaying the L2R clustering
 and the comma trick to force R2L clustering.](res/gpt4o-tokenization.png)
 
-There can be different hypotheses on why this might be, for example: arithmetic
-operations would still work locally in the 0-999 range, which allows for a correct
-reading on them and possible generalization on a larger scale; the forced tokenization
-also happens in the data, as numbers are often separated by punctuation in clusters of 3
-digits, right to left, for legibility reasons [@singh2024]; or, as it will be explored
-later, an underlying self-correcting learning structure.
+This could be happening for different reasons, for example:
+
+- Arithmetic operations would still work locally in the 0-999 range, which allows for a
+  correct reading on them and possible generalization on a larger scale, which
+  counteracts the unintuitive clustering scheme.
+
+- The forced tokenization also happens in the data, as numbers are often separated by
+  punctuation in clusters of 3 digits, right to left, for legibility reasons
+  [@singh2024].
+
+- There's a geometric bias towards the right mode of operation given by the structures
+  that form in the space to compute mathematical operations. This is the hypothesis that
+  will be explored.
 
 At the very least, the data being biased towards a R2L representation (in the form of
 using the Arabic number system and adopting legibility rules that accommodate right to
@@ -123,17 +120,20 @@ tokenization scheme over the one the model is trained on.
 
 ## Strategies for mathematical improvements through embeddings
 
-Beyond better tokenization, there have been other, more comprehensive approaches to the
-improvement of the representation of numeric values. xVal is a notable one, as its
+Beyond improving tokenization, there have been other, more comprehensive approaches to
+the improvement of the representation of numeric values. xVal is a notable one, as its
 approach encompasses real numbers beyond just integers and does away with learning
 different representation for each number.
 
 The idea is maximizing the inductive bias in the representation by having embeddings
 that are computed based on the number to be represented [@golkar2023]. Numerical values
-represented by a single embedding vector associated with the `[NUM]` special token.
+represented by a single embedding vector associated with the `[NUM]` special token, that
+gets scaled on the basis of the numerical value to represent. There is an assumption
+made so that this works: the semantics of magnitude work as they pass from the
+represented object to the structure of the representation.
 
 This fits very well with the idea of reification, which will be described
-later[@murray2010]: the embedding, beyond its qualities as representational object,
+later [@murray2010]: the embedding, beyond its qualities as representational object,
 becomes an entity with features that actively aid in the calculation process.
 
 The model uses two separate heads for number and token predictions. If the token head
@@ -146,7 +146,7 @@ force the model to learn features that work for both linguistic and mathematical
 reasoning simultaneously.
 
 The approach is shown to improve performance over a series of other techniques, mostly
-using a standard notation to represent numbers [@golkar2023]. This work has been
+using a standard notation to represent numbers [@golkar2023]. This very thesis has been
 inspired by the xVal paper, with one of its initial goals being to find good
 representations for computed numerical embeddings.
 
@@ -164,9 +164,15 @@ their embeddings, as this could hypothetically inform us on how to build these
 structures ourselves in a more direct way than training.
 
 
-## Cognitive science - Savant syndrome and spatial representations
+## Savant syndrome and spatial representations
 
-A case study of savant patient DT [@murray2010] reveals a mathematical cognitive
+Savant syndrome is a rare condition in which people show exceptional proclivity towards
+certain specific activities, usually accompanied by great impairments in other areas of
+their lives. Savants can have exceptional abilities in math, art, music and other
+fields, as well as instant calculation abilities that don't seem to come through
+algorithmic processing.
+
+A case study of a Savant patient DT [@murray2010] reveals a mathematical cognitive
 architecture with the following characteristics:
 
 - has sequence-space synesthesia with a "mathematical landscape" containing numbers
@@ -194,9 +200,13 @@ Given that the spatial arrangement confers advantages in numerical calculation t
 subject, we can pose the question: are there specific spatial arrangements that enable
 advantageous numerical calculations, and are those present or replicable in LLMs?
 The spatial idea is easily translatable from the perceptive sphere to the
-representational one, by considering LLM embeddings.
-This also requires the assumption that representational advantages can translate from
-humans to LLMs. <expand>
+representational one, by considering LLM embeddings. If these come through because of
+geometric properties of the structures, and going with the assumption that those
+structures are replicable in the high-dimensional vector spaces we're working with, it
+would follow that strict optimization through gradient descent could be a possible way
+to make them come about.
+
+## Platonic representation hypothesis
 
 According to [@huh2024] AI models, particularly deep networks, are converging. The
 central hypothesis is that different models are converging toward a shared statistical
@@ -206,13 +216,14 @@ termed the Platonic representation.
 This convergence appears to be driven by several selective pressures: larger models have
 more capacity to find optimal representations; models trained on more diverse tasks are
 constrained to find solutions that work across multiple domains; and deep networks have
-implicit biases toward simpler solutions [@huh2024].
+implicit biases toward simpler solutions.
 
 For the investigation of numerical representations, this suggests that if there are
 indeed optimal geometric structures for mathematical reasoning, different models might
 naturally converge toward them during training. The shape suggested (the helix)
 has properties on an information-theory basis that make its use as a learning geometry
-more likely, in particular, its self-similarity can be an error-correcting property.
+more likely [@kantamneni2025]. In particular, their self-similarity can be a useful
+error-correcting property.
 
 ## Dimensionality reduction and Embedding Visualization
 
@@ -251,30 +262,3 @@ evident. For this reason, we employ the following dimensionality reduction techn
   across different scales - both local clusters of similar numbers and global
   relationships between distant numerical regions.
 
-## How current representational issues can help us better understand LLMs
-
-Tokenization as a process is highly idiosyncratic, and the last "mechanical" step in the
-LLM pipeline. This situation has been already identified as a problem by some authors
-[@bitter-lesson-tokenization], and it's a passage that, while necessary to get LLM
-performance to the point where it is today, given it allows the network to operate on a
-token level instead of character, would probably be better replaced by learnable
-approaches rather than being constrained by fixed pre-trained vocabularies that limit
-the model capability to have a representation of the input adapted to the task at hand.
-There are already alternative approaches being proposed [@pagnoni2024; @islam2022],
-which manage to have better efficiency while addressing some of the problems rigid
-training-time tokenization causes (like the strawberry problem). However, what the state
-of the art offers now gives the opportunity for the exploration of representational
-structures that have direct and easy associations with tokens, which we can catalogue in
-sequences and analyze in a systematic way.
-
-During the process of literature review for this thesis, and after the main
-experimentation, an article was found touching on similar themes, in particular using
-mechanistic techniques to get to the way LLMs perform addition, and in the process
-
-
-recent research was also found demonstrating that LLMs use trigonometry
-to do addition <?> [@kantamneni2025], representing numbers as a generalized helix which
-is strongly causally implicated for addition and subtraction tasks. This provides
-evidence that language models do indeed develop structured geometric representations for
-numerical reasoning, supporting the hypothesis that analyzing these naturally emergent
-structures could inform better representation design.

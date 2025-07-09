@@ -7,6 +7,11 @@ geometry: a4paper, left=3.5cm, right=3cm, top=2.5cm, bottom=3cm
 lang: en
 link-citations: true
 codeBlockCaptions: true
+# colorlinks: true
+# linkcolor: teal
+listingSection: false
+listingTemplate: "$$listingTitle$$ $$i$$$$titleDelim$$ $$t$$"
+numberSections: true
 subfigGrid: true
 header-includes:
   - |
@@ -19,6 +24,8 @@ header-includes:
     \usepackage{makeidx}
 
     \usepackage[absolute]{textpos}
+
+    \usepackage{epigraph}
 
     %Pagination stuff.
     \setlength{\topmargin}{-.3 in}
