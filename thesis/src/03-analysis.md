@@ -327,7 +327,11 @@ width=45%}
 
 Taking a look at how many dimensions are correlated quantitatively
 ([@fig:llama-properties]), most of them are still related to magnitude, but the number
-of them that are related to properties by more than .20
+of dimensions related to mathematical properties is a lot higher. The rise in the
+correlation coefficients with respect to the OLMo model might be because of scale and
+the large quantity of additional tokens Llama was trained on, but further analysis would
+be needed to establish a causal link, since this can be influenced by a lot of
+confounding variables, such as quality data or training.
 
 # Conclusions
 
@@ -335,38 +339,18 @@ With visualizations and the data, we were able to paint a picture of interesting
 phenomena coming through the embeddings layers of two distinct LLMs, OLMo and Llama.
 The most important difference between these two models that we were able to discuss is
 the scale, and we have shown that with bigger scale come more visible patterns, in both
-correlations with mathematical sequences and geometric structure.
+correlations with mathematical sequences and geometric structure. This seems to be in
+line with the Platonic Representation hypothesis, as it is the fact that similar
+geometric structures seem to appear in different models.
 
-
-
-## Key Findings
-
-### Structured Numerical Embeddings
-
-Our analysis revealed that numerical tokens are not randomly distributed in
-embedding space but follow organized patterns:
-
-**Geometric Organization**: Principal component analysis showed that numerical
-embeddings lie on low-dimensional manifolds. OLMo-2 exhibited U-shaped curves
-with recursive patterns across digit ranges, while Llama-3.2 displayed more
-linear arrangements. Both models required only ~500 components to capture 90% of
-variance, indicating substantial dimensionality reduction from the full
-4096-dimensional space.
-
-**Mathematical Property Correlations**: Multiple embedding dimensions showed
-*significant
-correlations with mathematical properties:
-
-- Magnitude and digit count exhibited the strongest correlations (r > 0.67) -
-Primality was encoded across multiple dimensions - Fibonacci number proximity
-showed notable correlations, though potentially influenced by magnitude effects
-- Binary properties like evenness were systematically represented
-
-The consistent organization of numerical embeddings according to mathematical
-properties suggests that neural language models might spontaneously develop
-structured representations during training. This organization goes beyond simple
-ordering, incorporating complex mathematical relationships like primality and
-sequence membership.
+We have also shown that numerical embeddings lie on low-dimensional manifolds and have
+semantic relationships with the symbols they represent, given the numerous and very
+significant correlations there are between embedding dimensions and the magnitude of the
+represented number (> 0.7). We have also shown features highly correlated with the
+belonging of the represented number to certain numerical sequences, like Fibonacci (>
+0.5), prime and triangular numbers. The fact that these relationships seem to strengthen
+with the scale of the model seem to contribute to the case that these representations
+may be converging.
 
 ## Limitations
 
@@ -380,15 +364,23 @@ reflect training data properties as much as emergent organizational principles.
 
 ## Future Directions
 
-This work suggests several research directions: investigating mathematical
-representations across model scales and architectures, exploring computed
-embedding approaches that leverage discovered geometric structures, and
-examining whether similar organizational principles apply to other domains where
-specialized representations might be beneficial.
+If it's true that numerical representations end up converging to certain geometric
+dispositions, there's a lot we can follow this up with:
 
-The findings contribute to understanding how neural language models organize
-mathematical information and suggest that structured representations may emerge
-naturally in systems trained on numerical data. While modest in scope, these
-results provide a foundation for further investigation into the relationship
-between representational structure and mathematical reasoning capabilities in
-artificial systems.
+- Is it possible to model this mathematical landscape through mathematical definitions?
+- Is there a way to see the final nature of the mathematical landscape numerical
+  representations tend to form?
+- Can the geometry adopted by these models teach us more about mathematics themselves?
+- If the convergence is influenced by beneficial properties from an information-theory
+  perspective, could the same structures influence human cognition?
+
+Surely, there is a lot more to dive into in the meantime, like contrasting and comparing
+with more models, looking for correlations with more interesting sequences and
+better understanding why this process result with these high correlations.
+There's also creating new embedding schemes for numbers inspired by these findings, and
+seeing if they can improve performance in a variety of tasks.
+
+There are a lot of possibilities to cover, that can lead to better understanding of
+human and machine cognition. In its small scope, I hope this work can be convincing in
+showing this is a worthwhile endeavor, so that after models learn everything about us,
+we may turn back and look into them to learn about ourselves.

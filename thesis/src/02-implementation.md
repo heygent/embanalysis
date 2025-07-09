@@ -29,11 +29,9 @@ The following libraries have been employed in the making of this project:
 
 - `typer` for implementing the CLI
 - `transformers` and `torch` for model download and embeddings extraction
-- `numpy`, `pandas`, `sklearn`, `simpy` and `umap` for math and calculation purposes
+- `numpy`, `pandas`, `sklearn`, `sympy` and `umap` for math and calculation purposes
 - `altair` and `plotly` for 2D and 3D plotting respectively
 - `marimo` for notebook and reactive dashboard functionality
-
-![Plotting component for the Marimo dashboard.](res/marimo_dashboard.png){width=70%}
 
 \clearpage
 
@@ -119,7 +117,7 @@ CREATE OR REPLACE TABLE embedding_to_sample (
 
 \clearpage
 
-## Extracting and Sampling
+## Extraction and Sampling
 
 Extraction is performed by downloading models using HuggingFace's Transformers
 library, which allows for download and deployment of popular open source models.

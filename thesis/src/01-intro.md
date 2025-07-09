@@ -1,3 +1,4 @@
+
 # Introduction
 
 \epigraph{As above, so below. As within, so without. As the universe, so the
@@ -118,6 +119,8 @@ tokenization scheme over the one the model is trained on.
 
 : Language models with their respective tokenization strategy for numbers.
 
+\clearpage
+
 ## Strategies for mathematical improvements through embeddings
 
 Beyond improving tokenization, there have been other, more comprehensive approaches to
@@ -206,7 +209,7 @@ structures are replicable in the high-dimensional vector spaces we're working wi
 would follow that strict optimization through gradient descent could be a possible way
 to make them come about.
 
-## Platonic representation hypothesis
+## The Platonic Representation Hypothesis
 
 According to [@huh2024] AI models, particularly deep networks, are converging. The
 central hypothesis is that different models are converging toward a shared statistical
@@ -224,6 +227,34 @@ naturally converge toward them during training. The shape suggested (the helix)
 has properties on an information-theory basis that make its use as a learning geometry
 more likely [@kantamneni2025]. In particular, their self-similarity can be a useful
 error-correcting property.
+
+## The Helix and its role in LLM addition
+
+During the final process of literature review of this thesis, a paper was found
+that recontextualized some of the findings seen here. [@kantamneni2025] has revealed
+how mid-sized language models including GPT-J, Pythia-6.9B, and Llama3.1-8B employ a
+helix to encode and manipulate numerical values during arithmetic operations. The helix
+gets fit with the operands required, and through structural manipulation via the "Clock
+algorithm" performs addition by rotating helical representations and reading out the
+final answer. From an information-theoretic perspective, the authors demonstrate that
+helical representations provide significant computational advantages over linear
+encodings, offering built-in redundancy and error-correction properties. Even with
+highly precise linear representations ($R^2 = 0.997$), linear addition achieves less than
+20% accuracy while the helical approach achieves over 80%, suggesting the periodic
+structure serves as an error-correcting mechanism analogous to how humans use decimal
+digits rather than slide rules for precise calculation.
+
+In looking at the numerical embeddings of OLMo and Llama models, we observe very similar
+structures as the ones described in the paper, which gives more comprehensive
+explanations on how the structures are employed to perform mathematical operations such
+as addition, done from a mechanistic interpretability perspective. MI attempts to
+explain the model workings through the reverse engineering of it, and going through the
+motions of the network. The work presented here will limit itself to graphical
+visualization of single-token embeddings and feature analysis, although the perspective
+presented by Kantamneni et al certainly seems to give partial confirmation to the
+findings here presented.
+
+\clearpage
 
 ## Dimensionality reduction and Embedding Visualization
 
