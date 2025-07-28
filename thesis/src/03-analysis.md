@@ -84,13 +84,13 @@ clustering properties of the
 embeddings.](plots/OLMo-2-1124-7B_03_svd_digit_visualizations_v1.svg){#fig:olmo-svd-digits}
 
 Looking at [@fig:olmo-svd-digits], the self-similar structure repeating through
-different integer lengths is strinking. Models like Qwen-2.5 do away with tokenizing
+different integer lengths is striking. Models like Qwen-2.5 do away with tokenizing
 numbers outside the single digits from 0 to 9, and this picture can offer a compelling
 explanation on why that can be justified. In fact, it seems like the encoding of higher
 digit quantities brings along a lot of redundancy. On the other hand, as discussed for
 [@kantamneni2025], this same redundancy could be used by the models an error correcting
-mechanism when it has to apply numerical operations, leading to possibly better
-performance.
+mechanism when it has to apply numerical operations, possibly leading to better
+performance on calculation tasks.
 
 
 #### Explained variance
@@ -266,10 +266,10 @@ and green filaments.
 ![3D t-SNE structure in Llama](plots/llama_tsne_3d.png){#fig:llama-tsne-3d}
 
 By applying the procedure in 3D, the helical structures become more visible. Interactive
-visualizations are helpful in this context, as they give a sense of depth, but still the
-helices are clearly visible. With this visualization we get singular helices clustered
-by the hundreds' digit, also due to setting a low perplexity value to let the structures
-emerge locally.
+visualizations are helpful in this context, as they give a sense of depth, but even in a
+still frame the helices are clearly visible. With this visualization we get singular helices
+clustered by the hundreds' digit, also due to setting a low perplexity value to let the
+structures emerge locally.
 
 ![UMAP in Llama with cosine similarity.](plots/Llama-3.2-1B-Instruct_10_umap_cosine_digit_visualizations_v1.svg){#fig:llama-umap-cosine-digits}
 
@@ -331,7 +331,7 @@ of dimensions related to mathematical properties is a lot higher. The rise in th
 correlation coefficients with respect to the OLMo model might be because of scale and
 the large quantity of additional tokens Llama was trained on, but further analysis would
 be needed to establish a causal link, since this can be influenced by a lot of
-confounding variables, such as quality data or training.
+confounding variables, such as data quality or training.
 
 # Conclusions
 
@@ -374,13 +374,14 @@ dispositions, there's a lot we can follow this up with:
 - If the convergence is influenced by beneficial properties from an information-theory
   perspective, could the same structures influence human cognition?
 
-Surely, there is a lot more to dive into in the meantime, like contrasting and comparing
-with more models, looking for correlations with more interesting sequences and
-better understanding why this process result with these high correlations.
-There's also creating new embedding schemes for numbers inspired by these findings, and
-seeing if they can improve performance in a variety of tasks.
+There are a lot of immediate research directions to expand this work on, like
+contrasting and comparing with more models, looking for correlations with more
+mathematically interesting sequences, and working towards understanding the causal link
+behind the high correlations. There's also creating new embedding schemes for numbers
+inspired by these findings, and seeing if they can improve performance in a variety of
+tasks.
 
 There are a lot of possibilities to cover, that can lead to better understanding of
 human and machine cognition. In its small scope, I hope this work can be convincing in
 showing this is a worthwhile endeavor, so that after models learn everything about us,
-we may turn back and look into them to learn about ourselves.
+we may look back into them to learn more about ourselves.

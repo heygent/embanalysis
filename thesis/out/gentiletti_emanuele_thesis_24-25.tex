@@ -165,6 +165,8 @@ bottom=3cm]{geometry}
 
 \usepackage[absolute]{textpos}
 
+\usepackage{epigraph}
+
 %Pagination stuff.
 \setlength{\topmargin}{-.3 in}
 \setlength{\oddsidemargin}{0in}
@@ -258,7 +260,7 @@ bottom=3cm]{geometry}
 
 \begin{textblock*}{8cm}(3.04cm,18.26cm)
 	\noindent
-	\textbf{Relatore/Relatrice}
+	\textbf{Relatore}
 \end{textblock*}
 \begin{textblock*}{8cm}(3.04cm,18.85cm)
 	\noindent
@@ -267,7 +269,7 @@ bottom=3cm]{geometry}
 
 \begin{textblock*}{8cm}(3.04cm,20.64cm)
 	\noindent
-	\textbf{Correlatore/Correlatrice}
+	\textbf{Correlatore}
 \end{textblock*}
 \begin{textblock*}{8cm}(3.04cm,21.23cm)
 	\noindent
@@ -276,7 +278,7 @@ bottom=3cm]{geometry}
 
 \begin{textblock*}{8cm}(12.33cm,22.95cm)
 	\noindent
-	\textbf{Candidato/a}
+	\textbf{Candidato}
 \end{textblock*}
 \begin{textblock*}{8cm}(12.33cm,23.55cm)
 	\noindent	\textbf{Gentiletti Emanuele}
@@ -297,6 +299,14 @@ $ $
 \newpage
 $ $
 
+Dichiaro di essere responsabile del contenuto dell’elaborato che presento al fine
+del conseguimento del titolo, di non avere plagiato in tutto o in parte il lavoro
+prodotto da altri e di aver citato le fonti originali in modo congruente alle normative
+vigenti in materia di plagio e di diritto d’autore. Sono inoltre consapevole che nel
+caso la mia dichiarazione risultasse mendace, potrei incorrere nelle sanzioni previste
+dalla legge e la mia ammissione alla prova finale potrebbe essere negata.
+
+\newpage
 %\mainmatter
 %\TPoptions{absolute=false}
 %\pagestyle{plain}
@@ -311,17 +321,19 @@ $ $
 \mainmatter
 \chapter{Introduction}\label{introduction}
 
-This thesis explores LLMs from the perspective of their embeddings, in
-particular their numerical ones. There are several reasons why I came to
-be interested in this topic, the first and naive one being that
-tokenization schemes, as naively implemented with the BPE algorithm,
-would leave a lot of space for improvement in numerical tasks, and it's
-interesting to explore how.
+\epigraph{As above, so below. As within, so without. As the universe, so the
+soul.}{\textit{Emerald Tablet, misattributed}}
 
-Better performance in LLMs has been sought through the lenses of scale,
-and looking for emergent properties as training time and resources
-increase. There are different reasons for this, one of them being The
-Bitter Lesson (\citeproc{ref-bitter-lesson}{Sutton, 2019}), a heuristic
+This thesis takes a look at LLMs from the perspective of their
+embeddings, in particular their numerical ones. There are several
+reasons why I came to be interested in this topic, the first and naive
+one being that tokenization schemes, as naively implemented with the BPE
+algorithm, would leave a lot of space for improvement in numerical
+tasks, and it's interesting to explore how.
+
+Better performance in LLMs has been sought through very large scaling.
+There are different reasons for this, one of them being The Bitter
+Lesson (\citeproc{ref-bitter-lesson}{Sutton, 2019}), a heuristic
 principle that states that general methods that better leverage
 computation are better than methods that seek to use human
 domain-specific knowledge to inform the implementation. This has been
@@ -329,31 +341,31 @@ observed, for example, in the domain of chess, where the strategies
 being put forward hard-coding human domain-specific knowledge were
 ultimately beaten by deep search.
 
-After the big success story of scaling in LLMs, the main reach has been
-towards increasing model size and training on bigger datasets, and in
-unlocking the emergent capabilities that would come along those. While
-this approach has given results, albeit with some inconsistencies hard
-to reconcile from an epistemological perspective, such as the difficulty
-of actually designing good benchmarks for those abilities that actually
-verify they go beyond memorization (\citeproc{ref-skalse2023}{Skalse,
-2023}), this road would lead to the monopolistic control of the best
-version of this tool to the actors that are able to get access to the
-most amount of data.
+Not only scaling is a more general approach to LLM improvement, it also
+comes with the potential of unlocking emergent capabilities. This
+approach has given results through time, albeit with some
+inconsistencies hard to reconcile from an epistemological perspective,
+such as the difficulty of actually designing good benchmarks for those
+abilities that actually verify they go beyond memorization
+(\citeproc{ref-skalse2023}{Skalse, 2023}).
 
-What is investigated here are some possible improvements that don't come
-directly from training, but from a better understanding of how, through
-learning, the model weights that allow LLMs to function come to be. This
-comes through thought experiments about human cognition, and anomalous
-cases of it (in particular, we'll take a look at Savant syndrome and
-what it can tell us in the context of learning), as well as recent
-research put forward about LLM capabilities in the specific field of
-math.
+TO CHANGE This work proposes, among other things, to examine numerical
+embeddings as a lens for assessing semantic understanding in LLMs,
+independent of benchmark saturation effects. By analyzing the
+representational structure of numbers and their constituent digits
+within the same embedding space, we can investigate whether models
+develop coherent semantic relationships that transcend the
+symbolic-numeric boundary, potentially revealing genuine numerical
+understanding rather than pattern memorization. END TO CHANGE
 
-In particular, one thing I want to propose is that the representation of
-numbers can be a gateway to better understanding LLM representations in
-general, as their object of representation is the same as the object
-being represented (in both cases numbers), allowing to look for the
-relations between the two using mathematical methods of analysis.
+Along with this, we investigate here is the presence of structures that
+come to be through learning numerical representation. Given that we can
+naturally arrange numbers in a sequence, it comes natural to see what
+the disposition of those sequences form when arranged in the space of
+LLM representations. By taking inspiration from the Savant mode of human
+cognition, that comes through exploiting spatial arrangements as a means
+to perform calculations, we look for similar arrangements in LLMs, take
+a look at relevant research, and make hypotheses on why they come to be.
 
 \chapter{Background}\label{background}
 
@@ -422,14 +434,23 @@ displaying the L2R clustering and the comma trick to force R2L
 clustering.}
 \end{figure}
 
-There can be different hypotheses on why this might be, for example:
-arithmetic operations would still work locally in the 0-999 range, which
-allows for a correct reading on them and possible generalization on a
-larger scale; the forced tokenization also happens in the data, as
-numbers are often separated by punctuation in clusters of 3 digits,
-right to left, for legibility reasons (\citeproc{ref-singh2024}{Singh \&
-Strouse, 2024}); or, as it will be explored later, an underlying
-self-correcting learning structure.
+This could be happening for different reasons, for example:
+
+\begin{itemize}
+\item
+  Arithmetic operations would still work locally in the 0-999 range,
+  which allows for a correct reading on them and possible generalization
+  on a larger scale, which counteracts the unintuitive clustering
+  scheme.
+\item
+  The forced tokenization also happens in the data, as numbers are often
+  separated by punctuation in clusters of 3 digits, right to left, for
+  legibility reasons (\citeproc{ref-singh2024}{Singh \& Strouse, 2024}).
+\item
+  There's a geometric bias towards the right mode of operation given by
+  the structures that form in the space to compute mathematical
+  operations. This is the hypothesis that will be explored.
+\end{itemize}
 
 At the very least, the data being biased towards a R2L representation
 (in the form of using the Arabic number system and adopting legibility
@@ -457,10 +478,12 @@ GPT-3.5 / GPT-4 & L2R chunks of 3 digits \\
 Claude 3 / Claude 4 & R2L chunks of 3 digits \\
 \end{longtable}
 
+\clearpage
+
 \section{Strategies for mathematical improvements through
 embeddings}\label{strategies-for-mathematical-improvements-through-embeddings}
 
-Beyond better tokenization, there have been other, more comprehensive
+Beyond improving tokenization, there have been other, more comprehensive
 approaches to the improvement of the representation of numeric values.
 xVal is a notable one, as its approach encompasses real numbers beyond
 just integers and does away with learning different representation for
@@ -470,12 +493,15 @@ The idea is maximizing the inductive bias in the representation by
 having embeddings that are computed based on the number to be
 represented (\citeproc{ref-golkar2023}{Golkar et al., 2023}). Numerical
 values represented by a single embedding vector associated with the
-\texttt{{[}NUM{]}} special token.
+\texttt{{[}NUM{]}} special token, that gets scaled on the basis of the
+numerical value to represent. There is an assumption made so that this
+works: the semantics of magnitude work as they pass from the represented
+object to the structure of the representation.
 
 This fits very well with the idea of reification, which will be
-described later(\citeproc{ref-murray2010}{Murray, 2010}): the embedding,
-beyond its qualities as representational object, becomes an entity with
-features that actively aid in the calculation process.
+described later (\citeproc{ref-murray2010}{Murray, 2010}): the
+embedding, beyond its qualities as representational object, becomes an
+entity with features that actively aid in the calculation process.
 
 The model uses two separate heads for number and token predictions. If
 the token head predicts a \texttt{{[}NUM{]}} token as the successor, the
@@ -489,9 +515,9 @@ that work for both linguistic and mathematical reasoning simultaneously.
 
 The approach is shown to improve performance over a series of other
 techniques, mostly using a standard notation to represent numbers
-(\citeproc{ref-golkar2023}{Golkar et al., 2023}). This work has been
-inspired by the xVal paper, with one of its initial goals being to find
-good representations for computed numerical embeddings.
+(\citeproc{ref-golkar2023}{Golkar et al., 2023}). This very thesis has
+been inspired by the xVal paper, with one of its initial goals being to
+find good representations for computed numerical embeddings.
 
 There are several different approaches to improving math performance in
 LLMs that don't necessarily come directly from training, but from a
@@ -511,7 +537,14 @@ ourselves in a more direct way than training.
 \section{Savant syndrome and spatial
 representations}\label{savant-syndrome-and-spatial-representations}
 
-A case study of savant patient DT (\citeproc{ref-murray2010}{Murray,
+Savant syndrome is a rare condition in which people show exceptional
+proclivity towards certain specific activities, usually accompanied by
+great impairments in other areas of their lives. Savants can have
+exceptional abilities in math, art, music and other fields, as well as
+instant calculation abilities that don't seem to come through
+algorithmic processing.
+
+A case study of a Savant patient DT (\citeproc{ref-murray2010}{Murray,
 2010}) reveals a mathematical cognitive architecture with the following
 characteristics:
 
@@ -552,8 +585,14 @@ calculation to the subject, we can pose the question: are there specific
 spatial arrangements that enable advantageous numerical calculations,
 and are those present or replicable in LLMs? The spatial idea is easily
 translatable from the perceptive sphere to the representational one, by
-considering LLM embeddings. This also requires the assumption that
-representational advantages can translate from humans to LLMs.
+considering LLM embeddings. If these come through because of geometric
+properties of the structures, and going with the assumption that those
+structures are replicable in the high-dimensional vector spaces we're
+working with, it would follow that strict optimization through gradient
+descent could be a possible way to make them come about.
+
+\section{The Platonic Representation
+Hypothesis}\label{the-platonic-representation-hypothesis}
 
 According to (\citeproc{ref-huh2024}{Huh et al., 2024}) AI models,
 particularly deep networks, are converging. The central hypothesis is
@@ -565,15 +604,50 @@ This convergence appears to be driven by several selective pressures:
 larger models have more capacity to find optimal representations; models
 trained on more diverse tasks are constrained to find solutions that
 work across multiple domains; and deep networks have implicit biases
-toward simpler solutions (\citeproc{ref-huh2024}{Huh et al., 2024}).
+toward simpler solutions.
 
 For the investigation of numerical representations, this suggests that
 if there are indeed optimal geometric structures for mathematical
 reasoning, different models might naturally converge toward them during
 training. The shape suggested (the helix) has properties on an
 information-theory basis that make its use as a learning geometry more
-likely, in particular, its self-similarity can be an error-correcting
+likely (\citeproc{ref-kantamneni2025}{Kantamneni \& Tegmark, 2025}). In
+particular, their self-similarity can be a useful error-correcting
 property.
+
+\section{The Helix and its role in LLM
+addition}\label{the-helix-and-its-role-in-llm-addition}
+
+During the final process of literature review of this thesis, a paper
+was found that recontextualized some of the findings seen here.
+(\citeproc{ref-kantamneni2025}{Kantamneni \& Tegmark, 2025}) has
+revealed how mid-sized language models including GPT-J, Pythia-6.9B, and
+Llama3.1-8B employ a helix to encode and manipulate numerical values
+during arithmetic operations. The helix gets fit with the operands
+required, and through structural manipulation via the ``Clock
+algorithm'' performs addition by rotating helical representations and
+reading out the final answer. From an information-theoretic perspective,
+the authors demonstrate that helical representations provide significant
+computational advantages over linear encodings, offering built-in
+redundancy and error-correction properties. Even with highly precise
+linear representations (\(R^2 = 0.997\)), linear addition achieves less
+than 20\% accuracy while the helical approach achieves over 80\%,
+suggesting the periodic structure serves as an error-correcting
+mechanism analogous to how humans use decimal digits rather than slide
+rules for precise calculation.
+
+In looking at the numerical embeddings of OLMo and Llama models, we
+observe very similar structures as the ones described in the paper,
+which gives more comprehensive explanations on how the structures are
+employed to perform mathematical operations such as addition, done from
+a mechanistic interpretability perspective. MI attempts to explain the
+model workings through the reverse engineering of it, and going through
+the motions of the network. The work presented here will limit itself to
+graphical visualization of single-token embeddings and feature analysis,
+although the perspective presented by Kantamneni et al certainly seems
+to give partial confirmation to the findings here presented.
+
+\clearpage
 
 \section{Dimensionality reduction and Embedding
 Visualization}\label{dimensionality-reduction-and-embedding-visualization}
@@ -625,44 +699,6 @@ dimensionality reduction techniques:
   regions.
 \end{itemize}
 
-\section{How current representational issues can help us better
-understand
-LLMs}\label{how-current-representational-issues-can-help-us-better-understand-llms}
-
-Tokenization as a process is highly idiosyncratic, and the last
-``mechanical'' step in the LLM pipeline. This situation has been already
-identified as a problem by some authors
-(\citeproc{ref-bitter-lesson-tokenization}{lucalp, 2025}), and it's a
-passage that, while necessary to get LLM performance to the point where
-it is today, given it allows the network to operate on a token level
-instead of character, would probably be better replaced by learnable
-approaches rather than being constrained by fixed pre-trained
-vocabularies that limit the model capability to have a representation of
-the input adapted to the task at hand. There are already alternative
-approaches being proposed (\citeproc{ref-islam2022}{Islam et al., 2022};
-\citeproc{ref-pagnoni2024}{Pagnoni et al., 2024}), which manage to have
-better efficiency while addressing some of the problems rigid
-training-time tokenization causes (like the strawberry problem).
-However, what the state of the art offers now gives the opportunity for
-the exploration of representational structures that have direct and easy
-associations with tokens, which we can catalogue in sequences and
-analyze in a systematic way.
-
-During the process of literature review for this thesis, and after the
-main experimentation, an article was found touching on similar themes,
-in particular using mechanistic techniques to get to the way LLMs
-perform addition, and in the process
-
-recent research was also found demonstrating that LLMs use trigonometry
-to do addition \textless?\textgreater{}
-(\citeproc{ref-kantamneni2025}{Kantamneni \& Tegmark, 2025}),
-representing numbers as a generalized helix which is strongly causally
-implicated for addition and subtraction tasks. This provides evidence
-that language models do indeed develop structured geometric
-representations for numerical reasoning, supporting the hypothesis that
-analyzing these naturally emergent structures could inform better
-representation design.
-
 \chapter{Implementation}\label{implementation}
 
 The aim of the project was the realization of a framework to enable the
@@ -685,35 +721,51 @@ parts:
   sampling of embeddings from HuggingFace models
 \item
   an analyzer, meant to compute base statistics about the embeddings and
-  to extract results from the PCA analysis and \textless?\textgreater{}
-  give insights on variance by component
+  to extract results from the PCA analysis and give insights on various
+  properties of the embeddings, such as explained variance of the
+  various dimensions (through PCA) and correlation between numerical
+  sequences and features.
 \item
   a visualizer, to create plots that give a visual intuition of the
   structures underneath the embedding data.
 \item
-  a dashboard, provided through a Marimo notebook to show interactive
-  visualization and to provide interactive data analysis features.
+  a dashboard to display interactive visualization and to provide
+  interactive data analysis features.
 \end{itemize}
 
-\begin{figure}
-\centering
-\includegraphics[width=0.7\linewidth,height=\textheight,keepaspectratio]{res/marimo_dashboard.png}
-\caption{Plotting component for the Marimo dashboard.}
-\end{figure}
+The following libraries have been employed in the making of this
+project:
+
+\begin{itemize}
+\tightlist
+\item
+  \texttt{typer} for implementing the CLI
+\item
+  \texttt{transformers} and \texttt{torch} for model download and
+  embeddings extraction
+\item
+  \texttt{numpy}, \texttt{pandas}, \texttt{sklearn}, \texttt{sympy} and
+  \texttt{umap} for math and calculation purposes
+\item
+  \texttt{altair} and \texttt{plotly} for 2D and 3D plotting
+  respectively
+\item
+  \texttt{marimo} for notebook and reactive dashboard functionality
+\end{itemize}
 
 \clearpage
 
 \section{Storage layer}\label{storage-layer}
 
-The necessity of a storage layer came out of a necessity to be able to
-work with the data in manageable way, as loading the whole model was
-very often impractically slow and a lot of the work had to be done in a
+The storage layer allows storing embeddings samples from any HuggingFace
+model without loading the whole model, as doing so was very often
+impractically slow as a lot of the work was done in a
 resource-constrained environment.
 
 The sample data was stored in instances of the \texttt{EmbeddingsSample}
-class lst.~\ref{lst:embeddingsample}, along with metadata reporting the
-source model ID and, for random samples, the seed used for replicability
-purposes.
+class (lst.~\ref{lst:embeddingsample}), along with metadata reporting
+the source model ID and, for random samples, the seed used for
+replicability purposes.
 
 \begin{codelisting}
 
@@ -760,13 +812,11 @@ cataloguing system based on filesystem names to store and retrieve items
 on the basis of their metadata.
 
 To address this, a choice was made to implement a more proper storage
-layer. It was realized using DuckDB, a database similar to SQLite that
-uses a single file to store data and provides vector functionality for
-the storage of the embeddings. This allowed to store and retrieve the
-embeddings, and their metadata, in a more robust way. DuckDB also offers
-facilities to work directly on dataframes using SQL queries, and
-exchanging data between dataframes and the database in this way, which
-revealed very useful for loading purposes.
+layer. It was realized using DuckDB, a single-file database similar to
+SQLite that provides vector functionality appropriate for the storage of
+embeddings. DuckDB also offers facilities to work directly on dataframes
+using SQL queries, and exchanging data between dataframes and the
+database in this way, which revealed very useful for loading purposes.
 
 \begin{codelisting}
 
@@ -803,7 +853,7 @@ revealed very useful for loading purposes.
 
 \clearpage
 
-\section{Extracting and Sampling}\label{extracting-and-sampling}
+\section{Extraction and Sampling}\label{extraction-and-sampling}
 
 Extraction is performed by downloading models using HuggingFace's
 Transformers library, which allows for download and deployment of
@@ -845,9 +895,10 @@ tokens where necessary, and convert them into token IDs for the LLM
 processing.
 
 The logic to do this is split between the \texttt{HFTokenizerWrapper}
-and \texttt{HFEmbeddingsSampler} classes. \texttt{HFTokenizerWrapper}
-invokes the tokenizer to get the token IDs that correspond to the
-embeddings of interest (avoiding special tokens, like
+(lst.~\ref{lst:tokenizer}) and \texttt{HFEmbeddingsSampler}
+(lst.~\ref{lst:sampler}) classes. \texttt{HFTokenizerWrapper} invokes
+the tokenizer to get the token IDs that correspond to the embeddings of
+interest (avoiding special tokens, like
 \texttt{\textless{}Beginning\ of\ Sentence\textgreater{}} and such),
 while \texttt{HFEmbeddingsSampler} has the logic for integer and random
 selection.
@@ -893,7 +944,9 @@ integer from 0 onwards, up to a maximum ceiling of 10.000, until we find
 the first integer that gets tokenized using more than one token. The
 analysis is limited in scope to single-token integers in the range
 0-999, as these parameters correspond to a multitude of open source
-models available as of today.
+models available as of today. For random sampling, token IDs are picked
+by doing a random extraction of numbers between 0 and the vocabulary
+size of the model, and then proceeding similarly.
 
 After the sampling process is completed, the results are returned as a
 dataframe, along with the corresponding provenance metadata.
@@ -904,7 +957,6 @@ dataframe, along with the corresponding provenance metadata.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-
 \KeywordTok{class}\NormalTok{ HFEmbeddingsSampler:}
     \KeywordTok{def}\NormalTok{ \_single\_token\_integer\_ids(}\VariableTok{self}\NormalTok{, max\_value}\OperatorTok{=}\DecValTok{10\_000}\NormalTok{) }\OperatorTok{{-}\textgreater{}}\NormalTok{ Iterable[}\BuiltInTok{int}\NormalTok{]:}
         \ControlFlowTok{for}\NormalTok{ num }\KeywordTok{in} \BuiltInTok{range}\NormalTok{(max\_value):}
@@ -938,18 +990,13 @@ dataframe, along with the corresponding provenance metadata.
 
 \end{codelisting}
 
-For the random sampling of embeddings, token ids are picked by doing a
-random extraction of numbers between 0 and the vocabulary size of the
-model, and then proceeding in a similar way as described before
-\textless?\textgreater.
-
 \clearpage
 
 \section{Analysis}\label{analysis}
 
-Most of the analysis in done in the \texttt{EmbeddingsAnalyzer} class,
-which reorganizes data and provides it in a format suitable for
-consultation and visualization.
+Most of the analysis in done in the \texttt{EmbeddingsAnalyzer}
+(lst.~\ref{lst:embeddingsanalyzer}) class, which reorganizes data and
+provides it in a format suitable for consultation and visualization.
 
 \begin{codelisting}
 
@@ -1044,7 +1091,7 @@ encoding.}\label{lst:mathencoding}
 
 \end{codelisting}
 
-\section{User interface}\label{user-interface}
+\section{CLI}\label{cli}
 
 The end user can make use of the tools by loading a model through the
 CLI, which was programmed using the \texttt{typer} library. It can be
@@ -1089,9 +1136,10 @@ visualization meant to show the geometric structure that the
 representation assume in the space.
 
 Then, an analysis of correlation with mathematical sequences is done:
-for each dimension, we encode mathematical interesting sequences the
-embedding features might be detecting for and look for correlations. We
-adopt the following encoding for sequences:
+for each dimension, we encode mathematically interesting sequences the
+embedding features might be detecting for, and measure their Pearson
+correlation coefficient along with their respective p-value. We adopt
+the following encoding for sequences:
 
 \begin{itemize}
 \item
@@ -1354,7 +1402,7 @@ p-value doesn't seem dismissible over random chance.
 
 \begin{figure}
 \centering
-\includesvg[width=0.7\linewidth,height=\textheight,keepaspectratio]{plots/OLMo-2-1124-7B_strong_property_correlations_v1.svg}
+\includesvg[width=0.45\linewidth,height=\textheight,keepaspectratio]{plots/OLMo-2-1124-7B_strong_property_correlations_v1.svg}
 \caption{Mathematical sequences against the number of associated
 strongly correlated embedding dimensions.}\label{fig:olmo-properties}
 \end{figure}
@@ -1494,6 +1542,8 @@ going on, making the whole structure approximate a half-sphere.
 \caption{3D cosine similarity UMAP in Llama.}\label{fig:llama-umap-3d}
 \end{figure}
 
+\clearpage
+
 \subsection{Correlation with mathematical
 properties}\label{correlation-with-mathematical-properties-1}
 
@@ -1516,18 +1566,11 @@ mathematical sequences.}
 1601 & fibonacci & gauss & -0.48667 & 1.3712e-60 \\
 417 & fibonacci & gauss & 0.46017 & 1.4848e-53 \\
 1447 & fibonacci & gauss & -0.40412 & 1.4218e-40 \\
-90 & 1929 & triangular & -0.43179 & 1.1163e-46 \\
-101 & 1601 & triangular & -0.42298 & 1.1313e-44 \\
-437 & 881 & primes & -0.29401 & 2.1688e-21 \\
-501 & 665 & primes & 0.28418 & 4.9509e-20 \\
+1929 & triangular & gauss & -0.43179 & 1.1163e-46 \\
+1601 & triangular & gauss & -0.42298 & 1.1313e-44 \\
+881 & primes & gauss & -0.29401 & 2.1688e-21 \\
+665 & primes & gauss & 0.28418 & 4.9509e-20 \\
 \end{longtable}
-
-\begin{figure}
-\centering
-\pandocbounded{\includesvg[keepaspectratio]{plots/Llama-3.2-1B-Instruct_13_strong_property_correlations_v1.svg}}
-\caption{Dimensions strongly correlated with properties in Llama
-3.2}\label{fig:llama-properties}
-\end{figure}
 
 The picture being shown through the correlations is a very surprising
 one, as it reinforces clearly what was observed previously through the
@@ -1542,6 +1585,22 @@ very interesting geometric landscape for this model, and how this seemed
 to coincide with examining a model that was trained on a much larger
 scale.
 
+\begin{figure}
+\centering
+\includesvg[width=0.45\linewidth,height=\textheight,keepaspectratio]{plots/Llama-3.2-1B-Instruct_strong_property_correlations_v1.svg}
+\caption{Dimensions strongly correlated with properties in Llama
+3.2}\label{fig:llama-properties}
+\end{figure}
+
+Taking a look at how many dimensions are correlated quantitatively
+(fig.~\ref{fig:llama-properties}), most of them are still related to
+magnitude, but the number of dimensions related to mathematical
+properties is a lot higher. The rise in the correlation coefficients
+with respect to the OLMo model might be because of scale and the large
+quantity of additional tokens Llama was trained on, but further analysis
+would be needed to establish a causal link, since this can be influenced
+by a lot of confounding variables, such as quality data or training.
+
 \chapter{Conclusions}\label{conclusions}
 
 With visualizations and the data, we were able to paint a picture of
@@ -1549,44 +1608,21 @@ interesting phenomena coming through the embeddings layers of two
 distinct LLMs, OLMo and Llama. The most important difference between
 these two models that we were able to discuss is the scale, and we have
 shown that with bigger scale come more visible patterns, in both
-correlations with mathematical sequences and geometric structure.
+correlations with mathematical sequences and geometric structure. This
+seems to be in line with the Platonic Representation hypothesis, as it
+is the fact that similar geometric structures seem to appear in
+different models.
 
-\section{Key Findings}\label{key-findings}
-
-\subsection{Structured Numerical
-Embeddings}\label{structured-numerical-embeddings}
-
-Our analysis revealed that numerical tokens are not randomly distributed
-in embedding space but follow organized patterns:
-
-\textbf{Geometric Organization}: Principal component analysis showed
-that numerical embeddings lie on low-dimensional manifolds. OLMo-2
-exhibited U-shaped curves with recursive patterns across digit ranges,
-while Llama-3.2 displayed more linear arrangements. Both models required
-only \textasciitilde500 components to capture 90\% of variance,
-indicating substantial dimensionality reduction from the full
-4096-dimensional space.
-
-\textbf{Mathematical Property Correlations}: Multiple embedding
-dimensions showed *significant correlations with mathematical
-properties:
-
-\begin{itemize}
-\tightlist
-\item
-  Magnitude and digit count exhibited the strongest correlations (r
-  \textgreater{} 0.67) - Primality was encoded across multiple
-  dimensions - Fibonacci number proximity showed notable correlations,
-  though potentially influenced by magnitude effects
-\item
-  Binary properties like evenness were systematically represented
-\end{itemize}
-
-The consistent organization of numerical embeddings according to
-mathematical properties suggests that neural language models might
-spontaneously develop structured representations during training. This
-organization goes beyond simple ordering, incorporating complex
-mathematical relationships like primality and sequence membership.
+We have also shown that numerical embeddings lie on low-dimensional
+manifolds and have semantic relationships with the symbols they
+represent, given the numerous and very significant correlations there
+are between embedding dimensions and the magnitude of the represented
+number (\textgreater{} 0.7). We have also shown features highly
+correlated with the belonging of the represented number to certain
+numerical sequences, like Fibonacci (\textgreater{} 0.5), prime and
+triangular numbers. The fact that these relationships seem to strengthen
+with the scale of the model seem to contribute to the case that these
+representations may be converging.
 
 \section{Limitations}\label{limitations}
 
@@ -1601,19 +1637,38 @@ organizational principles.
 
 \section{Future Directions}\label{future-directions}
 
-This work suggests several research directions: investigating
-mathematical representations across model scales and architectures,
-exploring computed embedding approaches that leverage discovered
-geometric structures, and examining whether similar organizational
-principles apply to other domains where specialized representations
-might be beneficial.
+If it's true that numerical representations end up converging to certain
+geometric dispositions, there's a lot we can follow this up with:
 
-The findings contribute to understanding how neural language models
-organize mathematical information and suggest that structured
-representations may emerge naturally in systems trained on numerical
-data. While modest in scope, these results provide a foundation for
-further investigation into the relationship between representational
-structure and mathematical reasoning capabilities in artificial systems.
+\begin{itemize}
+\tightlist
+\item
+  Is it possible to model this mathematical landscape through
+  mathematical definitions?
+\item
+  Is there a way to see the final nature of the mathematical landscape
+  numerical representations tend to form?
+\item
+  Can the geometry adopted by these models teach us more about
+  mathematics themselves?
+\item
+  If the convergence is influenced by beneficial properties from an
+  information-theory perspective, could the same structures influence
+  human cognition?
+\end{itemize}
+
+Surely, there is a lot more to dive into in the meantime, like
+contrasting and comparing with more models, looking for correlations
+with more interesting sequences and better understanding why this
+process result with these high correlations. There's also creating new
+embedding schemes for numbers inspired by these findings, and seeing if
+they can improve performance in a variety of tasks.
+
+There are a lot of possibilities to cover, that can lead to better
+understanding of human and machine cognition. In its small scope, I hope
+this work can be convincing in showing this is a worthwhile endeavor, so
+that after models learn everything about us, we may turn back and look
+into them to learn about ourselves.
 
 \chapter*{Bibliography}\label{bibliography}
 \addcontentsline{toc}{chapter}{Bibliography}
@@ -1648,21 +1703,10 @@ Huh, M., Cheung, B., Wang, T., \& Isola, P. (2024, May 13). \emph{The
 {Platonic Representation Hypothesis}}.
 \url{https://doi.org/10.48550/arXiv.2405.07987}
 
-\bibitem[\citeproctext]{ref-islam2022}
-Islam, M. M., Aguilar, G., Ponnusamy, P., Mathialagan, C. S., Ma, C., \&
-Guo, C. (2022, April 22). \emph{A {Vocabulary-Free Multilingual Neural
-Tokenizer} for {End-to-End Task Learning}}.
-\url{https://doi.org/10.48550/arXiv.2204.10815}
-
 \bibitem[\citeproctext]{ref-kantamneni2025}
 Kantamneni, S., \& Tegmark, M. (2025, February 2). \emph{Language
 {Models Use Trigonometry} to {Do Addition}}.
 \url{https://doi.org/10.48550/arXiv.2502.00873}
-
-\bibitem[\citeproctext]{ref-bitter-lesson-tokenization}
-lucalp. (2025, June 24). \emph{The {Bitter Lesson} is coming for
-{Tokenization} \textbar{} ⛰️ lucalp}.
-\url{https://lucalp.dev/bitter-lesson-tokenization-and-blt/}
 
 \bibitem[\citeproctext]{ref-maaten2008}
 Maaten, L. van der, \& Hinton, G. (2008). Visualizing {Data} using
@@ -1703,13 +1747,6 @@ Tafjord, O., Anderson, T., Atkinson, D., Brahman, F., Clark, C., Dasigi,
 P., Dziri, N., \ldots{} Hajishirzi, H. (2025, January 15). \emph{2
 {OLMo} 2 {Furious}}. \url{https://doi.org/10.48550/arXiv.2501.00656}
 
-\bibitem[\citeproctext]{ref-pagnoni2024}
-Pagnoni, A., Pasunuru, R., Rodriguez, P., Nguyen, J., Muller, B., Li,
-M., Zhou, C., Yu, L., Weston, J., Zettlemoyer, L., Ghosh, G., Lewis, M.,
-Holtzman, A., \& Iyer, S. (2024, December 13). \emph{Byte {Latent
-Transformer}: {Patches Scale Better Than Tokens}}.
-\url{https://doi.org/10.48550/arXiv.2412.09871}
-
 \bibitem[\citeproctext]{ref-radford2019}
 Radford, A., Wu, J., Child, R., Luan, D., Amodei, D., \& Sutskever, I.
 (2019). \emph{Language {Models} are {Unsupervised Multitask Learners}}.
@@ -1734,6 +1771,18 @@ A. N., Kaiser, L., \& Polosukhin, I. (2023, August 1). \emph{Attention
 {Is All You Need}}. \url{http://arxiv.org/abs/1706.03762}
 
 \end{CSLReferences}
+
+\listoffigures
+
+\clearpage
+
+Thank you for your attention. Thanks to my mother, who could not be more
+loving and patient in supporting me through this. And, you know who you
+are, even if you don't: I bring you in my heart, all the time. If we
+don't get to see each other now, we may wait again until after the end
+of time.
+
+\includegraphics[width=0.1\linewidth,height=\textheight,keepaspectratio]{res/ouroboros.png}
 
 \backmatter
 \end{document}

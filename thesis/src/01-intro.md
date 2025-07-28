@@ -10,8 +10,7 @@ interested in this topic, the first and naive one being that tokenization
 schemes, as naively implemented with the BPE algorithm, would leave a lot of
 space for improvement in numerical tasks, and it's interesting to explore how.
 
-Better performance in LLMs has been sought through the lenses of scale, and
-looking for emergent properties as training time and resources increase. There
+Better performance in LLMs has been sought through very large scaling. There
 are different reasons for this, one of them being The Bitter Lesson [@bitter-lesson], a
 heuristic principle that states that general methods that better leverage computation
 are better than methods that seek to use human domain-specific knowledge to inform
@@ -19,24 +18,26 @@ the implementation. This has been observed, for example, in the domain of chess,
 where the strategies being put forward hard-coding human domain-specific knowledge
 were ultimately beaten by deep search.
 
-After the big success story of scaling in LLMs, the main reach has been towards
-increasing model size and training on bigger datasets, and in unlocking the emergent
-capabilities that would come along those. While this approach has given results, albeit
-with some inconsistencies hard to reconcile from an epistemological perspective, such as
-the difficulty of actually designing good benchmarks for those abilities that actually
-verify they go beyond memorization [@skalse2023]. What is proposed here is that we might
-be able to see this in more detail by seeing if there are established semantic links
-beyond relative measures through different representations in the same space, by
-checking the representation of numbers and the numbers that constitute that
-representation, and by seeing if there are semantic links that cross this barrier.
+Not only scaling is a more general approach to LLM improvement, it also comes with the
+potential of unlocking emergent capabilities. This approach has given results through
+time, albeit with some inconsistencies hard to reconcile from an epistemological
+perspective, such as the difficulty of actually designing good benchmarks for those
+abilities that actually verify they go beyond memorization [@skalse2023].
 
-Along with this, we investigate here is the presence of structures that come to be
+This work proposes to examine numerical embeddings as a lens for assessing semantic
+understanding in LLMs. By analyzing the representational structure of numbers and their
+constituent digits within the same embedding space, we can investigate whether models
+develop coherent semantic relationships that transcend the symbolic-numeric boundary,
+potentially revealing genuine numerical understanding rather than pattern memorization.
+
+Along with this, we investigate the presence of structures that come to be
 through learning numerical representation. Given that we can naturally arrange numbers
 in a sequence, it comes natural to see what the disposition of those sequences form when
 arranged in the space of LLM representations. By taking inspiration from the Savant mode
 of human cognition, that comes through exploiting spatial arrangements as a means to
 perform calculations, we look for similar arrangements in LLMs, take a look at relevant
 research, and make hypotheses on why they come to be.
+
 
 # Background
 
@@ -66,15 +67,15 @@ have a purely BPE tokenizer, the successive iteration of GPT and generally more 
 models either tokenize digits separately (so as $'1234' \rightarrow [1, 2, 3, 4]$), or
 tokenize clusters of 3 digits, encompassing the integers in the range 0-999.
 
-Most of the tokenizers right now do L2R (left-to-right) clustering [@millidge2023],
+Most of the tokenizers currently use L2R (left-to-right) clustering [@millidge2023],
 meaning that a number such as $12345$ would be divided in two tokens, $123$ and $45$. It
 has been shown [@singh2024] that this kind of clustering leads to worse arithmetic
 performance, as this brings misalignment in digit positions and, as a consequence, in
 positional significance.
 
-An even more surprising development is that forcing the R2L token clustering of numbers
-in models already trained with L2R clustering through the use of commas in the input
-(ex. $12,345$) leads to big improvements in arithmetic performance [@singh2024;
+Even more surprisingly, forcing the R2L token clustering of numbers in models already
+trained with L2R clustering through the use of commas in the input (ex. $12,345$) leads
+to big improvements in arithmetic performance [@singh2024;
 @millidge2024]. Despite the model learning representations adapted to work with a L2R
 token clustering strategy, forcing a R2L clustering at inference time shows substantial
 improvements in arithmetic tasks, which means that despite being learned through an
@@ -95,10 +96,9 @@ This could be happening for different reasons, for example:
   [@singh2024].
 
 - There's a geometric bias towards the right mode of operation given by the structures
-  that form in the space to compute mathematical operations. This is the hypothesis that
-  will be explored.
+  that form in the space to compute mathematical operations.
 
-At the very least, the data being biased towards a R2L representation (in the form of
+At the very least, the data bias towards R2L representation (in the form of
 using the Arabic number system and adopting legibility rules that accommodate right to
 left calculations) leads to embeddings that maintain that bias even when learned in a
 L2R fashion. This can be a possible hint towards the optimality of certain

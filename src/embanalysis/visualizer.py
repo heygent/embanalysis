@@ -117,7 +117,7 @@ class EmbeddingsVisualizer:
         text = (
             alt.Chart(unique_dim_counts)
             .mark_text(
-                align="center", baseline="bottom", dy=-2, fontSize=14
+                align="center", baseline="bottom", dy=-2, fontSize=14, color='white'
             )
             .encode(
                 x=alt.X("Property:N", sort="-y"),
@@ -129,7 +129,7 @@ class EmbeddingsVisualizer:
         return (bar + text).properties(
             title="Strongly Correlated Sequences (>0.20, p<0.05)",
             width=400,
-        )
+        ) # type: ignore
 
     def digit(
         self,
@@ -200,15 +200,30 @@ class EmbeddingsVisualizer:
                 return self.digit(x_component, y_component, digit_position)
             case "digit_length":
                 return self.digit_length(x_component, y_component)
-    
-    def components_3d(self, x_component: int = 0, y_component: int = 1, z_component: int = 2) -> go.Figure:
+
+    def components_3d(self, x_component: int = 0, y_component: int = 1, z_component: int = 2, plot_type="gradient", digit_position=2) -> go.Figure:
         """Create a 3D scatter plot of three embedding components."""
         x_col = f"embeddings_{x_component}"
         y_col = f"embeddings_{y_component}"
         z_col = f"embeddings_{z_component}"
-        
+
         fig = go.Figure()
-        
+        numbers = self.analyzer.embeddings_df["token"].astype(int).values
+        colorscale = 'Viridis'
+
+        match plot_type:
+            case "gradient":
+                color = numbers
+            case "digit":
+                # Color by digit position
+                assert digit_position in [0, 1, 2], "digit_position must be 0 (ones), 1 (tens), or 2 (hundreds)"
+                color = np.floor(numbers / (10 ** digit_position)) % 10
+            case "digit_length":
+                color = self.analyzer.embeddings_df["token"].str.len()
+            case _:
+                raise ValueError('Invalid plot type')
+
+
         # Color by token value (gradient)
         fig.add_trace(go.Scatter3d(
             x=self.analyzer.embeddings_df[x_col],
@@ -217,8 +232,8 @@ class EmbeddingsVisualizer:
             mode='markers',
             marker=dict(
                 size=5,
-                color=pd.to_numeric(self.analyzer.embeddings_df["token"], errors='coerce'),
-                colorscale='Viridis',
+                color=color,
+                colorscale=colorscale,
                 opacity=0.7,
                 colorbar=dict(title="Token Value")
             ),
@@ -230,12 +245,12 @@ class EmbeddingsVisualizer:
                          "<extra></extra>",
             name="Embeddings"
         ))
-        
+
         # Update layout
         title_text = f"3D Visualization of Components {x_component + 1}, {y_component + 1}, {z_component + 1}"
         if self.add_default_title:
             title_text = f"{self.analyzer.meta.model_id}<br><sub>{self.analyzer.meta.label()}</sub><br>{title_text}"
-        
+
         fig.update_layout(
             title=title_text,
             scene=dict(
@@ -248,9 +263,9 @@ class EmbeddingsVisualizer:
             height=600,
             margin=dict(l=0, r=0, b=0, t=50)
         )
-        
+
         return fig
-    
+
     def feature(self, component: int = 0) -> alt.Chart:
         """Create a chart showing the values of a single component."""
         embedding_col = f"embeddings_{component}"
@@ -268,19 +283,19 @@ class EmbeddingsVisualizer:
             )
             .interactive(bind_y=False)
         )
-    
+
     def feature_with_discrete_sequences(self, feature: int, sequence_names: list[str]) -> alt.Chart:
         """Create a chart showing the values of a specific sequence."""
         all_sequences_df = pd.DataFrame(make_encoded_sequences(len(self.analyzer.embeddings_df)))
         all_sequences_df.columns = all_sequences_df.columns.map(lambda x: "/".join(x))
         all_sequences_df.reset_index(inplace=True)
-        
+
         chart = self.feature(feature)
         for sequence in sequence_names:
             chart += alt.Chart(all_sequences_df).mark_rule(strokeDash=[5, 5]).encode(x='index', y=f'{sequence}/binary:Q')
-        
+
         return chart
-    
+
     def fourier_magnitude(self, component: int = 0, max_y: float = 20.0) -> alt.Chart:
         """Create a chart showing the Fourier magnitude of a specific component."""
 
@@ -300,7 +315,7 @@ class EmbeddingsVisualizer:
             )
             .interactive(bind_x=False)
         )
-        
+
 
     def consecutive_distances(self) -> alt.Chart:
         """Create a chart showing distances between consecutive number embeddings."""
@@ -342,7 +357,7 @@ class EmbeddingsVisualizer:
         # This assumes the analyzer has a pca attribute - might need adjustment
         if not hasattr(self.analyzer, 'pca'):
             raise AttributeError("Analyzer does not have a 'pca' attribute")
-            
+
         component_dfs = []
         for i in range(min(n_components, len(self.analyzer.pca.components_))):
             df = pd.DataFrame(

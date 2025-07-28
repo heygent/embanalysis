@@ -39,14 +39,18 @@ def _():
 
     We take two models in consideration:
 
-    - **allenai/OLMo-2-1124-7B**  
-      OLMo2 is an open-source model built with replicability and research in mind, well-documented and with checkpoints at various stages available  
-      **Training data**: 5T tokens
-
-
-    - **meta-llama/Llama-3.2-1B-Instruct**  
-      One of the most popular open source models, trained on a lot more data  
-      **Training data**: 15T tokens
+    - **OLMo-2-1124-7B**  
+        - is favorable to research uses thanks to the full disclosure of training
+      data, code, logs and checkpoints.
+        - trained on **4.05T tokens** including 10.7B
+      synthetic mathematical data
+      specifically designed to enhance numerical reasoning capabilities.
+    - **Llama-3.2-1B-Instruct**
+         - due to being a small and manageable model to do
+    analysis with on limited hardware.
+        - derives from the Llama 3 family, which was trained
+    on approximately **15T multilingual tokens** including
+    mathematical content integrated continuously rather than in separate phases.
     """
     )
     return
@@ -59,6 +63,7 @@ def _(conn, embeddings):
         SELECT DISTINCT model_id FROM embeddings;
         """,
         engine=conn,
+        output=False,
     )["model_id"].to_list()
     return
 
@@ -100,7 +105,9 @@ def _(integers_pca, type_ui):
             mo.md("""
     ## OLMo - PCA
 
-    - Shows a U-curve with a smooth gradient between the numbers
+    - The PCA plot shows us the embeddings projected on the two directions with the maximum variance.
+    - This shows a U-curve with a smooth gradient between the numbers
+    - We observe how certain groups of numbers cluster with each other (form well-defined groups)
     - Top-right corner has all one and two-digit numbers
         - The gradient is smooth and the position corresponds with the lowest numbers
     - PCA destroys structure (see SVD next)
@@ -120,27 +127,12 @@ def _(integers_svd, type_ui):
             mo.md("""
     ## OLMo - SVD
 
+    - SVD is very similar to PCA, but lacks a data centering step
+        - Data centering can be good to emphasize relative positions, however can destroy information encoded in absolute distance from the center.
     - Triangular structures are much clearer
     - Self-repeating pattern on the basis of the number of digits
         - Very clear clustering
     - Clustering is also visible (better as the significance of the digit grows) for digits in all positions
-        """),
-        ],
-        widths=[0.6, 0.4],
-    )
-    return
-
-
-@app.cell
-def _(integers_svd, type_ui):
-    mo.hstack(
-        [
-            plot_3d_components_with_type_ui(integers_svd, 0, 1, 2, type_ui),
-            mo.md("""
-    ## OLMo - SVD 3D
-
-    - Hint of a self-looping structure
-    - Zero and lower numbers gravitate towards the center
         """),
         ],
         widths=[0.6, 0.4],
@@ -159,10 +151,11 @@ def _(integers_pca):
             mo.md("""
     ## OLMo - Cumulative and Explained Variance
 
+    - PCA also offers us the possibility to compare the variance of individual components against the total variance of the data.
     - Sharp drop in the explained variance by component after 30-50 components
     - 90% cumulative explained variance reached after 600 components
         - much lower than the 4096 embedding dimensions OLMo has
-        - number representations lie on a low dimensional manifold in the embedding space
+        - number representations seem to have a much lower intrinsic dimensionality than the full embedding space 
     """),
         ],
         widths=[0.6, 0.4],
@@ -193,7 +186,9 @@ def _(integers_tsne, type_ui):
             mo.md("""
     ## OLMo - t-SNE
 
-    - t-SNE reveals circular/spiral patterns where numerical tokens form branches that gradually increase, turn around center, then return to start 
+    - t-SNE uses gradient descent on points on a low-dimensional space to recreate the same proximity relationships exhibited in the high dimensional data.
+
+    - Reveals circular/spiral patterns where numerical tokens form branches that gradually increase, turn around center, then return to start 
     - Numbers follow continuous paths that preserve numerical ordering relationships in the embedding space
     - When colored by hundreds digit, distinct branches/filaments cluster neatly by their hundreds group
         """),
@@ -225,70 +220,8 @@ def _(integers_analyzer):
 
 
 @app.cell
-def _(integers_umap, type_ui):
-    mo.hstack(
-        [
-            plot_3d_components_with_type_ui(integers_umap, 0, 1, 2, type_ui),
-            mo.md("""
-    ## OLMo - UMAP
-
-    - Little segments go in upward progression, almost like a ladder
-        - The two outliers are double-digit and 1XX
-    - Mantains a theme where non-linear projections seem to "open up" or "unfold" structures
-    - A lot of 00-ending numbers are clustered on a single point
-        - Reminds of t-SNE radial structure
-        """),
-        ],
-        widths=[0.6, 0.4],
-    )
-    return
-
-
-@app.cell
 def _(integers_umap_euc, plot_components_with_ui, umap_euc_ui):
     plot_components_with_ui(integers_umap_euc, umap_euc_ui)
-    return
-
-
-@app.cell
-def _():
-    mo.md(
-        r"""
-    # Number Semantics
-
-    - We also have an opportunity to check semantics in a way that crosses the symbolic barrier.
-    - We can relate the symbols themselves (0, 1, 2, ..., 999) to the **numeric components that constitute the embeddings**
-    - We explore this idea by checking individual features for all the integer embeddings and  their correlation with important mathematical sequences:
-        - $n_i = i$ (the numbers themselves)
-        - $n_i = \log(i)$
-        - Prime numbers
-        - Fibonacci numbers
-        - Triangular numbers
-    """
-    )
-    return
-
-
-@app.cell
-def _(integers_analyzer):
-    dim_corr_df = integers_analyzer.feature_to_sequence_analysis_df()
-    dim_corr_table = mo.ui.table(dim_corr_df.reset_index(drop=True))
-
-    mo.hstack(
-        [
-            mo.vstack([
-                dim_corr_table,
-                mo.ui.altair_chart(
-                integers_analyzer.plot.strong_property_correlation_bar_chart()
-                )
-            ]),
-            mo.md("""
-    - We find very high correlation for a lot of components for measures that encode for magnitude, as it would be expected. 
-    - We also find correlation for more interesting sequences, in particular Fibonacci numbers
-        - Fibonacci correlation in particular can be a general hint towards helicoidal and self-similar structures
-        """),
-        ]
-    )
     return
 
 
@@ -358,7 +291,8 @@ def _(llama_integers_pca):
     ## Llama - Cumulative and Explained Variance
 
     - 90% cumulative variance reached after ~500 components
-    - Slightly more dimensions needed than OLMo to capture similar variance
+    - Only one-fifth of the embedding space needed to capture 90% of the variance
+    - Like in OLMo, sharp variance drop within the first few components
     """),
         ],
         widths=[0.6, 0.4],
@@ -392,22 +326,6 @@ def _(llama_integers_tsne, type_ui):
 
 
 @app.cell
-def _(llama_integers_analyzer, type_ui, umap_kwargs):
-    llama_umap = UMAP(**umap_kwargs)
-    llama_integers_umap = llama_integers_analyzer.run_estimator(llama_umap)
-    plot_components_with_type_ui(llama_integers_umap, 0, 1, type_ui)
-    return
-
-
-@app.cell
-def _(llama_integers_analyzer, type_ui, umap_euc_kwargs):
-    llama_umap_euc = UMAP(**umap_euc_kwargs)
-    llama_integers_umap_euc = llama_integers_analyzer.run_estimator(llama_umap_euc)
-    plot_components_with_type_ui(llama_integers_umap_euc, type_ui)
-    return
-
-
-@app.cell
 def _(llama_integers_analyzer):
     llama_dim_corr_df = llama_integers_analyzer.feature_to_sequence_analysis_df()
     llama_dim_corr_table = mo.ui.table(llama_dim_corr_df.reset_index(drop=True))
@@ -415,62 +333,20 @@ def _(llama_integers_analyzer):
 
 
 @app.cell
-def _(llama_dim_corr_table, llama_integers_analyzer):
-    mo.hstack(
-        [
-            mo.vstack([
-                llama_dim_corr_table,
-                mo.ui.altair_chart(
-                llama_integers_analyzer.plot.strong_property_correlation_bar_chart()
-                )
-            ]),
-            mo.md("""
-    - Similar high correlation with magnitude-related sequences
-    - Fewer significant correlations with special sequences compared to OLMo
-    - Slightly lower correlation coefficients overall
-    - Patterns suggest less explicit encoding of mathematical properties
-        """),
-        ]
-    )
-    return
-
-
-@app.cell
-def _(llama_integers_tsne, type_ui):
-    mo.hstack(
-        [
-            plot_components_with_type_ui(llama_integers_tsne, 0, 1, type_ui),
-            mo.md("""
-    ## Llama - t-SNE
-
-    - This is one of the best visualizations of possible helicoidal structures happening in models
-    - Clustering by hundreds, in different filaments that seem uncoiled from a spiral
-    - Multiples of 100 clustered in a single point, like in the OLMo UMAP visualization
-            """),
-        ],
-        widths=[0.6, 0.4],
-    )
-    return
-
-
-@app.cell
 def _(llama_integers_analyzer):
     llama_tsne_3d_kwargs = dict(
         n_components=3,
         perplexity=30,
-        learning_rate='auto',
+        learning_rate="auto",
         max_iter=5000,
         min_grad_norm=1e-8,
-        method='barnes_hut',
+        method="barnes_hut",
         angle=0.3,
         early_exaggeration=4,
         random_state=42,
     )
 
-    llama_tsne_3d = TSNE(
-        **llama_tsne_3d_kwargs
-    
-    )
+    llama_tsne_3d = TSNE(**llama_tsne_3d_kwargs)
     llama_integers_tsne_3d = llama_integers_analyzer.run_estimator(llama_tsne_3d)
     return (llama_integers_tsne_3d,)
 
@@ -479,7 +355,9 @@ def _(llama_integers_analyzer):
 def _(llama_integers_tsne_3d, type_ui):
     mo.hstack(
         [
-            plot_3d_components_with_type_ui(llama_integers_tsne_3d, 0, 1, 2, type_ui),
+            plot_3d_components_with_type_ui(
+                llama_integers_tsne_3d, 0, 1, 2, type_ui
+            ),
             mo.md("""
     ## Llama - t-SNE
 
@@ -499,18 +377,17 @@ def _():
         r"""
     # Conclusions
 
-    - We have compelling reasons to explore the geometric structure of numerical embeddings
-    - Their shape could tell us a lot about the way LLMs organize information
-        - If there are general information-theory principles behind those reasons, these might inform us on models beyond LLMs
-        - As the properties we observe seem to scale with model size, it might be the case
-        - More experiments on more models are needed to definitely establish causal connections
-    - We find a lot of possible ways to move this forward:
-          - Searching for more precise convergence patterns
-          - Looking at more connections between sequences and features
-          - Looking for functions that fit well the generation of number embeddings
-  
-      
-      
+    - We were able to paint a picture of interesting phenomena coming through
+    the embeddings layers of two distinct LLMs, OLMo and Llama
+
+    -  The most important difference between these two models that we were able to
+    discuss is the scale, and we have shown that with bigger scale come
+    more visible patterns in geometric structure.
+
+    ## Limitations
+
+    The analysis was limited to two models and a specific set of mathematical properties. Further investigation
+    with controlled experiments would be needed to establish causal relationships.
     """
     )
     return
@@ -520,10 +397,131 @@ def _():
 def _():
     mo.md(
         r"""
-    # Thank you
+    ## Future directions
 
+    - Is it possible to model this mathematical landscape through mathematical definitions?
+    - Is there a way to see the final nature of the mathematical landscape numerical representations tend to
+    form?
+    - Can the geometry adopted by these models teach us more about mathematics themselves?
+    - If the convergence is influenced by beneficial properties from an information-theory perspective, could
+    the same structures influence human cognition?
     """
     )
+    return
+
+
+@app.cell
+def _():
+    mo.md(r"""# Thank you""")
+    return
+
+
+@app.cell
+def _():
+    mo.md(r"""# Appendix""")
+    return
+
+
+@app.cell
+def _():
+    return
+
+
+@app.cell
+def _():
+    mo.md(
+        r"""
+    # Number Semantics
+
+    - In sequence-space synesthesia, the subjects are able to ascertain properties of a numerical object by perceiving some of its qualities, like its color or sound.
+    - We look into the embeddings to see whether their features encode specific properties of the numerical object they represent. 
+    - We can relate the symbols themselves (0, 1, 2, ..., 999) to the **numeric components that constitute the embeddings**
+        - We look into individual features for all the integer embeddings and  their correlation with important mathematical sequences:
+            - $n_i = i$ (the numbers themselves)
+            - $n_i = \log(i)$
+            - Prime numbers
+            - Fibonacci numbers
+            - Triangular numbers
+    """
+    )
+    return
+
+
+@app.cell
+def _(integers_analyzer):
+    dim_corr_df = integers_analyzer.feature_to_sequence_analysis_df()
+    dim_corr_table = mo.ui.table(dim_corr_df.reset_index(drop=True))
+
+    mo.hstack(
+        [
+            mo.vstack(
+                [
+                    dim_corr_table,
+                    mo.ui.altair_chart(
+                        integers_analyzer.plot.strong_property_correlation_bar_chart()
+                    ),
+                ]
+            ),
+            mo.md("""
+    - We find very high correlation for a lot of components for measures that encode for magnitude, as it would be expected. 
+    - We also find correlation for more interesting sequences, like triangular and primes, with p-value > 0.05
+    - These correlations might also be interesting on a geometric perspective, although more study is needed to ascertain that.
+        """),
+        ],
+        widths=[0.6, 0.4],
+    )
+    return
+
+
+@app.cell
+def _(llama_dim_corr_table, llama_integers_analyzer):
+    mo.hstack(
+        [
+            mo.vstack(
+                [
+                    llama_dim_corr_table,
+                    mo.ui.altair_chart(
+                        llama_integers_analyzer.plot.strong_property_correlation_bar_chart()
+                    ),
+                ]
+            ),
+            mo.md("""
+    - Similar high correlation with magnitude-related sequences
+    - Fewer significant correlations with special sequences compared to OLMo
+    - Slightly lower correlation coefficients overall
+    - Patterns suggest less explicit encoding of mathematical properties
+        """),
+        ]
+    )
+    return
+
+
+@app.cell
+def _(integers_umap, type_ui):
+    mo.hstack(
+        [
+            plot_3d_components_with_type_ui(integers_umap, 0, 1, 2, type_ui),
+            mo.md("""
+    ## OLMo - UMAP
+
+    - UMAP is similar to t-SNE, but uses topological assumptions on the data to better preserve global structure.
+    - Little segments go in upward progression, almost like a ladder
+        - The two outliers are double-digit and 1XX
+    - Mantains a theme where non-linear projections seem to "open up" or "unfold" structures
+    - A lot of 00-ending numbers are clustered on a single point
+        - Reminds of t-SNE radial structure
+        """),
+        ],
+        widths=[0.6, 0.4],
+    )
+    return
+
+
+@app.cell
+def _(llama_integers_analyzer, type_ui, umap_kwargs):
+    llama_umap = UMAP(**umap_kwargs)
+    llama_integers_umap = llama_integers_analyzer.run_estimator(llama_umap)
+    plot_components_with_type_ui(llama_integers_umap, 0, 1, type_ui)
     return
 
 

@@ -57,7 +57,9 @@ def _(conn, embeddings, mo):
 @app.cell
 def _(mo, models):
     all_model_ids = models["model_id"].to_list()
-    model_id_ui = mo.ui.dropdown(all_model_ids, searchable=True, value=all_model_ids[0])
+    model_id_ui = mo.ui.dropdown(
+        all_model_ids, searchable=True, value=all_model_ids[0]
+    )
     return (model_id_ui,)
 
 
@@ -88,7 +90,6 @@ def _(PCA, TruncatedSVD, integers_analyzer):
 
     pca_components = 1000
     integers_pca = integers_analyzer.run_estimator(PCA(pca_components))
-
     return integers_pca, integers_svd, pca_components, svd_components
 
 
@@ -106,7 +107,9 @@ def _(integers_svd, mo):
 
 @app.cell
 def _(integers_svd, mo):
-    corr_table = mo.ui.table(integers_svd.top_correlations_df(), selection="single")
+    corr_table = mo.ui.table(
+        integers_svd.top_correlations_df(), selection="single"
+    )
     corr_table
     return (corr_table,)
 
@@ -144,8 +147,8 @@ def _(integers_svd, plot_components_with_ui, svd_ui):
 
 
 @app.cell
-def _(integers_pca, mo):
-    mo.ui.plotly(integers_pca.plot.components_3d())
+def _(integers_svd, mo):
+    mo.ui.plotly(integers_svd.plot.components_3d())
     return
 
 
@@ -181,7 +184,7 @@ def _(mo):
 @app.cell
 def _(TSNE, component_plot_ui, integers_analyzer):
     tsne_kwargs = dict(
-        n_components=3,
+        n_components=2,
         perplexity=75,
         learning_rate=50,
         early_exaggeration=20,
@@ -270,14 +273,13 @@ def _(mo):
 
 
 @app.cell
-def _(mo):
-    current_analyzer_ui = mo.ui.dropdown()
+def _():
     return
 
 
 @app.cell
-def _(integers_pca, mo):
-    dim_corr_df = integers_pca.feature_to_sequence_analysis_df()
+def _(integers_analyzer, mo):
+    dim_corr_df = integers_analyzer.feature_to_sequence_analysis_df()
     dim_corr_table = mo.ui.table(dim_corr_df.reset_index(drop=True))
     dim_corr_table
     return
@@ -285,19 +287,24 @@ def _(integers_pca, mo):
 
 @app.cell
 def _(mo, pca_components):
-    pca_fourier_magnitude_ui = mo.ui.number(start=0, stop=pca_components, label="Component:")
+    pca_fourier_magnitude_ui = mo.ui.number(
+        start=0, stop=pca_components, label="Component:"
+    )
     pca_fourier_magnitude_ui
     return (pca_fourier_magnitude_ui,)
 
 
 @app.cell
 def _(integers_pca, mo, pca_fourier_magnitude_ui):
-    mo.vstack([
-        mo.ui.altair_chart(
-            integers_pca.plot.fourier_magnitude(pca_fourier_magnitude_ui.value)
-        ),
-        pca_fourier_magnitude_ui
-    ], align='stretch')
+    mo.vstack(
+        [
+            mo.ui.altair_chart(
+                integers_pca.plot.fourier_magnitude(pca_fourier_magnitude_ui.value)
+            ),
+            pca_fourier_magnitude_ui,
+        ],
+        align="stretch",
+    )
     return
 
 
